@@ -1,0 +1,364 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>IndiaKheloFootball | Register</title>
+
+    <!-- Favicons -->
+    <link
+      href="https://e4mevents.com/webinar/public/images/e4mplay_streamin_favicon.png"
+      rel="icon"
+    />
+    <!-- Files -->
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'regcss/ikf.css' %}" rel="stylesheet" />
+  </head>
+  <style>
+      .error.text-danger{font-size:13px;}
+      body {
+        font-family: "Open Sans", sans-serif;
+          color: #444444;
+          background: #222222;
+    	  background: white;
+          {% comment %} background: url("{% static 'img/f.jpg' %}") no-repeat top center; {% endcomment %}
+          background-attachment: fixed;
+          background-size: 100% 100% !important;
+
+      }
+
+      .radios::before {
+    	display: block;
+    	width: fit-content;
+    	margin: 0 auto;
+    	margin-bottom: 10px;
+    	content: 'switch to mobile';
+    	font-weight: bold;
+    	color: #627ae0;
+    	background: #e5eaff;
+    	padding: 5px 10px;
+    	border-radius: 5px;
+    }
+    .radios {
+    	position: absolute;
+    	top: 50%;
+    	left: 50%;
+    	transform: translate(-50%,-50%);
+    	width: 300px;
+    }
+    .radio-wrap {
+    	text-align: center;
+    	position: relative;
+    	width: 10%;
+    	height: 60px;
+    	display: inline-block;
+    	float: left;
+    }
+    .radio-wrap .radio-label-fake {
+    	color: #627ae0;
+    	font-weight: bold;
+    }
+    .radio-wrap > input {
+    	position: relative;
+    	top: 5px;
+    }
+    .radio-wrap > label {
+    	width: 20px;
+    	height: 20px;
+    	background: #e5eaff;
+    	border: 1px solid #91a6ff;
+    	border-radius: 50%;
+    	position: absolute;
+    	top: 50%;
+    	left: 50%;
+    	transform: translate(-50%,0%);
+    	cursor: pointer;
+    }
+    .radio-wrap > label::before {
+    	content: '';
+    	display: block;
+    	width: 12px;
+    	height: 12px;
+    	background: transparent;
+    	border-radius: 50%;
+    	position: absolute;
+    	top: 50%;
+    	left: 50%;
+    	transform: translate(-50%,-50%);
+    }
+    .radio-wrap input[type="radio"] {
+    	opacity: 0;
+    }
+    .radio-wrap input[type="radio"]:checked + label::before {
+    	background: #91a6ff;
+    }
+
+    @media screen and (max-width: 480px) {
+    	.radios::before {
+    		content: 'switch to desktop';
+    	}
+    	.radio-wrap {
+    		background: #fff;
+    		border: 1px solid #a8b9ff;
+    		margin: 0;
+    		height: 40px;
+    	}
+    	.radio-wrap .radio-label-fake {
+    		position: absolute;
+    		top: 50%;
+    		left: 50%;
+    		transform: translate(-50%,-50%);
+    		z-index: 1;
+    		pointer-events: none;
+    	}
+    	.radio-wrap:first-of-type, .radio-wrap:first-of-type > label {
+    		border-radius: 5px 0 0 5px;
+    	}
+    	.radio-wrap:last-of-type, .radio-wrap:last-of-type > label {
+    		border-radius: 0 5px 5px 0;
+    	}
+    	.radio-wrap:not(:last-child) {
+    		border-right: 0;
+    	}
+    	.radio-wrap > input {
+    		position: absolute;
+    		top: 50%;
+    		left: 50%;
+    		transform: translate(-50%,50%);
+    	}
+    	.radio-wrap .radio-label-fake > span {
+    		position: absolute;
+    		bottom: -70px;
+    		left: 50%;
+    		transform: translate(-50%,-60%);
+    	}
+    	.radio-wrap > label {
+    		width: 100%;
+    		height: 100%;
+    		border-radius: 0;
+    		border: 0;
+    		top: 0;
+    		left: 50%;
+    	}
+    	.radio-wrap > label::before {
+    		content: '';
+    		display: block;
+    		width: 100%;
+    		height: 100%;
+    		background: transparent;
+    		position: absolute;
+    		border-radius: 0;
+    	}
+    	.radio-wrap input[type="radio"]:checked + label::before {
+    		background: #bac8ff;
+    	}
+
+
+        .kv-avatar .krajee-default.file-preview-frame,.kv-avatar .krajee-default.file-preview-frame:hover {
+            margin: 0;
+            padding: 0;
+            border: none;
+            box-shadow: none;
+            text-align: center;
+        }
+        .kv-avatar {
+            display: inline-block;
+        }
+        .kv-avatar .file-input {
+            display: table-cell;
+            width: 213px;
+        }
+        .kv-reqd {
+            color: red;
+            font-family: monospace;
+            font-weight: normal;
+        }
+
+
+
+        .pt-3-half {
+            padding-top: 1.4rem;
+          }
+  </style>
+  <!-- Vendor JS Files -->
+  <script
+    src="{% static 'jquery/jquery-3.5.1.min.js' %}"
+    integrity=""
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="{% static 'js/bootstrap.bundle.min.js' %}"
+    crossorigin="anonymous"
+  ></script>
+  <body>
+    <!-- ======= Hero Section ======= -->
+    <section id="home" class="d-flex align-items-center home-height-2">
+      <div class="container pt-3 pb-3">
+        <div class="row">
+          <div class="col-lg-2 d-flex flex-column justify-content-center">
+            <div class="left-logo text-center">
+              <img
+                src="{% static 'img/ikflogo.png' %}"
+                alt="left-logo"
+                class="img-fluid lt-logo mb-3 mt-3 p-2"
+                style=""
+              />
+            </div>
+          </div>
+          <div
+            class="col-lg-8 d-flex flex-column justify-content-center ml-auto mr-auto"
+          >
+            <div class="login-form">{% block content %} {% endblock %}</div>
+          </div>
+
+          <div class="col-lg-2 d-flex flex-column justify-content-center">
+            <div class="left-logo text-center">
+              <img
+                src="{% static 'img/ikflogo.png' %}"
+                alt="left-logo"
+                class="img-fluid lt-logo mb-3 mt-3 p-2"
+                style=""
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Hero -->
+
+    <a href="#" class="back-to-top"><i class="ri-arrow-up-line"></i></a>
+    <div id="preloader"></div>
+    <script>
+          function category(node){
+              //document.getElementById("Category").innerHTML
+              var value = $("input[type=radio][name=Category]:checked").val();
+
+      		if(value=="Coach"){
+
+      		}
+      		else if (value=="Individual"){
+
+      		}
+      }
+      function checkfun(self){
+          var value = $("input[type=radio][name=decesion]:checked").val();
+          console.log("checkfun")
+          if(value=="yes"){
+              $('#show-me').hide();
+              $('#show-me').show();
+          }
+          else if (value=="no"){
+
+              $('#show-me').hide();
+          }
+
+      }
+
+      var btnCust = '<button type="button" class="btn btn-secondary" title="Add picture tags" ' +
+      'onclick="alert(\'Call your custom code here.\')">' +
+      '<i class="bi-tag"></i>' +
+      '</button>';
+      $("#avatar-1").fileinput({
+      overwriteInitial: true,
+      maxFileSize: 1500,
+      showClose: false,
+      showCaption: false,
+      browseLabel: '',
+      removeLabel: '',
+      browseIcon: '<i class="bi-folder2-open"></i>',
+      removeIcon: '<i class="bi-x-lg"></i>',
+      removeTitle: 'Cancel or reset changes',
+      elErrorContainer: '#kv-avatar-errors-1',
+      msgErrorClass: 'alert alert-block alert-danger',
+      defaultPreviewContent: '<img src="/samples/default-avatar-male.png" alt="Your Avatar">',
+      layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
+      allowedFileExtensions: ["jpg", "png", "gif"]
+      });
+
+
+
+
+
+
+      const $tableID = $('#table'); const $BTN = $('#export-btn'); const $EXPORT = $('#export');
+      const newTr = `
+      <tr class="hide">
+        <td class="pt-3-half" contenteditable="true">Example</td>
+        <td class="pt-3-half" contenteditable="true">Example</td>
+        <td class="pt-3-half" contenteditable="true">Example</td>
+        <td class="pt-3-half" contenteditable="true">Example</td>
+        <td class="pt-3-half" contenteditable="true">Example</td>
+        <td class="pt-3-half">
+          <span class="table-up"
+            ><a href="#!" class="indigo-text"
+              ><i class="fas fa-long-arrow-alt-up" aria-hidden="true"></i></a
+          ></span>
+          <span class="table-down"
+            ><a href="#!" class="indigo-text"
+              ><i class="fas fa-long-arrow-alt-down" aria-hidden="true"></i></a
+          ></span>
+        </td>
+        <td>
+          <span class="table-remove"
+            ><button
+              type="button"
+              class="btn btn-danger btn-rounded btn-sm my-0 waves-effect waves-light"
+            >
+              Remove
+            </button></span
+          >
+        </td>
+      </tr>
+      `;
+      $('.table-add').on('click', 'i', () => {
+        const $clone = $tableID.find('tbody
+            tr ').last().clone(true).removeClass('
+            hide table - line '); if ($tableID.find('
+            tbody tr ').length ===
+            0) {
+            $('tbody').append(newTr);
+        }
+        $tableID.find('table').append($clone);
+      });
+      $tableID.on('click', '.table-remove', function() {
+        $(this).parents('tr').detach();
+      });
+      $tableID.on('click', '.table-up', function() {
+        const $row = $(this).parents('tr');
+        if ($row.index() === 0) {
+            return;
+        }
+        $row.prev().before($row.get(0));
+      });
+      $tableID.on('click',
+        '.table-down',
+        function() {
+            const $row = $(this).parents('tr');
+            $row.next().after($row.get(0));
+        }); // A few jQuery helpers for exporting only jQuery.fn.pop
+      = [].pop;
+      jQuery.fn.shift = [].shift;
+      $BTN.on('click', () => {
+        const $rows =
+            $tableID.find('tr:not(:hidden)');
+        const headers = [];
+        const data = []; // Get the headers
+        (add special header logic here) $($rows.shift()).find('th:not(:empty)').each(function() {
+            headers.push($(this).text().toLowerCase());
+        }); // Turn all existing rows into a loopable
+        array $rows.each(function() {
+            const $td = $(this).find('td');
+            const h = {}; // Use the
+            headers from earlier to name our hash keys headers.forEach((header, i) => {
+                h[header] =
+                    $td.eq(i).text();
+            });
+            data.push(h);
+        }); // Output the result
+        $EXPORT.text(JSON.stringify(data));
+      });
+    </script>
+  </body>
+</html>

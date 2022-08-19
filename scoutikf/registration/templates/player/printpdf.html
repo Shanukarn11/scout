@@ -1,0 +1,266 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+  body {
+  background: #c5d8e6;
+  font-family: helvetica, arial !important;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+h1 {
+  color: #000000;
+  font-weight: 200;
+  font-size: 2.1em;
+  margin: 0px !important;
+}
+h2 {
+  color: #1d1e1f;
+  /* opacity: 0.5; */
+  font-weight: 100;
+  font-size: 10px!important;
+  margin: 0px !important;
+  margin-bottom: 2px;
+  color: rgb(165, 150, 150);
+  font-family: helvetica, arial !important;;
+}
+h3 {
+  color: #2c2f30;
+  /* opacity: 0.8; */
+  font-weight: 500;
+  font-size: 12px;
+  margin: 0px !important;
+}
+
+</style>
+<!-- Player Pass -->
+<div class="body-div" style="display: flex;flex-direction:column;align-items: center;">
+  <div class="cards_wrapper" style="background-color:#c5d8e6 ;"  id="playerpass">
+    <div class="card">
+      <div class="card_heading">
+        <h3 style="font-weight: 500; ">IKF SEASON 2 <span id="header_city">CITY</span> TRIAL PASS</h3>
+      </div>
+      <div class="card_trip">
+        <img class="pic_file" alt="PROFILE PIC"
+        style="    width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border-color: black;
+        padding: 0px;">
+      </div>
+      <div class="new_palyer_div" style=" margin-bottom: 1em;">
+        <div class="name" id="name">Player Name</div>
+        <div class="dob" id="dob">yyyy/mm/dd</div>
+      </div>
+      <div class="card_divider">
+        <div class="divider_left divider_hole">
+        </div>
+        <div class="divider">
+        </div>
+        <div class="divider_right divider_hole">
+        </div>
+      </div>
+      <div class="tournament_details" style="margin-bottom: 0px;">
+        <div class="details_state">
+          <h3 id="tournament_state_id">STATE</h3>
+        </div>
+        <div class="details_city">
+          <h3 id="tournament_city_id">CITY</h3>
+        </div>
+        <div class="details_category">
+          <h3>U<span id="category_age">AGE</span><span style="font-weight: 600;" id="gender">GEN</span></h3>
+        </div>
+      </div>
+       <!-- AADHAR details -->
+       {% comment %} <div class="aadhar_details">
+        <h3><span id="document_id_selected_id">DOCUMENT TYPE</span> <b>:</b></h3><h3 id="document_id_number">DOCUMENT ID</h3>
+      </div> {% endcomment %}
+      <div class="aadhar_details" style="text-align: start;">
+        <h3>Regional Execution Partner ( REP) <b>:</b> <span style="font-weight: 600;" id="partner_name">REP NAME</span></h3>
+      </div>
+      <div class="card_header" >
+        <img class="player_id_barcode" alt="BARCODE" style="width:fit-content;height:fit-content; margin-top: 0px;"></img>
+       </div>
+       <img class="logo" src="{% static 'img/ikflogo.png' %} " style="height: 60px;width: 120px;justify-self: center;margin-bottom: 0.7em;"></img>
+      <div style="font-style: normal;font-size:small;text-align: center;color: black;
+      font-family: 'Alex Brush', cursive;
+      color: #187ec0;
+      /* font-weight: 600; */
+      font-size: 22px;
+      background-color: white;
+      border-bottom-left-radius: 20px;
+      letter-spacing:1px;
+      border-bottom-right-radius: 20px; text-transform: none !important;">{{aap_khelo_mauka_hum_denge}}</div>
+    </div>
+  </div>
+   
+  <!-- PRINT BUTTON -->
+  <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+    <div class="form-group mb-0">
+        <button class="btn login-btn" id="download" > Download </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="{% static 'js/html2canvas.js' %}" type="text/javascript"></script>
+<script>
+  $("#download").on('click', function () {
+		html2canvas(document.getElementById("playerpass"),{
+			allowTaint: true,
+			useCORS: true,
+		}).then(function (canvas) {
+			var anchorTag = document.createElement("a");
+			document.body.appendChild(anchorTag);
+			// document.getElementById("previewImg").appendChild(canvas);			
+      anchorTag.download = "playerpass.jpg";
+			anchorTag.href = canvas.toDataURL();
+			anchorTag.target = '_blank';
+			anchorTag.click();
+		});
+});
+
+window.onload=function(){
+  makepass();
+}
+
+function checkempty(data) {
+    if (data == null || data == "" || data == undefined) {
+      return "";
+    } else {
+      return data;
+    }
+  }
+
+  function isMale(data){
+    if(data=="Male")
+      return true;
+    return false;
+  }
+
+function makepass(){
+  var player_data_str=sessionStorage.getItem('data');
+  var player_data=JSON.parse(player_data_str);
+  console.log(player_data);
+
+
+  var playeruploadid=player_data['playeruploadid'];
+  var ikfuniqueid=sessionStorage.getItem('ikfuniqueid');
+  // var ikf_id_json=JSON.parse(ikf_id);
+  console.log(ikfuniqueid);
+  console.log(playeruploadid);
+
+  $.ajax({
+    type: "POST",
+    url:"{% url 'playerdata' %}",
+    data:{ikfuniqueid:ikfuniqueid, playeruploadid:playeruploadid,
+    csrfmiddlewaretoken:'{{ csrf_token }}'},
+    success:function(result){
+      result['name']=result['first_name']+" "+result['last_name'];
+      result['category_age']=result['group_id'].substring(6,8);
+      console.log("pic file checkempty")
+      console.log(checkempty(result['pic_file']))
+      result['pic_file']=(checkempty(result['pic_file']==""))?isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}":"media/images/"+result['pic_file'];
+
+      //result['pic_file']=(checkempty(result['pic_file']==""))?(isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}"):result['pic_file']; 
+      result['gender']="(" + result['gender'].substring(0,1)+ ")";
+      result['player_id_barcode']="media/barcode/"+result['ikfuniqueid']+'.png';
+
+      //for masking
+         //for masking
+         if(result['document_id_number'] &&  result['document_id_number']!="" && result['document_id_number']!="NA"){
+
+s="";
+for(i=0;i<result['document_id_number'].length-4;i++)
+ s+='X';
+//  temp=mask(result['document_id_number'],s);
+result['document_id_number_pass']=s+result['document_id_number'].substring(result['document_id_number'].length-4);
+
+}
+else{
+  result['document_id_number_pass']="NA"
+}
+      console.log('success',result);
+      var allElementID=[];
+      $("#playerpass *").each(function(){
+        if(this.id)
+          allElementID.push(this.id);
+      })
+      console.log(allElementID);
+      allElementID.forEach(function(element){
+        if(element=='tournament_city_id'||element=='tournament_state_id'||element=='document_id_selected_id'){
+          converter(checkempty(result[element]),element,element)
+        }
+        else if(element=="header_city"){
+          console.log("header_city");
+        }
+        else{
+          document.getElementById(element).innerHTML=result[element];
+        }
+      })
+      document.getElementsByClassName('pic_file')[0].src=result['pic_file'];
+      document.getElementsByClassName('player_id_barcode')[0].src=result['player_id_barcode'];
+
+      $.ajax({
+  type: "POST",
+    url:"{% url 'partnerinfo' %}",
+    data:{season:result['season_id'], city:result['tournament_city_id'], category:result['category_id'],
+    csrfmiddlewaretoken:'{{ csrf_token }}'},
+    success:function(partnerinfo){
+      console.log('this is partnerinfo',partnerinfo);
+      document.getElementById('partner_name').innerHTML=partnerinfo['partner_name'];
+    },
+    error:function(error){}
+
+})
+    },
+    error:function(error){'error is here',console.error(error);},
+  })
+}
+
+
+function converter(data,type, documentid){
+   if(type=='header_city'){
+     data="tournament_city_id";
+   }
+    $.ajax({
+      type: "POST",
+      url: "{% url 'converter' %}",
+      data:{id:data,type:type,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+      success: function(result){
+        if(result){
+          var converterdata=JSON.parse(result)
+          console.log(converterdata[0]['label'])
+          if(documentid=="tournament_city_id"){
+            document.getElementById('tournament_city_id').innerHTML=converterdata[0]['label'];
+            console.log(document.getElementById("header_city"),converterdata[0]['label'],'this is header ciity');
+            document.getElementById('header_city').innerHTML=converterdata[0]['label'];
+          }
+          else{
+            document.getElementById(documentid).innerHTML=converterdata[0]['label'] 
+          }
+        }
+      }
+    }
+   )  
+  }
+
+  function mask(result,c){
+    s=result['document_id_number'];
+    var temp="";
+    for(i=0;i=s.length-4;i++)
+      temp+=c;
+    // result['document_id_number']=temp+s.substring(s.length-3,s.length);
+    console.log(temp);
+}
+</script>
+
+
+
+{% endblock %}

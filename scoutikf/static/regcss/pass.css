@@ -1,0 +1,211 @@
+.cards_wrapper {
+  text-align: center;
+  padding-top: 20px;
+  width: 400px;
+  justify-self: center;
+  background-color: #c5d8e6;
+}
+.card {
+  width: 320px;
+  border-radius: 20px;
+  background: #feffff;
+  display: inline-block;
+  margin: 10px;
+  /* position: relative;
+  background-color: rgba(0, 0, 0, 0.4);
+  padding: 40px;
+  color: white;
+  border-radius: 25px;
+  border: solid 2px transparent;
+  background-clip: padding-box;
+  box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03); */
+}
+.card_heading {
+  padding-top: 20px;
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  margin-bottom: 1em;
+}
+
+/* .card_heading logo {
+  height: 60px;
+  width: 120px;
+  justify-self: start;
+} */
+
+.card_heading h2 {
+  text-align: center;
+}
+.card_thumbnail {
+  min-height: 150px;
+  margin-top: -15px;
+}
+.card_thumbnail img {
+  width: 100%;
+  height: auto;
+}
+.card_trip {
+  text-align: center;
+  width: 85%;
+  margin: 0.7em 30px;
+  display: flex;
+  justify-content: center;
+  margin-top: 0px;
+}
+.card_trip div {
+  display: inline-block;
+  height: 100%;
+  vertical-align: middle;
+}
+.card_trip div h1 {
+  margin: 0px;
+}
+.card_trip div h2 {
+  margin: 0px;
+  letter-spacing: 2px;
+}
+.card_trip div.player_gender {
+  text-align: left;
+  width: 35%;
+}
+.card_trip div.player_gender h2 {
+  padding-left: 2px;
+}
+.card_trip div.trip_icon {
+  width: 30%;
+}
+.card_trip div.trip_icon img {
+  padding-top: 20px;
+  opacity: 1;
+  width: 25px;
+}
+.card_trip div.player_number {
+  text-align: right;
+  width: 35%;
+}
+.card_trip div.player_number h2 {
+  padding-right: 3px;
+}
+.card_divider {
+  position: relative;
+  width: 100%;
+}
+.card_divider .divider_left {
+  left: -15px;
+}
+.card_divider .divider_hole {
+  position: absolute;
+  top: -12px;
+  padding: 0px;
+  height: 25px;
+  width: 25px;
+  border-radius: 100%;
+  background: #c5d8e6;
+}
+.card_divider .divider {
+  width: 85%;
+  margin: auto;
+  height: 2px;
+  background: linear-gradient(to right, #3a3a3b 50%, transparent 50%);
+  background-size: 10px 8px, 100% 2px;
+  opacity: 0.2;
+}
+.card_divider .divider_right {
+  right: -15px;
+}
+.player_details {
+  width: 85%;
+  margin: 1em 30px;
+  display: flex;
+}
+.player_details div {
+  display: inline-block;
+  width: 50%;
+}
+.player_details div.player_name {
+  text-align: left;
+}
+.player_details div.DOB {
+  text-align: right;
+}
+.tournament_details {
+  width: 85%;
+  margin: 1em 30px;
+  display: flex;
+  padding-bottom: 0px;
+}
+.tournament_details div {
+  display: inline-block;
+  width: 33%;
+}
+
+.tournament_details div.details_state {
+  text-align: left;
+  /* height: 10px; */
+}
+.tournament_details div.details_city {
+  text-align: center;
+}
+.tournament_details div.details_category {
+  text-align: right;
+}
+
+.card_header {
+  justify-content: center;
+}
+
+.player_id {
+  margin: 1em;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.tournament_details h2 {
+  font-size: 0.8em;
+  margin: 0px !important;
+}
+
+.tournament_details h3 {
+  font-size: 0.8rem;
+  margin: 0px !important;
+}
+
+img.aadhar_pic {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+img.ptofile_pic {
+  width: 100px;
+  height: 100px;
+  margin-top: 10px;
+  margin-bottom: 10px;
+}
+
+.aadhar_details {
+  /* width: 100%; */
+  margin: 1em 30px;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+
+.new_player_div {
+  text-align: center;
+  align-items: center;
+  display: flex;
+  flex-direction: column;
+}
+
+.name {
+  font-size: 22px;
+  font-weight: 500;
+}
+.dob {
+  font-size: 12px;
+  font-weight: normal;
+  color: rgb(156, 152, 152);
+}

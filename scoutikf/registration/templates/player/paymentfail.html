@@ -1,0 +1,217 @@
+{% extends "base.html" %}
+{% block content %}
+{% load static %}
+
+<style>
+  body {
+  background: #c5d8e6;
+  font-family: helvetica, arial !important;
+  text-transform: uppercase;
+  box-sizing: border-box;
+}
+h1 {
+  color: #000000;
+  font-weight: 200;
+  font-size: 2.1em;
+  margin: 0px !important;
+}
+h2 {
+  color: #1d1e1f;
+  /* opacity: 0.5; */
+  font-weight: 100;
+  font-size: 10px!important;
+  margin: 0px !important;
+  margin-bottom: 2px;
+  color: rgb(165, 150, 150);
+  font-family: helvetica, arial !important;;
+}
+h3 {
+  color: #2c2f30;
+  /* opacity: 0.8; */
+  font-weight: 500;
+  font-size: 12px;
+  margin: 0px !important;
+}
+
+</style>
+<!-- Player Pass -->
+<div class="body-div" style="display: flex;flex-direction:column;align-items: center;">
+  <div class="cards_wrapper" style="background-color:#c5d8e6 ;"  id="playerpass">
+    <div class="card">
+      <div class="card_heading">
+        <h3 style="font-weight: 500; ">{{heading_of_payment_failure_page}}</h3>
+        
+      </div>
+      <div class="new_palyer_div" style=" margin-bottom: 1em;">
+        <div style="color:red; ">{{payment_failed_text}}</div>
+        
+      </div>
+      <div class="new_palyer_div" style=" margin-bottom: 1em;">
+        <div  style="color:red;">{{payment_failure_message}}</div>
+        
+      </div>
+      <div class="new_palyer_div" style=" margin-bottom: 1em;">
+        <div class="name" id="name">Player Name</div>
+        <div class="dob" id="dob">yyyy/mm/dd</div>
+      </div>
+      <div class="card_divider">
+        <div class="divider_left divider_hole">
+        </div>
+        <div class="divider">
+        </div>
+        <div class="divider_right divider_hole">
+        </div>
+      </div>
+      <div class="card_header" >
+        <div class="player_id">{{unique_id_payment}} <span id="ikfuniqueid">IKF ID</span></div>
+       </div>
+       <div class="card_header" >
+        <div class="player_id">{{mobile_payment}}: <span id="mobile"></span></div>
+       </div>
+      <div class="tournament_details" style="margin-bottom: 0px;">
+        <div class="details_state">
+          <h3 id="tournament_state_id">{{age_payment}}</h3>
+        </div>
+        <div class="details_city">
+          <h3 id="tournament_city_id">{{city_payment}}</h3>
+        </div>
+        <div class="details_category">
+          <h3>U<span id="category_age">{{city_age}}</span><span style="font-weight: 600;" id="gender">GEN</span></h3>
+        </div>
+      </div>
+       <!-- AADHAR details -->
+       <div class="aadhar_details">
+        <h3><span id="document_id_selected_id">DOCUMENT TYPE</span> <b>:</b></h3><h3 id="document_id_number">DOCUMENT ID</h3>
+      </div>
+
+
+       <img class="logo" src="{% static 'img/ikflogo.png' %} " style="height: 60px;width: 120px;justify-self: center;margin-bottom: 0.7em;"></img>
+      <div style="font-style: normal;font-size:small;text-align: center;color: black;
+      font-family: cursive;
+      background-color: white;
+      border-bottom-left-radius: 20px;
+      border-bottom-right-radius: 20px;">{{aap_khelo_mauka_hum_denge}}</div>
+    </div>
+  </div>
+   
+  <!-- PRINT BUTTON -->
+  <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+    <div class="form-group mb-0">
+        <button class="btn login-btn" id="download" > Download </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="{% static 'js/html2canvas.js' %}" type="text/javascript"></script>
+<script>
+  $("#download").on('click', function () {
+		html2canvas(document.getElementById("playerpass"),{
+			allowTaint: true,
+			useCORS: true,
+		}).then(function (canvas) {
+			var anchorTag = document.createElement("a");
+			document.body.appendChild(anchorTag);
+			// document.getElementById("previewImg").appendChild(canvas);			
+      anchorTag.download = "playerpass.jpg";
+			anchorTag.href = canvas.toDataURL();
+			anchorTag.target = '_blank';
+			anchorTag.click();
+		});
+});
+
+window.onload=function(){
+  makepass();
+}
+
+function checkempty(data) {
+    if (data == null || data == "" || data == undefined) {
+      return "";
+    } else {
+      return data;
+    }
+  }
+
+function makepass(){
+  var player_data_str=sessionStorage.getItem('data');
+  var player_data=JSON.parse(player_data_str);
+  console.log(player_data);
+
+
+  var playeruploadid=player_data['playeruploadid'];
+  var ikfuniqueid=sessionStorage.getItem('ikfuniqueid');
+  // var ikf_id_json=JSON.parse(ikf_id);
+  console.log(ikfuniqueid);
+  console.log(playeruploadid);
+
+  $.ajax({
+    type: "POST",
+    url:"{% url 'playerdata' %}",
+    data:{ikfuniqueid:ikfuniqueid, playeruploadid:playeruploadid,
+    csrfmiddlewaretoken:'{{ csrf_token }}'},
+    success:function(result){
+      result['name']=result['first_name']+" "+result['last_name'];
+      result['category_age']=result['group_id'].substring(6,8);
+      result['gender']="(" + result['gender'].substring(0,1)+ ")";
+      result['pic_file']="media/images/"+result['pic_file'];
+
+      //for masking
+      s="";
+      for(i=0;i<result['document_id_number'].length-4;i++)
+       s+='X';
+      //  temp=mask(result['document_id_number'],s);
+      result['document_id_number']=s+result['document_id_number'].substring(result['document_id_number'].length-4);
+      
+      console.log('success',result);
+      var allElementID=[];
+      $("#playerpass *").each(function(){
+        if(this.id)
+          allElementID.push(this.id);
+      })
+      console.log(allElementID);
+      allElementID.forEach(function(element){
+        if(element=='tournament_city_id'||element=='tournament_state_id'||element=='document_id_selected_id'){
+          converter(checkempty(result[element]),element,element)
+        }
+        document.getElementById(element).innerHTML=result[element];
+      })
+      //document.getElementsByClassName('pic_file')[0].src=result['pic_file']
+    },
+    error:function(error){'error is here',console.error(error);},
+  })
+}
+
+
+function converter(data,type, documentid){
+    $.ajax({
+      type: "POST",
+      url: "{% url 'converter' %}",
+      data:{id:data,type:type,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+      success: function(result){
+        if(result){
+          var converterdata=JSON.parse(result)
+          if(converterdata[0]){
+            console.log(converterdata[0]['label'])
+            document.getElementById(documentid).innerHTML=converterdata[0]['label'] 
+          }
+
+        }
+      }
+    }
+   )  
+  }
+
+  function mask(result,c){
+    s=result['document_id_number'];
+    var temp="";
+    for(i=0;i=s.length-4;i++)
+      temp+=c;
+    // result['document_id_number']=temp+s.substring(s.length-3,s.length);
+    console.log(temp);
+}
+</script>
+
+
+
+{% endblock %}

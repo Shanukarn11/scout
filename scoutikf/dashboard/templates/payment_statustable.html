@@ -1,0 +1,228 @@
+{% extends "common.html" %}
+{% block content %}
+
+
+
+<div style=" background-color: rgba(0,0,0,.5);
+color: #fff; width: 100%;" class="card text-center">
+  <div class="card-header">
+   <h2> {{city}}</h2>
+  </div>
+  <div style="text-align:left" class="card-body">
+    <h5 class="card-title">{{Heading}}</h5>
+    <h3>{{count}}</h3>
+<button class="btn btn-outline-warning" onclick="window.location.href='/dashboard/payment_status/{{ idd }}'"><i class="fa fa-arrow-circle-left"></i></button>
+    
+    <button class="btn btn-outline-warning" onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></button>
+
+  </div>
+  
+</div>
+
+<input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Search " title="Type in a name">
+
+
+
+<br>
+<br>
+<select id ="cityselect">
+  <option value="all">Select city </option>
+  {% for i in pcity %}
+  <option value={{i.id}}>{{i.city}}</option>
+  {% endfor %}</select> <input type="button"  class="btn btn-success" onclick="SearchData();" value="Submit" />
+  <button  class="btn btn-danger" onClick="window.location.reload();">clear filter</button>
+  <br><br>
+  <input type="button"  class="btn btn-info" id="btnExport" value="Download pdf" onclick="Export()" />
+  
+  <button class="btn btn-info" onclick="exportTableToCSV('{{Heading}}')"> CSV Download</button>
+  <br><br><br>
+  
+ 
+
+
+<table class="table  table-bordered" id="userTable">
+  <thead>
+    <tr>
+      <th scope="col">Id</th>
+      <th scope="col">Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Error</th>
+      <th scope="col">Error Description </th>
+
+
+      <th scope="col">Tournament City </th>
+      <th scope="col">Group </th>
+
+      <th style="display:none;" scope="col">Tournament Cityid</th>
+
+      <th scope="col">Mobile</th>
+      <th scope="col">primary Position</th>
+      <th scope="col">Secondary Position</th>
+      <th scope="col">Height</th>
+
+      <th scope="col">Weight</th>
+      <th scope="col">Whatsapp</th>
+      <th scope="col">email</th>
+      <th scope="col">address line 1</th>
+      <th scope="col">address line 2</th>
+      <th scope="col">Pincode</th>
+      <th scope="col">DOB</th>
+     
+      <th scope="col">Category</th>
+    </tr>
+  </thead>
+  
+    <tbody>
+        {%for player in players%}
+      <tr>
+        <td>{{player.id}}</th>
+        <td>{{player.first_name}} {{player.last_name}}</td>
+        <td>{{player.status}}</td>
+        <td>{{player.error_code}}</td>
+        <td>{{player.error_description }}</td>
+
+
+        <td>{{player.tournament_city}}</td>
+        <td style="display:none;">{{player.tournament_city_id}}</td>
+        <td>{{player.group}}</td>
+
+        
+        <td>{{player.mobile}}</td>
+        <td>{{player.primary_position}}</td>
+        <td>{{player.secondary_position}}</td>
+        <td>{{player.height}}</td>
+        <td>{{player.weight}}</td>
+        <td>{{player.whatsapp}}</td>
+        <td>{{player.email}}</td>
+        <td>{{player.address_line1}}</td>
+        <td>{{player.address_line2}}</td>
+        <td>{{player.pincode}}</td>
+        <td>{{player.dob}}</td>
+        
+        <td>{{player.category}}</td>
+
+
+
+
+      </tr>
+      {% endfor %} 
+      
+      
+    </tbody>
+    
+  
+      
+  </table>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/pdfmake/0.1.22/pdfmake.min.js"></script>
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js"></script>
+    <script type="text/javascript">
+        function Export() {
+            html2canvas(document.getElementById('userTable'), {
+                onrendered: function (canvas) {
+                    var data = canvas.toDataURL();
+                    var docDefinition = {
+                        content: [{
+                            image: data,
+                            width: 500
+                        }]
+                    };
+                    pdfMake.createPdf(docDefinition).download("{{Heading}}-IKF_Registrations.csv");
+                }
+            });
+        }
+
+
+        
+function SearchData() {
+
+
+var country = document.getElementById("cityselect").value.toUpperCase();
+
+
+
+table = document.getElementById("userTable");
+tr = table.getElementsByTagName("tr");
+for (i = 1; i < tr.length; i++) {
+
+  
+  var rowCountry = tr[i].getElementsByTagName("td")[6].textContent.toUpperCase();
+ 
+ 
+
+  
+    if (country != 'ALL') {
+      
+      if (rowCountry == country) {
+        tr[i].style.display = "";
+        // alert(rowCountry)  
+      } else {
+        tr[i].style.display = "none";
+      }
+    }
+ 
+}}
+    </script>
+
+
+
+
+
+
+
+<!-- dropdown  -->
+
+
+
+
+
+
+
+
+
+
+<script>
+  function downloadCSV(csv, filename) {
+    var csvFile;
+    var downloadLink;
+
+    // CSV file
+    csvFile = new Blob([csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click(); }
+
+
+    function exportTableToCSV(filename) {
+    var csv = [];
+    var rows = $("table tr:visible");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+        
+        for (var j = 0; j < cols.length; j++) 
+            row.push(cols[j].innerText);
+        
+        csv.push(row.join(","));        
+    }
+
+    // Download CSV file
+    downloadCSV(csv.join("\n"), filename);
+}
+</script>
+
+{% endblock %}

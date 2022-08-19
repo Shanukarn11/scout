@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% block content %} {% csrf_token %}
+<form method="POST" name="form1" id="form1" class="glass-morphism-container1">
+  <h3 class="form-heading">{{heading_uploaddoc}}</h3>
+  {% csrf_token %}
+  <input
+    type="hidden"
+    name="_token"
+    value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3"
+  />
+  <div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >Select ID Proof<span class="mandatory">* </span></label
+        >
+        <select
+          class="form-control"
+          name="industry_type"
+          required=""
+          data-fillr-id="1552374762"
+          data-fillr="bound"
+          autocomplete="off"
+        >
+          <option value="">Birth Certificate</option>
+          <option value="Accounting">Aadhar Card</option>
+
+          <option value="Arreospace &amp; Defense">Passport</option>
+          <option value="Arreospace &amp; Defense">School ID</option>
+          <option value="Banking &amp; Securities">Other</option>
+        </select>
+      </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >{{document_id_number_upload}}<span class="mandatory">* </span></label
+        >
+        <input
+          class="form-control"
+          type="text"
+          name="last_name"
+          id="document_id_number"
+          required
+          minlength="3"
+        />
+      </div>
+    </div>
+
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left">Upload ID proof<span></span></label>
+        <div class="kv-avatar">
+          <div class="file-loading">
+            <input id="avatar-1" name="avatar-1" type="file" required />
+          </div>
+        </div>
+        <div class="kv-avatar-hint">
+          <small>Select file < 1500 KB</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-group mb-0">
+        <button class="btn login-btn" onclick="nextprev(this,'prev')">
+          Prev
+        </button>
+        <button
+          class="btn login-btn"
+          onclick="nextprev(this,'next')"
+          type="submit"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+<script>
+                            function nextprev(node,urlitem){
+                                if(urlitem=="prev"){document.getElementById("form1").action="{% url 'uploadpic' %}"}
+                                else if(urlitem=="next"){document.getElementById("form1").action="{% url 'preview2' %}"}
+                                }
+
+                                var btnCust = '<button type="button" class="btn btn-secondary" title="Add picture tags" ' +
+  'onclick="alert(\'Call your custom code here.\')">' +
+  '<i class="bi-tag"></i>' +
+  '</button>';
+  {% comment %} $("#avatar-1").fileinput({
+  overwriteInitial: true,
+  maxFileSize: 1500,
+  showClose: false,
+  showCaption: false,
+  browseLabel: '',
+  removeLabel: '',
+  browseIcon: '<i class="bi-folder2-open"></i>',
+  removeIcon: '<i class="bi-x-lg"></i>',
+  removeTitle: 'Cancel or reset changes',
+  elErrorContainer: '#kv-avatar-errors-1',
+  msgErrorClass: 'alert alert-block alert-danger',
+  defaultPreviewContent: '<img src="/samples/default-avatar-male.png" alt="Your Avatar">',
+  layoutTemplates: {main2: '{preview} ' +  btnCust + ' {remove} {browse}'},
+  allowedFileExtensions: ["jpg", "png", "gif"]
+  }); {% endcomment %}
+</script>
+{% endblock %}

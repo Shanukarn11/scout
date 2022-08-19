@@ -1,0 +1,39 @@
+//sample for ajax request
+window.onload = function() {
+    var inputdatastr=sessionStorage.getItem("data");
+    var inputdata=JSON.parse(inputdatastr);
+    var ikfuniqueid=sessionStorage.getItem("ikfuniqueid");
+
+
+                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                    
+    $.ajax({
+        type: "POST",
+        url: "{% url 'playerdata' %}",
+        data:{ikfuniqueid:ikfuniqueid, playeruploadid:inputdatastr["playeruploadid"],                     csrfmiddlewaretoken:'{{ csrf_token }}'},
+        success: function(result){
+            statedata=JSON.parse(result)
+            for (var x in statedata) {
+                stateSel.options[stateSel.options.length] = new Option(statedata[x].value, statedata[x].id);
+            },
+        error: function(error){
+            alert(error);
+        }
+    
+
+    }
+    }
+    )
+
+}
+
+def playerdata(request):
+    if request.method=="POST":
+        ikfuniqueid=request.POST.getlist('ikfuniqueid')[0]
+        playeruploadid=request.POST.getlist('playeruploadid')[0]
+        
+        player=Player.objects.get(ikfuniqueid=ikfuniqueid).values()
+        context={
+                "data"
+        }
+
+path("playerdata",views.playerdata, name='playerdata'),

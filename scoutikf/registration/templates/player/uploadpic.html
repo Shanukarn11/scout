@@ -1,0 +1,204 @@
+{% extends "base.html" %} {% block content %} {% csrf_token %}
+
+<form
+  action=""
+  name="upload-form"
+  id="upload-form"
+  method="POST"
+  enctype="multipart/form-data"
+  class="glass-morphism-container1"
+>
+  <h3 class="form-heading">{{heading_uploadpic}}</h3>
+  {% csrf_token %}
+
+  <div id="alert-box"></div>
+  <div
+    id="image-box"
+    class="d-flex justify-content-center align-items-center position-relative"
+    style="flex-direction: row"
+  ></div>
+  <br />
+
+  <label>{{upload_your_pic}}</label>
+
+  {{uploadform.as_p}}
+
+  <br />
+  <div id="progress-box" class="not-visible">Progress</div>
+  <div id="cancel-box" class="not-visible">
+    <button id="cancel-btn" class="btn btn-danger">cancel</button>
+  </div>
+  <div class="row">
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-group mb-0">
+        <button
+          class="btn login-btn"
+          onclick="nextprev(this,'prev')"
+          formnovalidate
+        >
+          Prev
+        </button>
+        <button
+          class="btn login-btn"
+          onclick="nextprev(this,'next')"
+          type="submit"
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  var GLOBAL_FILENAME = "";
+  function nextprev(node, urlitem) {
+    var inputobj = JSON.parse(sessionStorage.getItem("data"));
+    if (
+      GLOBAL_FILENAME == "" ||
+      GLOBAL_FILENAME == null ||
+      GLOBAL_FILENAME == undefined
+    ) {
+      if (inputobj["pic_file"]) {
+      } else {
+        inputobj["pic_file"] = "";
+      }
+    } else {
+      inputobj["pic_file"] = GLOBAL_FILENAME;
+    }
+
+    sessionStorage.setItem("data", JSON.stringify(inputobj));
+    if (urlitem == "prev") {
+      document.getElementById("upload-form").action = "{% url 'main' %}";
+    } else if (urlitem == "next") {
+      console.log("next is called");
+      document.getElementById("upload-form").action = "{% url 'preview2' %}";
+    }
+  }
+  function getFileExtension(filename) {
+    // get file extension
+    const extension = filename.substring(
+      filename.lastIndexOf(".") + 1,
+      filename.length
+    );
+    return extension;
+  }
+
+  window.onload = function () {
+    const uploadForm = document.getElementById("upload-form");
+
+    const input = document.getElementById("id_image");
+    input.required = false;
+
+    const alertBox = document.getElementById("alert-box");
+    const imageBox = document.getElementById("image-box");
+    const progressBox = document.getElementById("progress-box");
+    const cancelBox = document.getElementById("cancel-box");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const csrf = document.getElementsByName("csrfmiddlewaretoken");
+    console.log(csrf);
+    var inputdatastring = sessionStorage.getItem("data");
+    var inputdataforimg = JSON.parse(inputdatastring);
+    if (inputdataforimg["pic_file"] && inputdataforimg["pic_file"] != "") {
+      $.ajax({
+        type: "POST",
+        url: "{% url 'viewpic' %}",
+        data: {
+          playeruploadidfinal: inputdataforimg["playeruploadid"],
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (result) {
+          if (result) {
+            console.log(result);
+            imageBox.innerHTML = `<img src="${result}" width="260px"></img>`;
+          }
+        },
+        error: function (error) {},
+      });
+
+      input.required = false;
+      input.style.color = "transparent";
+    }
+    input.addEventListener("change", () => {
+      progressBox.classList.remove("not-visible");
+      cancelBox.classList.remove("not-visible");
+      const img_data = input.files[0];
+      var img_extention = getFileExtension(img_data["name"]);
+
+      GLOBAL_FILENAME = inputdataforimg["playeruploadid"] + "." + img_extention;
+
+      const url = URL.createObjectURL(img_data);
+
+      const fd = new FormData();
+      fd.append("unique", inputdataforimg["playeruploadid"]);
+      fd.append("fname", inputdataforimg["first_name"]);
+      fd.append("lname", inputdataforimg["last_name"]);
+      fd.append("mobilenumberupload", inputdataforimg["mobile"]);
+      fd.append("image", img_data, GLOBAL_FILENAME);
+
+      fd.append("csrfmiddlewaretoken", csrf[0].value);
+
+      $.ajax({
+        type: "POST",
+        url: uploadForm.action,
+        enctype: "multipart/form-data",
+        data: fd,
+        beforeSend: function () {
+          alertBox.innerHTML = "";
+          imageBox.innerHTML = "";
+        },
+        xhr: function () {
+          const xhr = new window.XMLHttpRequest();
+          cancelBtn.classList.remove("not-visible");
+          xhr.upload.addEventListener("progress", (e) => {
+            if (e.lengthComputable) {
+              const percent = (e.loaded / e.total) * 100;
+              progressBox.innerHTML = `<div class="progress">
+                                       <div class="progress-bar" role="progressbar" style="width: ${percent}%"  aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                     </div> 
+                                     <p>${percent.toFixed(1)} %</p>`;
+            }
+          });
+
+          cancelBtn.addEventListener("click", () => {
+            xhr.abort();
+            setTimeout(() => {
+              uploadForm.reset();
+              progressBox.innerHTML = "";
+              alertBox.innerHTML = "";
+              cancelBtn.classList.add("not-visible");
+            }, 500);
+          });
+          return xhr;
+        },
+        success: function (response) {
+          console.log(response);
+          imageBox.innerHTML = `<img src="${url}" width="260px"></img>`;
+          alertBox.innerHTML = `<div class="alert alert-success" role="alert">
+                              Successfully Uploaded Profile Pic
+                            </div>`;
+          cancelBtn.classList.add("not-visible");
+        },
+        error: function (error) {
+          console.log(error);
+
+          alertBox.innerHTML = `<div class="alert alert-danger" role="alert">
+            Something went wrong . Please Choose (.png , .jpg , .jpeg) Files
+                            </div>`;
+          setTimeout(() => {
+            uploadForm.reset();
+            alertBox.innerHTML = "";
+            cancelBtn.classList.add("not-visible");
+          }, 2000);
+          progressBox.innerHTML = "";
+        },
+        cache: false,
+        contentType: false,
+        processData: false,
+      });
+
+      console.log(img_data);
+    });
+  };
+</script>
+{% endblock %}

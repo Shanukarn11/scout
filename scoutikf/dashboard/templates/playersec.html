@@ -1,0 +1,60 @@
+
+{% extends "common.html" %}
+{% block content %}
+
+<!-- player/{{city}}-{{pos.group_id}}-{{pos.primary_position_id}} -->
+
+<div style=" background-color: rgba(0,0,0,.5);
+color: #fff; width: 100%;" class="card text-center">
+  <div class="card-header">
+   <h2> {{city}}</h2>
+  </div>
+  <div style="text-align:left" class="card-body">
+    <h5 class="card-title">State:{{stateName}}</h5>
+    <h5   class="card-title">Group :{{groupName}}</h5>
+    <h5   class="card-title">Secondary Position : {{posName}}</h5>
+<button  class="btn btn-outline-warning" onclick="window.location.href='/dashboard/citydetail/group/{{ idd }}'"><i class="fa fa-arrow-circle-left"></i></button>
+
+    <button  class="btn btn-outline-warning" onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></i></button>
+    
+  </div>
+  
+</div>
+
+<h3><a href="playersectable/{{cityid}}-{{groupName}}-{{posid}}" id="alpha{{pos.group}}" class="btn btn-outline-dark">Table</a>
+</h3>
+{%for player in players%}
+</h1></h1>
+
+<div class="card">
+    <h5 class="card-header">{{player.first_name}} {{player.last_name}}</h5>
+    <div class="card-body">
+      <h5 class="card-title">Special title treatment</h5>
+      <p class="card-text">Height: {{player.height}}</p>
+      <p class="card-text">Weight: {{player.weight}} kg</p>
+      <p class="card-text">Primary Position: {{player.primary_position}} </p>
+      <p class="card-text">Secondary Position: {{player.secondary_position}} </p>
+      <p class="card-text">Mobile: {{player.mobile}} </p>
+      <p class="card-text">Whatsapp: {{player.whatsapp}} </p>
+      <p class="card-text">email: {{player.email}} </p>
+      <p class="card-text">Address line 1: {{player.address_line1}} </p>
+      <p class="card-text">Address line 2 : {{player.address_line2}} </p>
+      <p class="card-text">State: {{player.state}} </p>
+      <p class="card-text">Pincode: {{player.pincode}} </p>
+      <p class="card-text">DOB: {{player.dob}} </p>
+      <p class="card-text">Status: {{player.status}} </p>
+      <p class="card-text">Category: {{player.category}} </p>
+      <p class="card-text">Group: {{player.group}} </p>
+
+
+
+
+
+
+      <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+
+      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+    </div>
+  </div>
+{% endfor %}
+{% endblock %}

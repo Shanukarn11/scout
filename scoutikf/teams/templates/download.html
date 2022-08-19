@@ -1,0 +1,182 @@
+{% extends "common2.html" %}
+{% block content %}
+
+
+<h1  style="color:white";>{{cityName}}
+ 
+
+  
+  {{groupid}}
+  
+</h1>
+<button   class="btn btn-outline-warning" onclick="window.location.href={% url 'team' %}"><i class="fa fa-home"></i></i></button>
+
+<button class="btn btn-outline-warning" onclick="window.location.href='/teams/download/{{ id }}'">All teams</button>
+<br>
+  <br>
+  <h2> No. of Not Assigned Players :{{remain2}}</h2>
+<form id="alpha" name="alpha" action = "" method = "get">
+  {% csrf_token %}
+
+ 
+<label for="Team_no">Choose Team:</label>
+<select id="Team_no" name="Team_no">
+  <option value=" ">
+    Select Team
+  {% for i in range %}
+<option value="{{ i }}">
+  Team   {{ i }}
+ 
+
+</option>
+{% endfor %}
+
+
+</select>
+  <input type="submit" value="Submit">
+
+</form>
+<br>
+
+
+<button type="button" onClick='location.href="/teams/team_table2/{{id}}"'class="btn btn-info">Update Teams</button>
+
+<button class="btn btn-info" onclick="exportTableToCSV('{{Heading}}')"> CSV Download</button>
+
+<br> <br>
+{%for key,value in dict.items%}
+   <h5 style="color:whitesmoke">Team {{key}}</h5> 
+</button>
+
+<table  style="width:100%" class="table" id="exportMe{{key}}"  >
+    <thead>
+      <tr>
+        <th scope="col">Name</th>
+        <th scope="col" style="width:70%">ikfuniqueid</th>
+
+
+        <th scope="col">Position</th>
+        <!-- <th scope="col">Primary Position</th>
+        <th scope="col">Sef Position</th> -->
+
+
+        <th scope="col">Contact</th>
+        <th scope="col">DOB</th>
+        <!-- <th scope="col">...</th> -->
+        <th scope="col"  style="display:none;">Team</th>
+
+      </tr>
+    </thead>
+    <tbody>
+        {%for i in value%}
+      <tr>
+       
+        <th scope="row">{{i.first_name}} {{i.last_name}}</th>
+        <th scope="row">{{i.ikfuniqueid}}</th>
+
+        <td>{{i.position1}}</td>
+        <!-- <td>{{i.primary_position}}</td>
+        <td>{{i.secondary_position}}</td> -->
+
+
+        <td>{{i.mobile}}</td>
+        <!-- <td>{{i.dob}}</td> -->
+        <td >{{ i.dob|date:'Y-m-d' }}</td>
+        <td   style="display:none;">Team {{i.team}}</td>
+        
+      </tr>
+      {%endfor%}
+      {%for key2,value2 in pend_dict.items%}
+      {%if key2 == key %}
+        {%for a in value2%}
+      <tr>
+        
+        
+        <th scope="row">Not Assigned</th>
+        <th scope="row">Not Assigned</th>
+
+        <td>{{a}}</td>
+        <!-- <td>{{i.primary_position}}</td>
+        <td>{{i.secondary_position}}</td> -->
+
+
+        <td>Not Assigned</td>
+        <!-- <td>{{i.dob}}</td> -->
+        <td >Not Assigned</td>
+        
+
+        
+
+        <td   style="display:none;">Team {{key}}</td>
+        
+      </tr>
+      {%endfor%}
+        {%endif%}
+      {%endfor%}
+      
+
+    </tbody>
+</table>
+
+{%endfor%}
+<script>
+  function downloadCSV(csv, filename) {
+    var csvFile;
+    var downloadLink;
+
+    // CSV file
+    csvFile = new Blob([csv], {type: "text/csv"});
+
+    // Download link
+    downloadLink = document.createElement("a");
+
+    // File name
+    downloadLink.download = filename;
+
+    // Create a link to the file
+    downloadLink.href = window.URL.createObjectURL(csvFile);
+
+    // Hide download link
+    downloadLink.style.display = "none";
+
+    // Add the link to DOM
+    document.body.appendChild(downloadLink);
+
+    // Click download link
+    downloadLink.click(); }
+
+
+    function exportTableToCSV(filename) {
+    var csv = [];
+    var rows = $("table tr:visible");
+    
+    for (var i = 0; i < rows.length; i++) {
+        var row = [], cols = rows[i].querySelectorAll("td, th");
+        
+        for (var j = 0; j < cols.length; j++) 
+            row.push(cols[j].innerText);
+        
+        csv.push(row.join(","));        
+    }
+
+    // Download CSV file
+    downloadCSV(csv.join("\n"), filename);
+}
+</script>
+<!-- <script>
+  let rows = document.querySelectorAll('tr');
+
+rows.forEach((row) => {
+  let z = document.createElement("td");
+  z.textContent = `(row #${row.rowIndex})`;
+  row.appendChild(z);
+});
+
+</script> -->
+  
+
+
+
+
+  
+{% endblock %}

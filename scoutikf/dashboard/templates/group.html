@@ -1,0 +1,193 @@
+{% extends "common.html" %}
+{% block content %}
+
+<h1 >
+    {{cityName}}
+
+</h1>
+<h1>
+    {{groupid}}
+    
+</h1>
+<button   class="btn btn-outline-warning" onclick="window.location.href='/dashboard/citydetail/{{ cityName }}'"><i class="fa fa-arrow-circle-left"></i></button>
+
+<button class="btn btn-outline-warning" onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></button>
+
+
+<h3>
+Primary position</h3>
+
+<div class="card">
+  {% for pos in  priPosCount %}
+    <div class="card-body">
+      <h5 class="card-title">{{pos.primary_position}}:{{pos.c}}</h5>
+      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+    <a href="player/{{city}}-{{pos.group_id}}-{{pos.primary_position_id}}" id="l{{pos.group}}" class="btn btn-primary">Details</a>
+    
+    </div>
+    {% endfor %}
+  </div>
+  
+
+<h3>
+  Secondary position</h3>
+ 
+<div class="card">
+  {% for pos in  secPosCount %}
+   
+    <div class="card-body">
+      <h5 class="card-title">{{pos.primary_position}}:{{pos.c}}</h5>
+      <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+    <a href="playersec/{{city}}-{{pos.group_id}}-{{pos.secondary_position_id}}" id="l{{pos.group}}" class="btn btn-primary">Details</a>
+
+    </div>
+    {% endfor %}
+  </div>
+
+  <table class="table  table-bordered" id="userTable">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Error</th>
+        <th scope="col">Error Description </th>
+  
+  
+        <th scope="col">Tournament City </th>
+        <th scope="col">Group </th>
+  
+        <th style="display:none;" scope="col">Tournament Cityid</th>
+  
+        <th scope="col">Mobile</th>
+        <th scope="col">primary Position</th>
+        <th scope="col">Secondary Position</th>
+        <th scope="col">Height</th>
+  
+        <th scope="col">Weight</th>
+        <th scope="col">Whatsapp</th>
+        <th scope="col">email</th>
+        <th scope="col">address line 1</th>
+        <th scope="col">address line 2</th>
+        <th scope="col">Pincode</th>
+        <th scope="col">DOB</th>
+       
+        <th scope="col">Category</th>
+      </tr>
+    </thead>
+    
+      <tbody>
+          {%for player in failplayers%}
+        <tr>
+          <td>{{player.id}}</th>
+          <td>{{player.first_name}} {{player.last_name}}</td>
+          <td>{{player.status}}</td>
+          <td>{{player.error_code}}</td>
+          <td>{{player.error_description }}</td>
+  
+  
+          <td>{{player.tournament_city}}</td>
+          <td style="display:none;">{{player.tournament_city_id}}</td>
+          <td>{{player.group}}</td>
+  
+          
+          <td>{{player.mobile}}</td>
+          <td>{{player.primary_position}}</td>
+          <td>{{player.secondary_position}}</td>
+          <td>{{player.height}}</td>
+          <td>{{player.weight}}</td>
+          <td>{{player.whatsapp}}</td>
+          <td>{{player.email}}</td>
+          <td>{{player.address_line1}}</td>
+          <td>{{player.address_line2}}</td>
+          <td>{{player.pincode}}</td>
+          <td>{{player.dob}}</td>
+          
+          <td>{{player.category}}</td>
+  
+  
+  
+  
+        </tr>
+        {% endfor %} 
+        {%for player in successplayer%}
+        <tr>
+          <td>{{player.id}}</th>
+          <td>{{player.first_name}} {{player.last_name}}</td>
+          <td>{{player.status}}</td>
+          <td>{{player.error_code}}</td>
+          <td>{{player.error_description }}</td>
+  
+  
+          <td>{{player.tournament_city}}</td>
+          <td style="display:none;">{{player.tournament_city_id}}</td>
+          <td>{{player.group}}</td>
+  
+          
+          <td>{{player.mobile}}</td>
+          <td>{{player.primary_position}}</td>
+          <td>{{player.secondary_position}}</td>
+          <td>{{player.height}}</td>
+          <td>{{player.weight}}</td>
+          <td>{{player.whatsapp}}</td>
+          <td>{{player.email}}</td>
+          <td>{{player.address_line1}}</td>
+          <td>{{player.address_line2}}</td>
+          <td>{{player.pincode}}</td>
+          <td>{{player.dob}}</td>
+          
+          <td>{{player.category}}</td>
+  
+  
+  
+  
+        </tr>
+        {% endfor %} 
+
+
+        {%for player in not_initiated%}
+        <tr>
+          <td>{{player.id}}</th>
+          <td>{{player.first_name}} {{player.last_name}}</td>
+          <td>Not Initiated</td>
+          <td>{{player.error_code}}</td>
+          <td>{{player.error_description }}</td>
+  
+  
+          <td>{{player.tournament_city}}</td>
+          <td style="display:none;">{{player.tournament_city_id}}</td>
+          <td>{{player.group}}</td>
+  
+          
+          <td>{{player.mobile}}</td>
+          <td>{{player.primary_position}}</td>
+          <td>{{player.secondary_position}}</td>
+          <td>{{player.height}}</td>
+          <td>{{player.weight}}</td>
+          <td>{{player.whatsapp}}</td>
+          <td>{{player.email}}</td>
+          <td>{{player.address_line1}}</td>
+          <td>{{player.address_line2}}</td>
+          <td>{{player.pincode}}</td>
+          <td>{{player.dob}}</td>
+          
+          <td>{{player.category}}</td>
+  
+  
+  
+  
+        </tr>
+        {% endfor %} 
+        
+        
+        
+      </tbody>
+
+
+
+  
+  
+
+
+
+{% endblock %}

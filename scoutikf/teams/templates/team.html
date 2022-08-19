@@ -1,0 +1,25 @@
+{% extends "common2.html" %}
+{% block content %}
+<h1 style="margin-top: 120px">
+     {{m}}
+     
+</h1>
+<h5 style="margin-bottom: 10px">{{m2}}</h5>
+
+
+<form  method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <br>
+    <input type="submit" value="Submit">
+</form>
+
+
+<!-- <form  method="post">
+    {% csrf_token %}
+    {{ form2 }}
+    <input type="submit" value="Update Team">
+</form> -->
+
+
+{% endblock %}

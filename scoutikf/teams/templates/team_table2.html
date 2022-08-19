@@ -1,0 +1,210 @@
+{% extends "common2.html" %}
+{% block content %}
+
+        <h1>
+          {{cityName}}
+          {{groupid}} 
+            <br>
+           
+        </h1>
+        <!-- <h4 style="color:white"";> No. of remaining players {{remain2}}</h4> -->
+        
+       
+          
+        <form id="alpha" name="alpha" action = "" method = "get">
+            {% csrf_token %}
+           
+            <label for="Playername">Choose Player : </label>
+        <select id="nams" name="name">
+          <option value="">IKFID-Name (Primary Position,Secondary Position)</option>
+          {% for j, row in remain.iterrows %} 
+          <option value="{{row.id}}">{{row.name}}</option>
+          {%endfor%}
+        </select>
+        <br>
+        <label for="Playerpos">Choose position:</label>
+        <select id="position" name="position">
+          <option value="">
+            Team & Position
+           
+      
+          </option>
+         {% for key, value in dictt.items %}
+         {% for j in value %}
+          <option value="{{key}}-{{j}}">
+            Team {{key}}  {{j}}
+           
+      
+          </option>
+          {%endfor%}
+          {%endfor%}
+        </select>
+        <br>
+            <input type="submit" value="Add Player">
+      
+        </form>
+
+
+        
+        {{message}}
+    
+        
+        <br>
+        <br>
+        <button   class="btn btn-outline-warning" onclick="window.location.href={% url 'team' %}"><i class="fa fa-home"></i></i></button>
+
+        <button type="button" onClick='location.href="/teams/formteam/{{id}}"'class="btn btn-info">Reset Teams</button>
+<button type="button" onClick='location.href="/teams/download/{{id}}"'class="btn btn-info">Download </button>
+
+
+
+
+       
+        <br> <br>
+
+
+     
+
+
+
+
+          <table class="table">
+            <thead>
+              <tr>
+                <th scope="col">Positions</th>
+                {% for k in looplist %}
+                <th scope="col">Team {{k}}</th>
+                {% endfor %}
+                        
+                
+              </tr>
+            </thead>
+            <tbody>
+              
+              <tr>
+                <td scope="row">Goal_Keeper</td>
+               {%for i,row in teams.iterrows %}
+                {%if row.Goal_Keeper == "NOT Assigned" %}
+                <td scope="row">{{row.Goal_Keeper}}</td>
+                {% else %}
+                <td scope="row"><a href="/teams/delete/{{row.Goal_Keeper}}" value="{{row.Goal_Keeper}}" onclick="return checkDelete()">{{row.Goal_Keepername}}</a></td>
+                {% endif %}
+              {%endfor%}
+              </tr>
+
+              <tr>
+                <td scope="row">Center_Back_Or_Stopper</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Center_Back_Or_Stopper == "NOT Assigned" %}
+               <td scope="row">{{row.Center_Back_Or_Stopper}}</td>
+               {% else %}
+                <td scope="row"><a href="/teams/delete/{{row.Center_Back_Or_Stopper}}" value="{{row.Center_Back_Or_Stopper}}" onclick="return checkDelete()">{{row.Center_Back_Or_Stoppername}}</a> </td>
+                {% endif %}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Center_Back_Or_Stopper2</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Center_Back_Or_Stopper == "NOT Assigned" %}
+               <td scope="row">{{row.Center_Back_Or_Stopper}}</td>
+               {% else %}
+               
+                <td scope="row"><a href="/teams/delete/{{row.Center_Back_Or_Stopper2}}" value="{{row.Center_Back_Or_Stopper2}}" onclick="return checkDelete()">{{row.Center_Back_Or_Stopper2name}}</a> </td>
+                {% endif %}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Left_Back</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Left_Back == "NOT Assigned" %}
+               <td scope="row">{{row.Left_Back}}</td>
+               {% else %}
+                <td scope="row"><a href="/teams/delete/{{row.Left_Back}}" value="{{row.Left_Back}}" onclick="return checkDelete()">{{row.Left_Backname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Right_Back</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Right_Back == "NOT Assigned" %}
+               <td scope="row">{{row.Right_Back}}</td>
+               {%else%}
+                <td scope="row"><a href="/teams/delete/{{row.Right_Back}}" value="{{row.Right_Backr}}" onclick="return checkDelete()">{{row.Right_Backname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Center_Mid</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Center_Mid == "NOT Assigned" %}
+               <td scope="row">{{row.Center_Mid}}</td>
+               {%else%}
+                <td scope="row"><a href="/teams/delete/{{row.Center_Mid}}" value="{{row.Center_Mid}}" onclick="return checkDelete()">{{row.Center_Midname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Attacking_Mid</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Attacking_Mid == "NOT Assigned" %}
+               <td scope="row">{{row.Attacking_Mid}}</td>
+               {%else%}
+
+                <td scope="row"><a href="/teams/delete/{{row.Attacking_Mid}}" value="{{row.Attacking_Mid}}" onclick="return checkDelete()">{{row.Attacking_Midname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+
+              <tr>
+                <td scope="row">Defensive Mid</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Defensive_Mid == "NOT Assigned" %}
+               <td scope="row">{{row.Defensive_Mid}}</td>
+               {%else%}
+                <td scope="row"><a href="/teams/delete/{{row.Defensive_Mid}}" value="{{row.Defensive_Mid}}" onclick="return checkDelete()">{{row.Defensive_Midname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+               
+              <tr>
+                <td scope="row">Right_Mid_Or_Winger</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Right_Mid_Or_Winger == "NOT Assigned" %}
+               <td scope="row">{{row.Right_Mid_Or_Winger}}</td>
+               {%else%}
+                <td scope="row"><a href="/teams/delete/{{row.Right_Mid_Or_Winger}}" value="{{row.Right_Mid_Or_Winger}}" onclick="return checkDelete()">{{row.Right_Mid_Or_Wingername}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Left_Mid_Or_Winger</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Left_Mid_Or_Winger == "NOT Assigned" %}
+               <td scope="row">{{row.Left_Mid_Or_Winger}}</td>
+               {%else%}
+                <td scope="row"><a href="/teams/delete/{{row.Left_Mid_Or_Winger}}" value="{{row.Left_Mid_Or_Winger}}" onclick="return checkDelete()">{{row.Left_Mid_Or_Wingername}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+              <tr>
+                <td scope="row">Striker_Or_Center_Forward</td>
+               {%for i,row in teams.iterrows %}
+               {%if row.Striker_Or_Center_Forward == "NOT Assigned" %}
+               <td scope="row">{{row.Striker_Or_Center_Forward}}</td>
+               {%else%}
+                  <td scope="row"><a href="/teams/delete/{{row.Striker_Or_Center_Forward}}" value="{{row.Striker_Or_Center_Forward}}" onclick="return checkDelete()">{{row.Striker_Or_Center_Forwardname}}</a></td>
+                {%endif%}
+              {%endfor%}
+              </tr>
+            </tbody>
+          </table> 
+
+
+         
+
+
+      
+
+    
+           
+{% endblock %}

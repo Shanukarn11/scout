@@ -1,0 +1,304 @@
+{% extends "base.html" %} {% block content %} {% csrf_token %}
+
+<form
+  action=""
+  name="uploadfile-form"
+  id="uploadfile-form"
+  method="POST"
+  enctype="multipart/form-data"
+  class="glass-morphism-container1"
+>
+  <h3 class="form-heading">{{heading_uploadpic}}</h3>
+  {% csrf_token %}
+  <input
+    type="hidden"
+    name="playeruploadidfinal"
+    id="playeruploadidfinal"
+    value=""
+  />
+  <div class="row">
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >{{select_document_id_proof}}<span class="mandatory" >*</span></label
+        >
+        <select
+          class="form-control"
+          name="document_id_selected"
+          
+          id="document_id_selected"
+          autocomplete="off"
+          required
+        >
+          <option value="">{{dropdown_select_document_option}}</option>
+        </select>
+      </div>
+    </div>
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >{{document_id_number_upload}}<span class="mandatory"></span></label
+        >
+        <input
+          class="form-control"
+          type="text"
+          name="document_id_number"
+          id="document_id_number"
+          
+          onkeydown="limitmob(this,12);" onkeyup="limitmob(this,12);"
+          pattern="^[a-zA-Z0-9]*$"
+
+        />
+      </div>
+    </div>
+
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div id="alert-box"></div>
+      <div id="image-box"></div>
+      <br />
+      <label>{{upload_your_doc}}</label>
+      {{uploadfileform.as_p}}
+
+      <br />
+      <div id="progress-box" class="not-visible">Progress</div>
+      <div id="cancel-box" class="not-visible">
+        <button id="cancel-btn" class="btn btn-danger">cancel</button>
+      </div>
+    </div>
+
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-group mb-0">
+        <button class="btn login-btn" onclick="nextprev(this,'prev')" formnovalidate>
+          {{prev}}
+        </button>
+        <button
+          class="btn login-btn"
+          onclick="nextprev(this,'next')"
+          type="submit"
+        >
+          {{next}}
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<script>
+  var GLOBAL_FILENAME_DOC = "";
+  function checkempty(data) {
+    if (data == null || data == "" || data == undefined) {
+      return "";
+    } else {
+      return data;
+    }
+  }
+
+  
+  function nextprev(node, urlitem) {
+    var formData = JSON.parse(
+      JSON.stringify($("#uploadfile-form").serializeArray())
+    );
+    var dict = {};
+    formData.forEach(function (item) {
+      dict[item["name"]] = item["value"];
+    });
+    if (dict["csrfmiddlewaretoken"]) {
+      delete dict["csrfmiddlewaretoken"];
+    }
+    if (dict["_token"]) {
+      delete dict["_token"];
+    }
+    if (dict["playeruploadidfinal"]) {
+      delete dict["playeruploadidfinal"];
+    }
+
+    if (dict["uploadfile-form"]) {
+      delete dict["uploadfile-form"];
+    }
+    var inputobj = JSON.parse(sessionStorage.getItem("data"));
+    newdict = Object.assign(inputobj, dict);
+
+    if (
+      GLOBAL_FILENAME_DOC == "" ||
+      GLOBAL_FILENAME_DOC == null ||
+      GLOBAL_FILENAME_DOC == undefined
+    ) {
+      if(inputobj["document_id_file"]){
+        newdict["document_id_file"]=inputobj["document_id_file"]
+      }
+      else{
+        newdict["document_id_file"]=""
+      }
+    
+    } else {
+      newdict["document_id_file"] = GLOBAL_FILENAME_DOC;
+    }
+
+    sessionStorage.setItem("data", JSON.stringify(newdict));
+
+    if (urlitem == "prev") {
+      document.getElementById("uploadfile-form").action ="{% url 'uploadpic' %}";
+    } else if (urlitem == "next") {
+      document.getElementById("uploadfile-form").action ="{% url 'preview2' %}";
+    }
+  }
+  function getFileExtension(filename) {
+    // get file extension
+    const extension = filename.substring(
+      filename.lastIndexOf(".") + 1,
+      filename.length
+    );
+    return extension;
+  }
+  window.onload = function () {
+    const uploadfileForm = document.getElementById("uploadfile-form");
+
+    const input = document.getElementById("id_file");
+    
+    const alertBox = document.getElementById("alert-box");
+    const imageBox = document.getElementById("image-box");
+    const progressBox = document.getElementById("progress-box");
+    const cancelBox = document.getElementById("cancel-box");
+    const cancelBtn = document.getElementById("cancel-btn");
+    const csrf = document.getElementsByName("csrfmiddlewaretoken");
+
+    var inputdatastring = sessionStorage.getItem("data");
+    var inputdataforimg = JSON.parse(inputdatastring);
+    if(inputdataforimg["document_id_file"] && inputdataforimg["document_id_file"]!="" ){
+
+      $.ajax({
+        type: "POST",
+        url: "{% url 'viewdoc' %}",
+        data:{playeruploadidfinal:inputdataforimg["playeruploadid"],csrfmiddlewaretoken:'{{ csrf_token }}'},
+        success: function(result){
+          if(result){
+            
+            console.log(result)
+            imageBox.innerHTML = `<img src="${result}" width="260px"></img>`;
+            
+            }
+          },
+        error:function(error){}
+      })
+
+      input.required = false;
+      input.style.color="transparent"
+      
+    }
+    if (
+      inputdataforimg["document_id_selected"] ||
+      inputdataforimg["document_id_number"]
+    ) {
+      document.getElementById("document_id_selected").value = checkempty(
+        inputdataforimg["document_id_selected"]
+      );
+      document.getElementById("document_id_number").value = checkempty(
+        inputdataforimg["document_id_number"]
+      );
+    }
+    
+    document.getElementById("playeruploadidfinal").value =inputdataforimg["playeruploadid"];
+
+    input.addEventListener("change", () => {
+      progressBox.classList.remove("not-visible");
+      cancelBox.classList.remove("not-visible");
+      const img_data = input.files[0];
+      var img_extention = getFileExtension(img_data["name"]);
+      const url = URL.createObjectURL(img_data);
+
+      GLOBAL_FILENAME_DOC =
+        inputdataforimg["playeruploadid"] + "." + img_extention;
+      const fd = new FormData();
+      fd.append("unique", inputdataforimg["playeruploadid"]);
+      fd.append("fname", inputdataforimg["first_name"]);
+      fd.append("lname", inputdataforimg["last_name"]);
+      fd.append("mobilenumberupload", inputdataforimg["mobile"]);
+      fd.append("file", img_data, GLOBAL_FILENAME_DOC);
+
+      fd.append("csrfmiddlewaretoken", csrf[0].value);
+      $.ajax({
+        type: "POST",
+        url: uploadfileForm.action,
+        enctype: "multipart/form-data",
+        data: fd,
+        beforeSend: function () {
+          alertBox.innerHTML = "";
+          imageBox.innerHTML = "";
+        },
+        xhr: function () {
+          const xhr = new window.XMLHttpRequest();
+          cancelBtn.classList.remove("not-visible");
+          xhr.upload.addEventListener("progress", (e) => {
+            if (e.lengthComputable) {
+              const percent = (e.loaded / e.total) * 100;
+              progressBox.innerHTML = `<div class="progress">
+                                     <div class="progress-bar" role="progressbar" style="width: ${percent}%"  aria-valuenow="${percent}" aria-valuemin="0" aria-valuemax="100"></div>
+                                   </div> 
+                                   <p>${percent.toFixed(1)} %</p>`;
+            }
+          });
+
+          cancelBtn.addEventListener("click", () => {
+            xhr.abort();
+            setTimeout(() => {
+              uploadfileForm.reset();
+              progressBox.innerHTML = "";
+              alertBox.innerHTML = "";
+              cancelBtn.classList.add("not-visible");
+            }, 500);
+          });
+          return xhr;
+        },
+        success: function (response) {
+          console.log(response);
+          imageBox.innerHTML = `<img src="${url}" width="260px"></img>`;
+          alertBox.innerHTML = `<div class="alert alert-success" role="alert">
+                            Successfully Uploaded Document
+                          </div>`;
+          cancelBtn.classList.add("not-visible");
+        },
+        error: function (error) {
+          console.log(error);
+
+          alertBox.innerHTML = `<div class="alert alert-danger" role="alert">
+                              Something went wrong . Please Choose (.png , .jpg , .jpeg) Files
+                            </div>`;
+          setTimeout(() => {
+                              uploadfileForm.reset();
+                              alertBox.innerHTML = "";
+                              cancelBtn.classList.add("not-visible");
+                            }, 2000);
+          progressBox.innerHTML = "";
+        },
+        cache: false,
+        contentType: false,
+        processData: false,
+      });
+    });
+
+
+    //document ajax
+    $.ajax({
+      type: "POST",
+      url: "{% url 'documentdata' %}",
+      data: { csrfmiddlewaretoken: "{{ csrf_token }}" },
+
+      success: function (result) {
+        var documentdata = JSON.parse(result);
+        for (var x in documentdata) {
+          document.getElementById("document_id_selected").options[
+            document.getElementById("document_id_selected").options.length
+          ] = new Option(documentdata[x].value, documentdata[x].id);
+        }
+
+        
+          if (inputdataforimg["document_id_selected"]) {
+            document.getElementById("document_id_selected").value =
+            inputdataforimg["document_id_selected"];
+          }
+        
+      },
+    });
+  }
+</script>
+{% endblock %}

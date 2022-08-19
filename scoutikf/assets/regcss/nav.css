@@ -1,0 +1,182 @@
+* {
+  margin: 0;
+  padding: 0;
+  color: white;
+  font-family: sans-serif;
+  letter-spacing: 1px;
+  font-weight: 300;
+}
+body {
+  overflow-x: hidden;
+}
+nav {
+  height: 6rem;
+  width: 100vw;
+  background-color: transparent;
+  /* box-shadow: 0 3px 20px rgba(0, 0, 0, 0.2); */
+  display: flex;
+  position: relative;
+  z-index: 10;
+  border-bottom: solid 1px black;
+}
+
+/*Styling logo*/
+.logo {
+  padding: 1vh 1vw;
+  text-align: center;
+  margin-right: 200px;
+}
+
+@media screen and (max-width: 1200px) and (min-width: 800px) {
+  .logo {
+    margin-right: 2.8em;
+  }
+}
+
+.logo img {
+  height: 5rem;
+  width: 10rem;
+}
+
+/*Styling Buttons*/
+.login-button {
+  background-color: transparent;
+  border: 1.5px solid black;
+  border-radius: 2em;
+  padding: 0.6rem 0.8rem;
+  margin-left: 2vw;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.login-button:hover {
+  color: #131418;
+  background-color: #f2f5f7;
+  border: 1.5px solid #f2f5f7;
+  transition: all ease-in-out 350ms;
+}
+.join-button {
+  color: #131418;
+  background-color: white;
+  border: 1.5px solid transparent;
+  border-radius: 2em;
+  padding: 0.6rem 0.8rem;
+  font-size: 1rem;
+  cursor: pointer;
+}
+.join-button:hover {
+  color: #f2f5f7;
+  background-color: transparent;
+  border: 1.5px solid #f2f5f7;
+  transition: all ease-in-out 350ms;
+}
+
+/* FOR BUTTONS AND HEADING */
+.heading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 3rem;
+  overflow: hidden;
+  /* margin-left: 4rem;
+  margin-right: 4em; */
+}
+
+.btn {
+  width: fit-content;
+  background: #683078;
+  padding: 10px 10px 10px 10px;
+  font-weight: bold;
+  font-size: 16px;
+  border-radius: 60px;
+  margin-top: 5em;
+  cursor: pointer;
+}
+
+/* GAME DISPLAY SECTION */
+
+/* VIDEO STYLING */
+
+/* .video-container {
+  width: 100%;
+}
+
+#video-background {
+  position: fixed;
+  right: 0;
+  bottom: 0;
+  min-width: 100%;
+  min-height: 100%;
+  width: auto;
+  height: auto;
+  z-index: -100;
+} */
+
+/*DESIGNING FOR SMALL SCREENS*/
+
+@media screen and (max-width: 800px) {
+  .games-images {
+    display: flex;
+    flex-direction: row;
+    height: 150px;
+    padding: 0px;
+    background-color: rgb(244, 244, 244);
+    overflow: hidden;
+    margin: 5px 0px 5px 0px;
+    /* justify-content: space-between; */
+  }
+
+  .games-images > img.game {
+    height: 100%;
+    width: 50%;
+    overflow: hidden;
+    margin-left: 15px;
+    margin-right: 15px;
+    padding: 0px;
+  }
+  .games-images > .game-about {
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+    margin-left: 5px;
+    justify-content: center;
+    max-height: 100%;
+  }
+  .games-images > .game-about > .game-title {
+    font-size: 15px;
+    font-weight: bold;
+    color: black;
+    letter-spacing: normal;
+    margin: 0px;
+    margin-top: 5px;
+    padding: 0px;
+  }
+  .games-images > .game-about > .game-desc {
+    color: black;
+    width: 180px;
+    margin-top: 3px;
+    margin-bottom: 0px;
+    padding: 0px;
+    font-size: 10px;
+    letter-spacing: normal;
+  }
+  .game-about > .btn {
+    width: fit-content;
+    background: #683078;
+    padding: 5px;
+    font-weight: bold;
+    color: #fff;
+    font-size: 10px;
+    border-radius: 60px;
+    margin: 1em;
+    margin-top: 8px;
+    cursor: pointer;
+  }
+}
+
+/* For disclaimer area*/
+
+/*Designing for Laptops or Desktops*/
+
+/* @media (min-width: 1025px) and (max-width: 1280px){
+ 
+} */

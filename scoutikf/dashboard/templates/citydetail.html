@@ -1,0 +1,34 @@
+{% extends "common.html" %}
+{% block content %}
+ 
+ <h1 style="color:white">{{cityName}} </h1>
+ <h1 style="color:white">Total regisstrations:{{totalregi}} </h1>
+ <h1 style="color:white">Sucessful regisstrations:{{total_suc_regi}} </h1>
+
+ 
+
+
+ <button class="btn btn-outline-warning" onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></button>
+<br><br>
+
+ {% for pos in  grpCount %}
+ <div class="card">
+    <div class="card-header">
+      
+    </div>
+    <div class="card-body">
+      <!-- <h5 class="card-title">Special title treatment</h5> -->
+    
+      <p class="card-text">{{pos.group}}:{{pos.c}}</p>
+     
+    <a href="group/{{city}}-{{pos.group_id}}" id="l{{pos.group}}" class="btn btn-primary">Details</a>
+    <!-- <a href="citydetail/{{city.tournament_city_id}}" id="qv{{city.tournament_city_id}}" class="btn btn-primary">deatail</a> -->
+
+    </div>
+  </div>
+  {% endfor %}
+
+
+  {% endblock %}
+
+ 

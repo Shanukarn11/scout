@@ -1,0 +1,104 @@
+{% extends "baselogin.html" %} {% block content %}
+
+<form method="POST" class="glass-morphism-container1" name="form1" id="form1">
+  <h3 class="form-heading">{{login_heading}}</h3>
+
+  <!-- Email input -->
+  <div class="form-outline mb-4">
+    <input
+      type="text"
+      id="ikfuniqueid"
+      class="form-control form-control-lg"
+      placeholder="Enter IKF Unique ID"
+      style="width: 100%; font-size: 1.2vmax"
+    />
+    <label class="form-label" for="ikfuniqueid">{{login_ikf_unique_id}}</label>
+  </div>
+
+  <!-- Password input -->
+  <div class="form-outline mb-3">
+    <input
+      type="password"
+      id="mobile"
+      class="form-control form-control-lg"
+      placeholder="Enter register mobile no."
+      style="width: 100%; font-size: 1.2vmax"
+    />
+    <label class="form-label" for="mobile">{{login_password}}</label>
+  </div>
+
+  <!-- <div class="d-flex justify-content-between align-items-center">
+            
+              <div class="form-check mb-0">
+                <input class="form-check-input me-2" type="checkbox" value="" id="form2Example3" />
+                <label class="form-check-label" for="form2Example3">
+                  Remember me
+                </label>
+              </div>
+              <a href="#!" class="text-body">Forgot password?</a>
+            </div> -->
+
+  <div class="text-center text-lg-start mt-4 pt-2">
+    <button
+      type="button"
+      class="btn btn-primary btn-lg"
+      style="padding-left: 2.5rem; padding-right: 2.5rem"
+      onclick="loginfun(this)"
+    >
+      Login
+    </button>
+    <p class="small fw-bold mt-2 pt-1 mb-0">
+      Don't have an account?
+      <a href="{% url 'category' 'en' %}" style="color: rgb(255, 183, 0)"
+        >Register</a
+      >
+    </p>
+  </div>
+</form>
+
+<script>
+  window.onload = function () {
+    document.getElementById("logout").style.display = "none";
+  };
+  function loginfun(self) {
+    console.log("loginfunction called");
+    var ikfuniqueid = document.getElementById("ikfuniqueid").value;
+
+    var mobile = document.getElementById("mobile").value;
+
+    if (ikfuniqueid && mobile) {
+      ikfuniqueid = ikfuniqueid.replace(/\s/g, "");
+      mobile = mobile.replace(/\s/g, "");
+      $.ajax({
+        type: "POST",
+        url: "{% url 'verifylogin' %}",
+        data: {
+          ikfuniqueid: ikfuniqueid,
+          mobile: mobile,
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        },
+        success: function (result) {
+          if (result) {
+            if (result["error"] == "false" && result["login"] == "failed") {
+              alert(
+                "Either IKF Unique ID or Password is wrong. IKF Unique ID Format eg. => IKF-S02BIHPATM000000C. "
+              );
+            } else if (
+              result["error"] == "false" &&
+              result["login"] == "success"
+            ) {
+              // alert("success");
+              sessionStorage.setItem("ikfloginuniqueid", ikfuniqueid);
+              window.location = "{% url 'playerdashboard' %}";
+            }
+          } else {
+          }
+        },
+      });
+    } else {
+      alert("Fill IKF ID and Password");
+    }
+  }
+</script>
+
+{% endblock %}

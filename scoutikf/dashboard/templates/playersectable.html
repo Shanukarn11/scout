@@ -1,0 +1,92 @@
+{% extends "common.html" %}
+{% block content %}
+
+
+
+<div style=" background-color: rgba(0,0,0,.5);
+color: #fff; width: 100%;" class="card text-center">
+  <div class="card-header">
+   <h2> {{city}}</h2>
+  </div>
+  <div style="text-align:left" class="card-body">
+    <h5 class="card-title">State:{{stateName}}</h5>
+    <h5   class="card-title">Group :{{groupName}}</h5>
+    <h5   class="card-title">Secondary Position : {{posName}}</h5>
+<button  class="btn btn-outline-warning"onclick="window.location.href='/dashboard/citydetail/group/playersec/{{ idd }}'"><i class="fa fa-arrow-circle-left"></i></button>
+<button  class="btn btn-outline-warning"onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></button>
+    
+  </div>
+  
+</div>
+
+<input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Search " title="Type in a name">
+
+<table class="table" id="userTable">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Primary Position</th>
+        <th scope="col">Height</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Whatsapp</th>
+        <th scope="col">email</th>
+        <th scope="col">address line 1</th>
+        <th scope="col">address line 2</th>
+        <th scope="col">Pincode</th>
+        <th scope="col">DOB</th>
+       
+        <th scope="col">Category</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for player in players%}
+      <tr>
+        <th scope="row">{{player.id}}</th>
+        <td>{{player.first_name}} {{player.last_name}}</td>
+        
+        <td>{{player.status}}</td>
+        <td>{{player.primary_position}}</td>
+        <td>{{player.height}}</td>
+        <td>{{player.weight}}</td>
+        
+        <td>{{player.whatsapp}}</td>
+        <td>{{player.email}}</td>
+        <td>{{player.address_line1}}</td>
+        <td>{{player.address_line2}}</td>
+        <td>{{player.pincode}}</td>
+        <td>{{player.dob}}</td>
+        
+        <td>{{player.category}}</td>
+
+
+
+
+      </tr>
+      {% endfor %} 
+      
+      
+    </tbody>
+  </table>
+  <script>function myFunction() {
+    var input, filter, table, tr, td, cell, i, j;
+    filter = document.getElementById("searchInput").value.toLowerCase();
+    table = document.getElementById("userTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 1; i < tr.length; i++) {
+      tr[i].style.display = "none";
+      const tdArray = tr[i].getElementsByTagName("td");
+      for (var j = 0; j < tdArray.length; j++) {
+        const cellValue = tdArray[j];
+        if (cellValue && cellValue.innerHTML.toLowerCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+          break;
+        }
+      }
+    }
+  }</script>
+
+
+
+{% endblock %}

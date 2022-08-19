@@ -1,0 +1,312 @@
+{% extends "base.html" %}
+{% block content %}
+
+                        <form  method="POST" class="glass-morphism-container1"  name="form1" id="form1">
+                        <h3 class="form-heading">{{heading_player_starting_form}}</h3>
+                        {% csrf_token %}
+                        <input type="hidden" name="_token" value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3">
+                            <div class="row">
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{select_tournament_state}}<span class="mandatory">*
+                                            </span></label>
+                                        <select class="form-control" name="tournament_state" id="tournament_state" required="">
+                                            <option value="">{{dropdown_select_state}} </option>
+                                            
+
+
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{select_tournament_city}}<span class="mandatory">*
+                                            </span></label>
+                                        <select id="tournament_city" name="tournament_city" class="form-control"  required="">
+                                            <option value="">{{dropdown_select_city}}</option>
+
+
+                             
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{gender}}<span class="mandatory">*
+                                            </span></label>
+                                        <select class="form-control" name="gender" id="gender" required="" data-fillr-id="1552374762" data-fillr="bound" autocomplete="off">
+                                            <option value="">{{dropdown_select_gender}} </option>
+                                          
+                                            <option value="Male">{{male}}</option>
+                                            <option value="Female">{{female}} </option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left"> {{dob}}<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="date" name="dob" id="dob" required>
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{email}}<span class="mandatory">
+                                            </span></label>
+                                        <input class="form-control" type="email" title="Please Enter Email Id"  name="email"  id="email">
+                                        <span id="message"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left" >{{mobile}}<span class="mandatory">* </span></label>
+                                        <div class="input-group">
+                                            <input type="text" class="form-control" value="+91" readonly style="max-width:6ch;"/>
+                                            <span class="input-group-addon">-</span>
+                                            <input class="form-control" type="number" minlength="10" width="90%" onkeydown="limitmob(this,10);" onkeyup="limitmob(this,10);" name="mobile"  id="mobile" pattern=".{10,}"  required>
+                                        </div>
+                                       
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{using_different_number}}<span class="mandatory">*
+                                            </span></label>
+                                            <div class="form-check">
+                                                
+                                                <label class="form-check-label" for="yes">
+                                                  {{yes}}
+                                                </label>
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="radiomobile" id="yes" value=1>
+                                              </div>
+                                              <div class="form-check">
+                                                
+                                                <label class="form-check-label" for="no">
+                                                  {{no}}
+                                                </label>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                              </div>
+                                        <span id="message"></span>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group" id="show-me" style='display:none'>
+                                      
+                                        <label class="text-left">{{whatsapp_no}}
+                                            </span></label>
+                                        
+                                      <div class="input-group">  
+                                        <input type="text" class="form-control" value="+91" readonly style="max-width:6ch;"/>
+                                        <span class="input-group-addon">-</span>
+                                        <input class="form-control" type="number" minlength="10" onkeydown="limitmob(this,10);" onkeyup="limitmob(this,10);" title="Please Enter 10 digit mobile number" pattern=".{3,}"  name="whatsapp"  id="whatsapp">
+                                        
+                                      </div>
+                                      <span id="message"></span>
+                                    </div>
+                                </div>
+
+                                {% comment %} <div class="col-lg-12 col-md-12 col-sm-12 mt-3 border p-3 rounded bg-white">
+                                    <div class="custom-control custom-checkbox checkbox-lg">
+                                        <input type="checkbox" class="custom-control-input" id="checkbox-2" required>
+                                        <label class="custom-control-label" for="checkbox-2"> By supplying my contact
+                                            information, I authorize the organiser exchange4media and sponsors to
+                                            contact me via personalized communications about their products and services
+                                            via email and phone. See our <a href="https://www.exchange4media.com/privacy-policy.html" target="_blank" style="text-decoration:underline;">Privacy Policy</a>
+                                            for more details or to opt-out at any time.<span class="mandatory"> *
+                                            </span></label>
+                                    </div>
+                                </div> {% endcomment %}
+
+                                <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+                                    <div class="form-group mb-0">
+                                        <button class="btn login-btn" onclick="prev(this)" formnovalidate> {{prev}} </button>
+                                        <button class="btn login-btn" onclick="next(this)" type="submit"> {{next}} </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+<script>
+window.onbeforeunload=function(event){return "You have some unsaved changes";}
+function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
+function prev(node){
+document.getElementById("form1").action="{% url 'homeindex'  %}"
+}
+function next(node){
+    window.onbeforeunload = null;
+    var mobiledoc= document.getElementById("mobile").value
+   
+    if(mobiledoc.indexOf('0')==0){
+
+        alert("Mobile Number should not start with 0")
+    }
+    else if(mobiledoc.length<10){
+        alert("Mobile Number Should be 10 Digit")
+    }
+    else{
+        var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
+        var dict={}
+        formData.forEach(function (item) {
+           dict[item['name']]=item['value']
+        });
+        dict["whoisfilling"]="{{coach_or_player }}"
+        if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
+        if(dict['_token']){delete dict['_token']}
+        if(sessionStorage.getItem("data")){
+            var inputobj=JSON.parse(sessionStorage.getItem("data"))
+            newdict=Object.assign(inputobj,dict);
+            sessionStorage.setItem("data", JSON.stringify(newdict));
+        } 
+        else{
+            sessionStorage.setItem("data", JSON.stringify(dict));
+        }
+
+        
+
+
+        
+
+       
+        
+            
+            document.getElementById("form1").action="{% url 'preview1'  %}"
+
+    }
+
+}
+
+
+function converter(doc,statevalue, cityvalue){
+          var citydoc=doc
+          var cityvalue=cityvalue
+          $.ajax({
+            type: "POST",
+            url: "{% url 'citydata' %}",
+            data:{state:statevalue,csrfmiddlewaretoken:'{{ csrf_token }}'},
+            success: function(result){
+                      if (result){
+                        var citydata=JSON.parse(result)
+                        for (var x in citydata) {
+                            citydoc.options[citydoc.options.length] = new Option(citydata[x].value, citydata[x].id);
+                            }
+
+                        citydoc.value=cityvalue 
+
+                      }
+   
+                    }
+            })
+}
+
+
+window.onload = function() {
+var stateSel = document.getElementById("tournament_state");
+var citySel = document.getElementById("tournament_city");
+var dobid=document.getElementById("dob");
+
+if(sessionStorage.getItem("data")){
+    var inputdatajson=JSON.parse(sessionStorage.getItem("data"))
+    if(JSON.parse(sessionStorage.getItem("data"))["tournament_city"]){
+        converter(citySel,inputdatajson["tournament_state"],inputdatajson["tournament_city"])
+
+    }
+}
+
+
+$.ajax({
+    type: "POST",
+    url: "{% url 'statedata' %}",
+    data:{include:1,csrfmiddlewaretoken:'{{ csrf_token }}'},
+    success: function(result){
+        statedata=JSON.parse(result)
+        for (var x in statedata) {
+            stateSel.options[stateSel.options.length] = new Option(statedata[x].value, statedata[x].id);
+        }
+
+        if(sessionStorage.getItem("data")){
+            var datafortournament=JSON.parse(sessionStorage.getItem("data"))
+            if(datafortournament){
+                document.getElementById("tournament_state").value=""
+                document.getElementById("tournament_state").value=datafortournament["tournament_state"]
+                
+            }
+        }
+}
+}
+)
+stateSel.onchange = function(){
+        citySel.length = 1;
+        if(this.value){
+        $.ajax({
+        type: "POST",
+        url: "{% url 'citydata' %}",
+        data:{state:this.value,csrfmiddlewaretoken:'{{ csrf_token }}'},
+        success: function(result){
+                    citydata=JSON.parse(result)
+                    for (var x in citydata) {
+                            citySel.options[citySel.options.length] = new Option(citydata[x].value, citydata[x].id);
+                        }
+
+                        
+                }
+        })
+        //ajax city call end
+        }
+}
+                                 
+citySel.onclick=function(){
+if(stateSel.value){
+console.log("")
+}
+else{
+     alert("Please Select State First")
+    }
+}
+
+$.ajax({
+    type: "POST",
+    url: "{% url 'limitdate' %}",
+    data:{season:"S02",csrfmiddlewaretoken:'{{ csrf_token }}'},
+    success: function(result){
+     console.log(result);
+     dobid.max=result["upperlimit"];
+     dobid.min=result["lowerlimit"]
+
+    },
+    error:function(error){
+        alert("API Error")
+    }
+    })
+
+var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
+if(sessionStorage.getItem("data")){
+    var inputdata=JSON.parse(sessionStorage.getItem("data"))
+    if(inputdata){
+      formData.forEach(item => {
+        
+           if(item['name']=='csrfmiddlewaretoken' || item['name']=='_token'||item['name']=='radiomobile'){}
+           else{
+            
+            document.getElementById(item['name']).value=checkempty(inputdata[item['name']])}
+
+            });
+
+
+            
+
+        
+    }
+}
+
+                                                        
+
+
+}
+
+
+
+</script>
+                        {% endblock %}   

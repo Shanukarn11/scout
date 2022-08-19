@@ -1,0 +1,337 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+
+    <title>IndiaKheloFootball | Register</title>
+
+    <!-- Favicons -->
+    <link href="{% static 'img/ikflogo.png' %}" rel="icon" />
+    <!-- Files -->
+    
+    <link href="{% static 'css/bootstrap.min.css' %}" rel="stylesheet" />
+    <link href="{% static 'regcss/ikf.css' %}" rel="stylesheet" />
+    <link href="{% static 'regcss/upload.css' %}" rel="stylesheet" />
+    <link rel="stylesheet" href="{% static 'regcss/glass.css' %}" />
+    <link rel="stylesheet" href="{% static 'regcss/pass.css' %}" />
+  </head>
+  <style>
+    page {
+      background: white;
+      display: block;
+      margin: 0 auto;
+      margin-bottom: 0.5cm;
+      box-shadow: 0 0 0.5cm rgba(0, 0, 0, 0.5);
+    }
+    page[size="A4"] {
+      width: 40vw;
+      height: 70.64vh;
+    }
+
+    /* Chrome, Safari, Edge, Opera */
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+      -webkit-appearance: none;
+      margin: 0;
+    }
+
+    /* Firefox */
+    input[type="number"] {
+      -moz-appearance: textfield;
+    }
+    .error.text-danger {
+      font-size: 13px;
+    }
+    body {
+      font-family: "Open Sans", sans-serif;
+      color: #444444;
+      /* background: rgba(255, 255, 255, 0.574); */
+      background: url("{% static 'img/bg.jpeg' %}") no-repeat top center;
+      /* background-position: center;
+      background-repeat: no-repeat;
+      background-attachment: fixed;
+      background-size: cover; */
+      overflow: auto;
+      height: 100%;
+
+      background-size: cover;
+
+    }
+
+    html {
+      overflow: hidden;
+      height: 100%;
+    }
+
+    .radios::before {
+      display: block;
+      width: fit-content;
+      margin: 0 auto;
+      margin-bottom: 10px;
+      content: "switch to mobile";
+      font-weight: bold;
+      color: #627ae0;
+      background: #e5eaff;
+      padding: 5px 10px;
+      border-radius: 5px;
+    }
+    .radios {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+    }
+    .radio-wrap {
+      text-align: center;
+      position: relative;
+      width: 10%;
+      height: 60px;
+      display: inline-block;
+      float: left;
+    }
+    .radio-wrap .radio-label-fake {
+      color: #627ae0;
+      font-weight: bold;
+    }
+    .radio-wrap > input {
+      position: relative;
+      top: 5px;
+    }
+    .radio-wrap > label {
+      width: 20px;
+      height: 20px;
+      background: #e5eaff;
+      border: 1px solid #91a6ff;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, 0%);
+      cursor: pointer;
+    }
+    .radio-wrap > label::before {
+      content: "";
+      display: block;
+      width: 12px;
+      height: 12px;
+      background: transparent;
+      border-radius: 50%;
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+    }
+    .radio-wrap input[type="radio"] {
+      opacity: 0;
+    }
+    .radio-wrap input[type="radio"]:checked + label::before {
+      background: #91a6ff;
+    }
+
+    @media screen and (max-width: 480px) {
+      .radios::before {
+        content: "switch to desktop";
+      }
+      .radio-wrap {
+        background: #fff;
+        border: 1px solid #a8b9ff;
+        margin: 0;
+        height: 40px;
+      }
+      .radio-wrap .radio-label-fake {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        z-index: 1;
+        pointer-events: none;
+      }
+      .radio-wrap:first-of-type,
+      .radio-wrap:first-of-type > label {
+        border-radius: 5px 0 0 5px;
+      }
+      .radio-wrap:last-of-type,
+      .radio-wrap:last-of-type > label {
+        border-radius: 0 5px 5px 0;
+      }
+      .radio-wrap:not(:last-child) {
+        border-right: 0;
+      }
+      .radio-wrap > input {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, 50%);
+      }
+      .radio-wrap .radio-label-fake > span {
+        position: absolute;
+        bottom: -70px;
+        left: 50%;
+        transform: translate(-50%, -60%);
+      }
+      .radio-wrap > label {
+        width: 100%;
+        height: 100%;
+        border-radius: 0;
+        border: 0;
+        top: 0;
+        left: 50%;
+      }
+      .radio-wrap > label::before {
+        content: "";
+        display: block;
+        width: 100%;
+        height: 100%;
+        background: transparent;
+        position: absolute;
+        border-radius: 0;
+      }
+      .radio-wrap input[type="radio"]:checked + label::before {
+        background: #bac8ff;
+      }
+
+      .pt-3-half {
+        padding-top: 1.4rem;
+      }
+
+      .btn-primary {
+        display: block;
+        border-radius: 0px;
+        box-shadow: 0px 4px 6px 2px rgba(0, 0, 0, 0.2);
+        margin-top: -5px;
+      }
+      .imgUp {
+        margin-bottom: 15px;
+      }
+      .del {
+        position: absolute;
+        top: 0px;
+        right: 15px;
+        width: 30px;
+        height: 30px;
+        text-align: center;
+        line-height: 30px;
+        background-color: rgba(255, 255, 255, 0.6);
+        cursor: pointer;
+      }
+      .imgAdd {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        background-color: #4bd7ef;
+        color: #fff;
+        box-shadow: 0px 0px 2px 1px rgba(0, 0, 0, 0.2);
+        text-align: center;
+        line-height: 30px;
+        margin-top: 0px;
+        cursor: pointer;
+        font-size: 15px;
+      }
+    }
+    .form-heading {
+      text-align: center;
+      /* margin-top:15px; */
+    }
+  </style>
+  <!-- Vendor JS Files -->
+  <script
+    src="{% static 'jquery/jquery-3.5.1.min.js' %}"
+    integrity=""
+    crossorigin="anonymous"
+  ></script>
+  <script
+    src="{% static 'js/bootstrap.bundle.min.js' %}"
+    crossorigin="anonymous"
+  ></script>
+  <body>
+    <!-- ======= Hero Section ======= -->
+    <section id="home" class="d-flex align-items-center home-height-2">
+      <div class="container pt-3 pb-3 mt-3">
+        <div class="row">
+          <div class="col-lg-2">
+            <div class="left-logo text-center">
+              <img
+                src="{% static 'img/ikflogo.png' %}"
+                alt="left-logo"
+                class="img-fluid lt-logo mb-3 mt-3 p-2"
+              />
+            </div>
+          </div>
+          <div
+            class="col-lg-8 d-flex flex-column justify-content-center ml-auto mr-auto"
+          >
+            <div class="login-form">{% block content %} {% endblock %}</div>
+          </div>
+
+          <div class="col-lg-2 d-flex flex-column justify-content-center">
+            <!-- <div class="left-logo text-center">
+              <img src="{% static 'img/ikflogo.png' %}" alt="left-logo"
+              class="img-fluid lt-logo mb-3 mt-3 p-2" /* style="" */ />
+            </div> -->
+          </div>
+        </div>
+      </div>
+    </section>
+    <!-- End Hero -->
+
+    <a href="#" class="back-to-top"><i class="ri-arrow-up-line"></i></a>
+    <div id="preloader"></div>
+    <script>
+      lang = "en";
+
+      function category(node) {
+        //document.getElementById("Category").innerHTML
+        var value = $("input[type=radio][name=Category]:checked").val();
+
+        if (value == "Coach") {
+          document.getElementById("form1").action =
+            "{% url 'coachorplayer' 'en' 'Coach' %}";
+        } else if (value == "Player") {
+          document.getElementById("form1").action =
+            "{% url 'coachorplayer' 'en' 'Player' %}";
+        }
+      }
+
+      function limit(element, maxcharlength) {
+        if (element.value.includes(".")) {
+          var max_chars = maxcharlength + 3;
+        } else {
+          var max_chars = maxcharlength;
+        }
+
+        if (element.value.length > max_chars) {
+          element.value = element.value.substr(0, max_chars);
+        }
+      }
+
+      function limitmob(element, maxcharlength) {
+        var max_chars = maxcharlength;
+        
+        if (element.value.indexOf('0')==0){
+          element.value=""
+        }
+        else{
+        if (element.value.length > max_chars) {
+          element.value = element.value.substr(0, max_chars);
+        } 
+        }
+
+
+        
+      }
+      function checkfun(self) {
+        var value = $("input[type=radio][name=radiomobile]:checked").val();
+        console.log("checkfun");
+        if (value == 1) {
+          $("#show-me").hide();
+          $("#show-me").show();
+        } else if (value == 0) {
+          $("#show-me").hide();
+        }
+      }
+    </script>
+  </body>
+</html>

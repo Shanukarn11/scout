@@ -1,0 +1,452 @@
+{% extends "base.html" %} {% load static %} {% block content %}
+<style>
+  .players {
+    justify-content: center;
+    cursor: pointer;
+  }
+  .player-card {
+    background-color: white;
+    color: black;
+    height: 100%;
+    border-radius: 30px;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    box-shadow: rgba(0, 0, 0, 0.25) 0px 54px 55px,
+      rgba(0, 0, 0, 0.12) 0px -12px 30px, rgba(0, 0, 0, 0.12) 0px 4px 6px,
+      rgba(0, 0, 0, 0.17) 0px 12px 13px, rgba(0, 0, 0, 0.09) 0px -3px 5px;
+    /* align-items: center; */
+    min-width: 600px;
+    margin: 10px;
+    align-items: center;
+    transition: height 0.5s ease-out;
+    width: fit-content;
+  }
+
+  /* show pictures on hover */
+  .player-card:hover {
+    height: 100%;
+  }
+
+  .player-number {
+    font-size: 1.5rem;
+    font-weight: bold;
+    margin-bottom: 10px;
+    padding-left: 10px;
+  }
+
+  .player-details {
+    display: flex;
+    flex-direction: row;
+    padding-left: 10px;
+    justify-content: space-between;
+    align-self: flex-start;
+  }
+
+  .player-details > .leading {
+    display: flex;
+    justify-content: center;
+    /* align-items: start; */
+    padding: 10px;
+    flex-direction: column;
+    /* margin-right: 10px; */
+  }
+  .player-details > .trailing {
+    display: flex;
+    flex-direction: column;
+    justify-content: start;
+    /* align-items: end; */
+    padding: 10px;
+    /* margin-left: 10px; */
+  }
+
+  .player-card > .player-pictures {
+    padding: 10px;
+    justify-content: space-between;
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+    visibility: hidden;
+    opacity: 0;
+    transition: opacity 1s, visibility 1s ease-out;
+    height: 0px;
+  }
+
+  .player-card:hover > .player-pictures {
+    opacity: 1;
+    visibility: visible;
+    height: fit-content;
+  }
+
+  .player-card > .player-pictures > .player-image-container {
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    margin-right: 10px;
+  }
+
+  .player-card:hover > .player-pictures > .player-image-container {
+    display: flex;
+  }
+
+  .player-card > .player-pictures > .player-image-container > img {
+    width: 100px;
+    height: 0px;
+    margin: 10px;
+    display: none;
+  }
+  .player-card:hover > .player-pictures > .player-image-container > img {
+    height: 100px;
+    display: flex;
+  }
+
+  .button_container {
+    display: flex;
+    width: 100%;
+    /* padding: 2em;  */
+  }
+
+  .form-buttons {
+    display: flex;
+    flex-direction: row;
+    margin-top: 2em;
+    justify-content: space-evenly;
+  }
+
+  @media screen and (max-width: 800px) {
+    .button_container {
+      flex-direction: column;
+    }
+    .player-card {
+      width: 100%;
+      font-size: small;
+      min-width: 0px;
+    }
+    .player-card > .player-details {
+      flex-direction: column;
+    }
+
+    .player-card > .player-pictures {
+      opacity: 1;
+      visibility: visible;
+      height: fit-content;
+    }
+    .player-card > .player-pictures > .player-image-container {
+      display: flex;
+    }
+    .player-card > .player-pictures > .player-image-container > img {
+      height: 100px;
+      display: flex;
+    }
+    /* .form-buttons {
+      flex-direction: column;
+    } */
+    .form-buttons > button {
+      margin-bottom: 1em;
+      font-size: 3vw;
+    }
+  }
+
+  .loading-spinner {
+    border: 12px solid #f3f3f3;
+    border-radius: 50%;
+    border-top: 12px solid #444444;
+    width: 70px;
+    height: 70px;
+    animation: spin 1s linear infinite;
+  }
+
+  @keyframes spin {
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  .center {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    margin: auto;
+  }
+</style>
+
+<div class="loading-spinner center" id="loader"></div>
+
+<form
+  method="POST"
+  class="glass-morphism-container1"
+  name="player_form"
+  id="player_form"
+  player_id="newplayer"
+  enctype="multipart/form-data"
+  style="width: 100%; margin: 0px !important"
+>
+  <h3 class="form-heading">Add Player</h3>
+  {% csrf_token %}
+  <div class="row" id="player_form_container">
+    <!-- first name -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group" id="name_group">
+        <label class="text-left"
+          >First Name<span class="mandatory">*</span></label
+        >
+        <input
+          class="form-control"
+          type="text"
+          name="First Name"
+          id="textfield1"
+          required="true"
+        />
+      </div>
+    </div>
+    <!-- last name -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group" id="name_group">
+        <label class="text-left"
+          >Last Name<span class="mandatory">*</span></label
+        >
+        <input
+          class="form-control"
+          type="text"
+          name="Last Name"
+          id="textfield2"
+          required="true"
+        />
+      </div>
+    </div>
+    <!-- gender  -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group" id="gender_group">
+        <label class="text-left">Gender<span class="mandatory">* </span></label>
+        <select
+          class="form-control"
+          name="Gender"
+          id="textfield3"
+          required="true"
+          data-fillr-id="1552374762"
+          data-fillr="bound"
+          autocomplete="off"
+        >
+          <option value="">Select Gender</option>
+
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- dob -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group" id="dob_group">
+        <label class="text-left">
+          Date Of Birth<span class="mandatory">* </span></label
+        >
+        <input
+          class="form-control"
+          type="date"
+          name="D.O.B"
+          id="textfield4"
+          required="true"
+        />
+      </div>
+    </div>
+
+    <!-- primary_position -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >Primary Position<span class="mandatory">* </span></label
+        >
+        <select
+          class="form-control primary_position"
+          name="Primary Position"
+          id="textfield5"
+          required="true"
+          data-fillr-id="1552374762"
+          data-fillr="bound"
+          autocomplete="off"
+        >
+          <option value="">Select Primary Position</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- secondary_position -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >Secondary Position<span class="mandatory">* </span></label
+        >
+        <select
+          class="form-control secondary_position"
+          name="Secondary Position"
+          id="textfield6"
+          required="true"
+          data-fillr-id="1552374762"
+          data-fillr="bound"
+          autocomplete="off"
+        >
+          <option value="">Select Secondary Position</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- ph number  -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >Phone Number<span class="mandatory">* </span></label
+        >
+        <div class="input-group">
+          <input
+            type="text"
+            class="form-control"
+            value="+91"
+            readonly
+            style="max-width: 6ch"
+          />
+          <span class="input-group-addon">-</span>
+          <input
+            class="form-control"
+            type="number"
+            minlength="10"
+            width="90%"
+            onkeydown="limitmob(this,10);"
+            onkeyup="limitmob(this,10);"
+            name="Phone No."
+            id="textfield7"
+            pattern="[1-9]{1}[0-9]{9}"
+            required="true"
+          />
+        </div>
+      </div>
+    </div>
+
+    <!-- upload pic -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label for="textfield8">Upload Image</label>
+        <input
+          type="file"
+          name="Player Image"
+          accept="image/png, image/gif, image/jpeg"
+          class=""
+          id="textfield8"
+        />
+        <progress
+          id="image-progress-bar"
+          value="0"
+          max="100"
+          style="width: 100%; display: none"
+        ></progress>
+      </div>
+    </div>
+
+    <!-- document type -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >Select Document Type<span class="mandatory">*</span></label
+        >
+        <select
+          class="form-control document_type"
+          name="Document Type"
+          id="textfield9"
+          autocomplete="off"
+          required="true"
+        >
+          <option value="">Select Document</option>
+          <option value="1">Aadhar Card</option>
+          <option value="2">Birth Certificate</option>
+          <option value="3">School ID</option>
+          <option value="4">Passport</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- upload document -->
+
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label for="textfield9"
+          >Upload Document<span class="mandatory">* </span></label
+        >
+        <input
+          type="file"
+          name="Player Document"
+          accept="image/png, image/gif, image/jpeg"
+          class="form-control-file"
+          id="textfield10"
+          required="true"
+        />
+        <progress
+          id="doc-progress-bar"
+          aria-valuenow="0"
+          max="100"
+          style="width: 100%; display: none"
+        ></progress>
+      </div>
+    </div>
+
+    <!-- add player button -->
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-buttons">
+        <button
+          class="btn login-btn"
+          type="button"
+          id="addplayer"
+          style="width: 100%; max-width: 300px; margin-right: 10px"
+        >
+          Add Player
+        </button>
+        <button
+          class="btn login-btn bg-danger"
+          type="button"
+          id="cancel-button"
+          style="width: 100%; max-width: 300px; display: none"
+        >
+          Cancel
+        </button>
+      </div>
+    </div>
+  </div>
+</form>
+
+<div class="players row" id="allPlayers" style="margin: 3em 0px"></div>
+<div class="button_container">
+  <button
+    class="btn login-btn m-2"
+    style="width: 50%; min-width: 300px"
+    onclick="proceed_to_payment()"
+  >
+    Proceed To Payment
+  </button>
+  <button
+    class="btn login-btn m-2"
+    style="width: 50%; min-width: 300px"
+    onclick="see_reciept()"
+  >
+    Reciept
+  </button>
+</div>
+<script>
+  var csrftoken = "{{ csrf_token }}";
+  var positiondata = "{% url 'positiondata' %}";
+</script>
+<script src="{% static 'js/addplayer.js' %}"></script>
+
+<script>
+  //runs when the page is loaded
+
+  function prev() {
+    history.back();
+  }
+
+  function see_reciept() {
+    window.location.href = "{% url 'reciept' %}";
+  }
+</script>
+{% endblock %}

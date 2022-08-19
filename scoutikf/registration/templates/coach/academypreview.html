@@ -1,0 +1,174 @@
+{% extends "base.html" %} {% block content %}
+<div class="glass-morphism-container1">
+  <div style="color: red; text-align: center; margin-bottom: 1em">
+    {{review_before_submit}}
+  </div>
+
+  <h3 class="form-heading">Academy Details</h3>
+  <div class="row" style="margin-bottom: 2em; margin-top: 2em">
+    <!-- tournament_state -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <label class="text-left">Tournament State</label>
+      <span>:</span>
+      <label class="text-right" id="tournament_state">State</label>
+    </div>
+    <!-- tournament_city -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <label class="text-left">Tournament City</label>
+      <span>:</span>
+      <label class="text-right" id="tournament_city">CITY</label>
+    </div>
+    <!-- email -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <label class="text-left">Email</label>
+      <span>:</span>
+      <label class="text-right" id="academy_email">academy@gmail.com</label>
+    </div>
+    <!-- mobile -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <label class="text-left">Phone No.</label>
+      <span>:</span>
+      <label class="text-right" id="academy_mobile">9999999999</label>
+    </div>
+    <!-- academy name -->
+    <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+      <label class="text-left">Name</label>
+      <span>:</span>
+      <label class="text-right" id="academy_name">ACADEMY NAME</label>
+    </div>
+  </div>
+
+  <!-- Coach Details -->
+  <h3 class="form-heading">Coach Details</h3>
+  <!-- name -->
+  <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+    <label class="text-left">Name</label>
+    <span>:</span>
+    <label class="text-right" id="coach_name">NAME</label>
+  </div>
+
+  <!-- email -->
+  <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+    <label class="text-left">Email</label>
+    <span>:</span>
+    <label class="text-right" id="coach_email">coachmail@mail.com</label>
+  </div>
+
+  <!-- phone -->
+  <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+    <label class="text-left">Phone No.</label>
+    <span>:</span>
+    <label class="text-right" id="coach_mobile">8888888888</label>
+  </div>
+  <!-- buttons -->
+  <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+    <div class="form-group mb-0">
+      <button class="btn login-btn" onclick="prev()" formnovalidate>
+        Prev
+      </button>
+      <button class="btn login-btn" onclick="submit(this)" type="submit">
+        Submit
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  function prev() {
+    history.back();
+  }
+
+  function submit() {
+    postdata(academy_coach_details);
+  }
+
+  var academy_coach_details;
+  window.onload = function () {
+    academy_coach_details = retrieveData();
+    setData(academy_coach_details);
+  };
+
+  function retrieveData() {
+    return JSON.parse(sessionStorage.getItem("academy_coach_details"));
+  }
+
+  function setData(academy_coach_details) {
+    for (var item in academy_coach_details) {
+      $("#" + item).text(academy_coach_details[item]);
+    }
+    setcity();
+    setstate();
+  }
+
+  function postdata(academy_coach_details) {
+    var url = "{% url 'addcoach'  %}";
+    var csrf_token = "{{csrf_token}}";
+    academy_coach_details["csrfmiddlewaretoken"] = csrf_token;
+    console.log(csrf_token);
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: academy_coach_details,
+      success: function (data) {
+        console.log(data);
+        var coach_id = data["coach_id"];
+        sessionStorage.clear();
+        sessionStorage.setItem("coach_id", coach_id);
+        var admitcardURL = "admitcard";
+        location.replace(admitcardURL);
+      },
+      error: function (data) {
+        errorMessage = data.responseJSON["message"];
+        alert(errorMessage);
+      },
+    });
+  }
+
+  function setcity() {
+    var city_id = academy_coach_details["tournament_city"];
+    var url = "{% url 'getcity'  %}";
+    var csrf_token = "{{csrf_token}}";
+    var data = {
+      city_id: city_id,
+      csrfmiddlewaretoken: csrf_token,
+    };
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: data,
+      success: function (data) {
+        console.log(data);
+        $("#tournament_city").text(data["city_name"]);
+      },
+      error: function (data) {
+        errorMessage = data.responseJSON["message"];
+        alert(errorMessage);
+      },
+    });
+  }
+
+  function setstate() {
+    var state_id = academy_coach_details["tournament_state"];
+    var url = "{% url 'getstate'  %}";
+    var csrf_token = "{{csrf_token}}";
+    var data = {
+      state_id: state_id,
+      csrfmiddlewaretoken: csrf_token,
+    };
+    $.ajax({
+      type: "POST",
+      url: url,
+      data: data,
+      success: function (data) {
+        console.log(data);
+        $("#tournament_state").text(data["state_name"]);
+      },
+      error: function (data) {
+        errorMessage = data.responseJSON["message"];
+        alert(errorMessage);
+      },
+    });
+  }
+</script>
+
+{% endblock %}

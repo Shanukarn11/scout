@@ -1,0 +1,174 @@
+{% extends "base.html" %} {% block content %}
+
+<div class="glass-morphism-container1" name="form1" id="form1">
+  <h1 class="form-heading">{{heading_payment}}</h1>
+  {% csrf_token %}
+
+  <input
+    type="hidden"
+    name="_token"
+    value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3"
+  />
+  <div class="row">
+    <div class="col-lg-12 col-md-6 col-sm-12 mt-3">
+      <div class="form-group">
+        <label class="text-left"
+          >{{payment_amount_label}}<span class="mandatory"></span
+        ></label>
+        <input
+          class="form-control"
+          type="text"
+          name="payment_amount"
+          id="payment_amount"
+          readonly
+          required
+        />
+      </div>
+    </div>
+
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-group mb-0">
+        <button id="rzp-button1">Pay</button>
+        <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+        <script>
+          var amount = document.getElementById("payment_amount").value;
+          var realamount = 100 * parseInt(amount);
+          var stringamount = realamount.toString();
+          
+          var data=JSON.parse(sessionStorage.getItem("data"))
+          var customer_name = data['first_name'];
+
+          var options = {
+            key: "rzp_test_ahDEPkxQSa6Ykb", // Enter the Key ID generated from the Dashboard
+            amount: stringamount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+            currency: "INR",
+            name: "India Khelo Football",
+            description: "Transaction",
+            image:
+              "https://season2.indiakhelofootball.com/static/img/ikflogo.png",
+            order_id: sessionStorage.getItem("order_id"), //sessionStorage.getItem("order_id")This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+            handler: function (response) {
+              $.ajax({
+                type: "POST",
+                url: "{% url 'paymentstatus' %}",
+                data: {
+                  ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
+                  playeruploadid: data["playeruploadid"],
+                  status: "success",
+                  razorpay_payment_id: response.razorpay_payment_id,
+                  razorpay_order_id: response.razorpay_order_id,
+                  razorpay_signature: response.razorpay_signature,
+                  error_code: "",
+                  error_description: "",
+                  error_source: "",
+                  error_reason: "",
+                  error_meta_order_id: "",
+                  error_meta_payment_id: "",
+
+                  amount: document.getElementById("payment_amount").value,
+                  csrfmiddlewaretoken: "{{ csrf_token }}",
+                },
+
+                success: function (result) {
+                  if (result) {
+                    AMOUNTDATA = JSON.parse(result);
+                    console.log(AMOUNTDATA);
+
+                    alert("Payement Successful");
+
+                    window.location.href = "{% url 'printpdf' %}";
+                  }
+                },
+                error: function (error) {
+                  alert("Payment Successfull");
+                  alert("Integrity Error");
+                  window.location.href = "{% url 'printpdf' %}";
+                },
+              });
+            },
+            prefill: {
+              name: customer_name,
+              email: data["email"],
+              contact: data["mobile"],
+            },
+            notes: {
+              address: "",
+              ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
+              playeruploadid: data["playeruploadid"],
+            },
+            theme: {
+              color: "#3399cc",
+            },
+          };
+          var rzp1 = new Razorpay(options);
+
+          rzp1.on("payment.failed", function (response) {
+            $.ajax({
+              type: "POST",
+              url: "{% url 'paymentstatus' %}",
+              data: {
+                ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
+                playeruploadid: data["playeruploadid"],
+                status: "failed",
+                razorpay_payment_id: "",
+                razorpay_order_id: "",
+                razorpay_signature: "",
+
+                error_code: response.error.code,
+                error_description: response.error.description,
+                error_source: response.error.step,
+                error_reason: response.error.reason,
+                error_meta_order_id: response.error.metadata.order_id,
+                error_meta_payment_id: response.error.metadata.payment_id,
+
+                amount: document.getElementById("payment_amount").value,
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+              },
+
+              success: function (result) {
+                if (result) {
+                  alert(response.error.description);
+                  window.location.href = "{% url 'paymentfail' %}";
+                }
+              },
+              error: function (error) {
+                alert(response.error.description);
+                alert("Integrity Error");
+                window.location.href = "{% url 'paymentfail' %}";
+              },
+            });
+          });
+          document.getElementById("rzp-button1").onclick = function (e) {
+            rzp1.open();
+
+            e.preventDefault();
+          };
+        </script>
+
+        <script>
+          var AMOUNTDATA = "";
+          window.onload = function () {
+            $.ajax({
+              type: "POST",
+              url: "{% url 'amount' %}",
+              data: {
+                data: sessionStorage.getItem("data"),
+                csrfmiddlewaretoken: "{{ csrf_token }}",
+              },
+
+              success: function (result) {
+                if (result) {
+                  AMOUNTDATA = JSON.parse(result);
+                  document.getElementById("payment_amount").value = AMOUNTDATA;
+                }
+              },
+              error: function (error) {},
+            });
+          };
+        </script>
+      </div>
+    </div>
+  </div>
+</div>
+<script></script>
+{% endblock %}

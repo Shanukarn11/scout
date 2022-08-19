@@ -1,0 +1,129 @@
+<style>
+  .contactus {
+    position: relative;
+    background-color: rgba(0, 0, 0, 0.352);
+    padding: 40px;
+    color: #008eb5;
+    background-clip: padding-box;
+    box-shadow: 10px 10px 10px rgba(46, 54, 68, 0.03);
+    backdrop-filter: blur(40px);
+    margin: 0px;
+    margin-top: 30vh;
+    height: fit-content;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
+  .box {
+    display: flex;
+    flex-direction: column;
+    /* justify-content: space-between; */
+    margin: 0px;
+    position: relative;
+    /* margin: 3em; */
+  }
+
+  .box-heading {
+    text-align: center;
+  }
+  .socialMedia {
+    display: flex;
+    flex-direction: row;
+    margin-top: 0.5em;
+    justify-content: center;
+  }
+
+  .box-icon {
+    border-radius: 50%;
+    behavior: url(PIE.htc);
+    height: 35px;
+    width: 35px;
+    background-color: transparent;
+    cursor: pointer;
+    padding: 0.15em;
+    position: relative;
+    margin-right: 0.25em;
+    align-self: center;
+  }
+
+  /* .mediaIcon:hover {
+    transform: translate(0px, -10px);
+    box-shadow: 20px 12px 12px black;
+    transition-duration: 0.5s;
+    background-color: white;
+  } */
+
+  @media screen and (max-width: 800px) {
+    .contactus {
+      flex-direction: column;
+    }
+
+    .box {
+      margin-bottom: 2.5em;
+    }
+  }
+</style>
+
+{% extends "navbar.html" %}{% load static %} {% block body %}
+
+<!-- Contact us info -->
+<div class="contactus">
+  <!-- For socaial media -->
+  <div class="box">
+    <div class="box-heading">Social Links</div>
+    <div class="socialMedia">
+      {% for social in social_links %}
+      <img
+        class="box-icon"
+        src="{% static social.icon %}"
+        alt="{{social.name}}"
+        onclick="window.open('{{social.url}}','_blank')"
+      />
+      {% endfor %}
+    </div>
+  </div>
+  <!-- WEBSITE -->
+  <div class="box">
+    <div class="box-heading">Checkout Our Website</div>
+    {% for website in website_links %}
+    <img
+      class="box-icon"
+      src="{% static website.icon %}"
+      style="margin-top: 0.5em"
+      alt="{{website.name}}"
+      onclick="window.open('{{website.url}}','_blank')"
+    />
+    {% endfor %}
+  </div>
+  <!-- Phone Call -->
+  <div class="box">
+    <div class="box-heading">Call Us Directly</div>
+    {% for phone in phone_links %}
+    <img
+      class="box-icon"
+      src="{% static phone.icon %}"
+      style="margin-top: 0.5em"
+      alt="{{phone.url}}"
+      onclick="window.open('tel:{{phone.url}}','_blank')"
+    />
+    {% endfor %}
+  </div>
+</div>
+<!-- For icons in a row -->
+
+<!-- video  -->
+<!-- <div class="video-container">
+  <video autoplay loop id="video-background" muted plays-inline>
+    <source
+      src="https://player.vimeo.com/external/158148793.hd.mp4?s=8e8741dbee251d5c35a759718d4b0976fbf38b6f&profile_id=119&oauth2_token_id=57447761"
+      type="video/mp4"
+    />
+  </video>
+</div> -->
+<script>
+window.onload=function(){
+  sessionStorage.clear()
+}
+</script>
+{%endblock%}

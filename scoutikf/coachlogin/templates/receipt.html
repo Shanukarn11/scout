@@ -1,0 +1,107 @@
+{% extends "base.html" %} {% block content %}
+<style>
+  .team_div {
+    margin: 4em;
+  }
+  .glass-morphism-container1 {
+    /* font-size: small; */
+    width: fit-content !important;
+    text-align: start;
+    margin: auto;
+  }
+  h1 {
+    color: white;
+  }
+  @media screen and (max-width: 600px) {
+    .glass-morphism-container1 {
+      font-size: small;
+      width: fit-content;
+    }
+
+    .team_div {
+      margin: 2em;
+      align-items: center;
+    }
+  }
+  .center {
+    text-align: center;
+    justify-content: center;
+  }
+</style>
+<div class="center">
+  <h1>{{reciept_heading}} : <span id="player_count">0</span></h1>
+  <h5
+    style="
+      color: white;
+      font-weight: bold;
+      /* text-shadow: 0 0 3px, 0 0 5px; */
+      font-style: italic;
+    "
+  >
+    {{pass_message}}
+  </h5>
+  <div class="team_div center" id="team_div"></div>
+  <button class="btn login-btn" onclick="goto_addplayers()">
+    Continue Adding Players
+  </button>
+</div>
+<script>
+  window.onload = function () {
+    show_reciept(sessionStorage.getItem("coach_id"));
+  };
+
+  function goto_addplayers() {
+    location.replace("{% url 'coachdashboard' %}");
+  }
+  function show_reciept(coach_id) {
+    $.ajax({
+      url: "{% url 'reciept' %}",
+      type: "POST",
+      data: {
+        csrfmiddlewaretoken: "{{ csrf_token }}",
+        coach_id: coach_id,
+      },
+      success: function (response) {
+        var team_div = document.getElementById("team_div");
+        console.log(response);
+        var player_count = response.length;
+        document.getElementById("player_count").innerHTML = player_count;
+        for (var player in response) {
+          player = response[player];
+          console.log(player);
+          team_div.append(
+            player_card({
+              name: player["name"],
+              ikfid: player["ikfuniqueid"],
+              gender: player["gender"],
+              amount: player["amount"],
+              phone: player["phone"],
+            })
+          );
+        }
+      },
+    });
+  }
+
+  function player_card({ name, ikfid, gender, amount, phone } = {}) {
+    var player_card = document.createElement("div");
+    player_card.className =
+      "glass-morphism-container1 col-lg-6 col-md-6 col-sm-12 mt-3";
+    var name_div = document.createElement("div");
+    name_div.innerText = `Name : ${name}`;
+    player_card.appendChild(name_div);
+    var gender_div = document.createElement("div");
+    gender_div.innerText = `Gender : ${gender}`;
+    player_card.appendChild(gender_div);
+    var id_div = document.createElement("div");
+    id_div.innerText = `IKF ID : ${ikfid}`;
+    player_card.appendChild(id_div);
+    var amount_div = document.createElement("div");
+    amount_div.innerText = `Amount Paid : ₹ ${amount}`;
+    player_card.appendChild(amount_div);
+    var phone_div = document.createElement("div");
+    amount_div.innerText = `Phone Number :  ${phone}`;
+    return player_card;
+  }
+</script>
+{% endblock %}

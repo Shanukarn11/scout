@@ -1,0 +1,891 @@
+{% extends "baselogin.html" %}
+{% block content %}
+{% load static %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alex+Brush&display=swap" rel="stylesheet">
+
+<style>
+  /* body {
+  background: #c5d8e6;
+  font-family: helvetica, arial !important;
+  text-transform: uppercase;
+  box-sizing: border-box;
+} */
+h1 {
+  color: #000000;
+  font-weight: 200;
+  font-size: 2.1em;
+  margin: 0px !important;
+}
+h2 {
+  color: #1d1e1f;
+  /* opacity: 0.5; */
+  font-weight: 100;
+  font-size: 10px!important;
+  margin: 0px !important;
+  margin-bottom: 2px;
+  color: rgb(165, 150, 150);
+  font-family: helvetica, arial !important;;
+}
+h3 {
+  color: #2c2f30;
+  /* opacity: 0.8; */
+  font-weight: 500;
+  font-size: 12px;
+  margin: 0px !important;
+}
+
+</style>
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    <button class="nav-link active" id="previewnav" data-bs-toggle="tab" data-bs-target="#previewtab" type="button" role="tab" aria-controls="previewtab" aria-selected="true">{{login_preview_tab}}</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="paymentnav" data-bs-toggle="tab" data-bs-target="#paymenttab" type="button" role="tab" aria-controls="paymenttab" aria-selected="false">{{ login_payment_tab}}</button>
+  </li>
+  <li class="nav-item" role="presentation">
+    <button class="nav-link" id="passnav" data-bs-toggle="tab" data-bs-target="#passtab" type="button" role="tab" aria-controls="passtab" aria-selected="false">{{login_download_tab}}</button>
+  </li>
+</ul>
+  <div class="tab-content" id="nav-tabContent">
+    <div class="tab-pane fade show active" id="previewtab" role="tabpanel" aria-labelledby="previewnav">
+      <div class="d-flex justify-content-center" >
+        <div class="spinner-border"  role="status" >
+          <span class="sr-only">..</span>
+        </div>
+      </div>
+      <div  name="form1" id="form1" class="col-lg-12 col-md-6 col-sm-12 glass-morphism-container1"> 
+        <h4 class="form-heading">{{heading_player_preview}}</h4>
+        {% csrf_token %}
+      
+        <div class="row" id="thisid">
+          <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-1">
+            <div class="form-group mb-0">
+              <h5 class="text-center" id="information_text">
+                
+              </h5>
+            </div>
+          </div>
+          <div class="col-lg-12 col-md-6 col-sm-12  ">
+            <div class="card-body px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: row; ">
+              
+              
+              <label class="text-secondary  small font-weight-600 " style="color: wheat !important;">Payment Status </label>
+              
+              <label class="px-1">  :  </label>
+              <label class="card-btn "  id="status"></label>
+              
+              
+            </div>
+
+         </div>
+
+
+          <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+            <div class="form-group mb-0">
+
+            
+              <button class="btn login-btn mt-2" onclick="proceed_to_payment(this)"  id="proceed" >Proceed to Payment</button>
+            </div>
+          </div>
+          {% for field in formikf %} 
+          {% if field.type == "label" or field.type == "cstate"  or field.type == "dob" or field.type == "cposition" %}
+      
+      
+        <div class="col-lg-12 col-md-6 col-sm-12  ">
+                          <div class="card-body px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: row; ">
+                            
+                            
+                            <label class="text-secondary  small font-weight-600 " style="color: wheat !important;">{{field.label}}</label>
+                            
+                            <label class="px-1">  :  </label>
+                            <label class="card-btn "  id="{{field.columnid}}"></label>
+                            
+                            
+                        </div>
+      
+          </div>
+          {% elif field.type == "ccity" %}
+      
+          <div class="col-lg-12 col-md-6 col-sm-12 " id="ccity">
+            <div class="card-body px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: row; ">
+              
+              
+              <label class="text-secondary  small font-weight-600 " style="color: wheat !important;">{{field.label}}</label>
+              
+              <label class="px-1">  :  </label>
+              <label class="card-btn "  id="{{field.columnid}}"></label>
+              
+              
+          </div>
+      
+      </div>
+          {% elif field.type == "uploadpic" %}
+          <div id="pic_file_set"class="col-lg-12 col-md-6 col-sm-12 mt-1">
+            
+            <div class="form-group px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: column; ">
+              <label>{{uploaded_pic_preview_label}}</label>
+              <img
+                
+               
+                id="pic_file"
+                name="pic_file"
+                width="260px"
+                height="200px"
+                >
+              </img>
+            </div>
+          </div>
+
+          {% endif %} 
+          {% endfor %}
+      
+      
+      
+      
+      
+      
+      
+      
+      
+          <div class="d-flex justify-content-center" >
+            <div class="spinner-border"  role="status" >
+              <span class="sr-only">..</span>
+            </div>
+          </div>
+      
+      
+
+      
+      
+        </div>
+      </div> 
+
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="tab-pane fade" id="paymenttab" role="tabpanel" aria-labelledby="paymentnav">
+      <div class="glass-morphism-container1" name="form2" id="form2">
+  
+
+        <h4 class="form-heading">{{heading_payment}}</h4>
+        {% csrf_token %}
+      
+        <input
+          type="hidden"
+          name="_token"
+          value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3"
+        />
+        <div class="row">
+          <div class="col-lg-12 col-md-6 col-sm-12 mt-3">
+            <div class="form-group">
+              <label class="text-left"
+                >{{payment_amount_label}}<span class="mandatory"></span
+              ></label>
+              <input
+                class="form-control"
+                type="text"
+                name="payment_amount"
+                id="payment_amount"
+                readonly
+                required
+              />
+            </div>
+          </div>
+      
+          <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+            <div class="form-group mb-0">
+              <button id="rzp-button1">Pay</button>
+              <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
+      
+              <script>
+
+              </script>
+            </div>
+          </div>
+        </div>
+      </div>
+      <script></script>
+
+    </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+    <div class="tab-pane fade" id="passtab" role="tabpanel" aria-labelledby="passnav">
+
+    <!-- Player Pass -->
+<div class="body-div" style="display: flex;flex-direction:column;align-items: center;">
+  <div class="cards_wrapper" style="background-color:#c5d8e6 ;"  id="playerpass">
+    <div class="card">
+      <div class="card_heading">
+        <h3 style="font-weight: 500; ">IKF SEASON 2 <span id="header_city">CITY</span> TRIAL PASS</h3>
+      </div>
+      <div class="card_trip">
+        <img class="pic_file" alt="PROFILE PIC"
+        style="    width: 150px;
+        height: 150px;
+        border-radius: 50%;
+        border-color: black;
+        padding: 0px;">
+      </div>
+      <div class="new_palyer_div" style=" margin-bottom: 1em;">
+        <div class="name" id="name">Player Name</div>
+        <div class="dob" id="dateofbirth">yyyy/mm/dd</div>
+      </div>
+      <div class="card_divider">
+        <div class="divider_left divider_hole">
+        </div>
+        <div class="divider">
+        </div>
+        <div class="divider_right divider_hole">
+        </div>
+      </div>
+      <div class="tournament_details" style="margin-bottom: 0px;">
+        <div class="details_state">
+          <h3 id="tournament_state_id">STATE</h3>
+        </div>
+        <div class="details_city">
+          <h3 id="tournament_city_id">CITY</h3>
+        </div>
+        <div class="details_category">
+          <h3>U<span id="category_age">AGE</span><span style="font-weight: 600;" id="genderofplayer">GEN</span></h3>
+        </div>
+      </div>
+
+      <div class="aadhar_details" style="text-align: start;">
+        <h3>Regional Execution Partner ( REP) <b>:</b> <span style="font-weight: 600;" id="partner_name">REP NAME</span></h3>
+      </div>
+      <div class="card_header" >
+        <img class="player_id_barcode" alt="BARCODE" style="width:fit-content;height:fit-content; margin-top: 0px;"></img>
+       </div>
+       <img class="logo" src="{% static 'img/ikflogo.png' %} " style="height: 60px;width: 120px;justify-self: center;margin-bottom: 0.7em;"></img>
+      <div style="font-style: normal;font-size:small;text-align: center;color: black;
+      font-family: 'Alex Brush', cursive;
+      color: #187ec0;
+      /* font-weight: 600; */
+      font-size: 22px;
+      background-color: white;
+      border-bottom-left-radius: 20px;
+      letter-spacing:1px;
+      border-bottom-right-radius: 20px; text-transform: none !important;">{{aap_khelo_mauka_hum_denge}}</div>
+    </div>
+  </div>
+   
+  <!-- PRINT BUTTON -->
+  <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+    <div class="form-group mb-0">
+        <button class="btn login-btn" id="download" > Download </button>
+    </div>
+  </div>
+</div>
+
+
+<script src="{% static 'js/html2canvas.js' %}" type="text/javascript"></script>
+    </div>
+  </div>
+
+
+
+  <script>
+
+    var GROUP_DATA=""
+    var AMOUNT=""
+    var IKFUNIQUEID=""
+    var ID=""
+    var PLAYERUPLOADID=""
+    var EMAIL=""
+    var MOBILE=""
+    var CUSTOMERNAME=""
+    var AMOUNT=""
+    var ORDER_ID=""
+    var amount_dict={}
+      function checkempty(data) {
+        if (data == null || data == "" || data == undefined) {
+          return "NA";
+        } else {
+          return data;
+        }
+      }
+    
+      function converter(data,type, documentid){
+        
+
+        
+        $.ajax({
+          type: "POST",
+          url: "{% url 'converter' %}",
+          data:{id:data,type:type,csrfmiddlewaretoken:'{{ csrf_token }}'},
+    
+          success: function(result){
+            if(result){
+
+              var converterdata=JSON.parse(result)
+              if(converterdata[0]){
+             
+                document.getElementById(documentid).innerHTML=converterdata[0]['label']
+    
+              }
+    
+              
+    
+              
+            }
+            
+    
+    
+          }
+        }
+        )  
+    
+      }
+    
+    if(document.getElementById('paymentnav')){
+      document.getElementById('paymentnav').style.display="none"  
+    }
+    
+    window.onload = function(e) {
+    
+    document.getElementById('paymentnav').style.display="none"
+    preview()
+
+
+
+      
+      }
+
+function preview(){
+  $('.spinner-border').hide();
+
+      
+  var allElements =document.getElementById("thisid").getElementsByTagName("*");
+  var allIds = [];
+  for (var i = 0, n = allElements.length; i < n; ++i) {
+    var el = allElements[i];
+    if (el.id) { allIds.push(el.id); }
+  } 
+  
+  const imageBox=document.getElementById("pic_file");
+  const fileBox=document.getElementById("document_id_file")
+  $.ajax({
+    type: "POST",
+    url: "{% url 'playerdatalogin' %}",
+    data:{ikfuniqueid:sessionStorage.getItem('ikfloginuniqueid') ,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+    success: function(inputdata){
+
+
+            if(inputdata){
+
+              IKFUNIQUEID=inputdata['ikfuniqueid']
+              PLAYERUPLOADID=inputdata['playeruploadid']
+              ID=inputdata['id']
+              EMAIL=inputdata['email']
+              MOBILE=inputdata['mobile']
+              CUSTOMERNAME=inputdata['first_name']
+              amount_dict={
+                'tournament_city':inputdata['tournament_city_id'],
+                'season':inputdata['season_id'],
+                'group':inputdata['group_id'],
+                "whoisfilling":inputdata['whoisfilling_id']
+        
+              }
+
+           allIds.forEach(item => {
+           
+           if(item=='csrfmiddlewaretoken' || item=='_token' || item=='information_text' || item=='next'||item=='prev'||item=='proceed'||item=='ccity'){}
+           else if(item=='tournament_city'||item=='state'||item=='primary_position'||item=='secondary_position'||item=='document_id_selected'){
+            var type=item+'_id'
+            converter(checkempty(inputdata[type]),type,item)
+
+           }
+           else if(item=='pic_file_set'){
+           
+           
+          }
+           else if(item=='pic_file'){
+            if(inputdata["pic_file"] && inputdata["pic_file"]!=""){
+
+              //imageBox.src=inputdata["pic_file"]
+              $.ajax({
+                type: "POST",
+                url: "{% url 'viewpic' %}",
+                data:{playeruploadidfinal:inputdata["playeruploadid"],csrfmiddlewaretoken:'{{ csrf_token }}'},
+                success: function(result){
+                  if(result){imageBox.src=result;}
+                  },
+                error:function(error){
+                  error="pic file error "+JSON.stringify(error)
+                 // alert(JSON.stringify(error),"pic file error")
+                }
+              })
+
+              
+            }else{
+             
+              document.getElementById("pic_file_set").style.display = "none";
+            }
+           
+           
+           }
+           else if(item=='document_id_file'){
+
+            if(inputdata["document_id_file"] && inputdata["document_id_file"]!=""){
+              fileBox.src=inputdata["document_id_file"]
+            }
+
+           }
+           else if(item=='status'){
+            console.log(inputdata['status'])
+
+            if(inputdata['status']){
+              document.getElementById('status').innerHTML=inputdata['status']
+            }
+            else{
+              document.getElementById('status').innerHTML="Payment Not Initiated"
+            }
+            
+            
+           }
+           else{
+            
+            document.getElementById(item).innerHTML=checkempty(inputdata[item])}
+
+
+            
+            if(inputdata['status']=='failed'){
+              document.getElementById('paymentnav').style.display="none"
+              document.getElementById('passnav').style.display="none"
+
+
+            }
+            else if(inputdata['status']=='success'){
+              document.getElementById('proceed').style.display="none"
+              document.getElementById('paymentnav').style.display="none"
+              
+
+            }
+            else{
+              document.getElementById('paymentnav').style.display="none"
+              document.getElementById('passnav').style.display="none"
+               //alert("Your Payment Is not Initiated Yet")
+
+            }
+
+            }); 
+
+      
+            $.ajax({
+              type: "POST",
+              url: "{% url 'amount' %}",
+              data:{data:JSON.stringify(amount_dict),csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+              success: function(result){
+                if(result){
+                  AMOUNT=JSON.parse(result)
+                  
+                }
+
+                
+
+              },
+              error:function(error){
+
+              }
+            })
+
+
+            
+            $.ajax({
+              type: "POST",
+              url: "{% url 'mygroup' %}",
+              data:{dob:inputdata['dob'],gender:inputdata['gender'],city:inputdata['tournament_city_id'],include:1,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+              success: function(result){
+                previewdata=JSON.parse(result)
+                
+                if(previewdata['present']=="1"){
+                  GROUP_DATA=previewdata['id'] 
+                  if(previewdata['gender']=="Male"){
+                    previewdata['gender']="{{ boy_text_in_preview }}"
+                  }
+                  if(previewdata['gender']=="Female"){
+                    previewdata['gender']="{{ girl_text_in_preview }}"
+                  }
+                  var textoutput="{{you_are_elgible_for}}" + " " + previewdata['group'] + " "+ previewdata["gender"]+" "+"{{category_for_eligibility}}" +" ( " + previewdata['start'] +"-"+ " "+previewdata['end']+" "+ ")"
+                  document.getElementById("information_text").innerHTML=textoutput 
+                }
+                else{
+                  GROUP_DATA=""
+                  var if_not_eligible_hyperlink_text="{{if_not_eligible_hyperlink_text}}"
+                  var if_not_eligible_reason="{{if_not_eligible_reason}}"
+                  document.getElementById("information_text").innerHTML= `<a style="color:red;" href="{% url 'coachorplayer' 'en' 'Player' %}">${if_not_eligible_reason} </a>`
+                  document.getElementById("next").hidden=true
+                 document.getElementById("ccity").hidden=true 
+                }
+                  
+
+              }})  
+
+
+
+       }
+
+
+            
+          },
+    error:function(error){
+      error="inputdata error"+JSON.stringify(error)
+      alert(JSON.stringify(error),"mainfunction")
+    }
+
+  })
+}
+    
+    function proceed_to_payment(self){
+      $('.spinner-border').show();
+      
+    
+    $.ajax({type: "POST",
+            url: "{% url 'order' %}",
+            data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:AMOUNT, csrfmiddlewaretoken:'{{csrf_token}}'} }
+          ) .done(function (result) { 
+            $('.spinner-border').hide();
+                                      
+                                      resultdata=JSON.parse(result)
+                                     if(resultdata['error']=="true"){
+                                                   alert(resultdata['message'] )
+                                        }
+                                     else{try{
+              alert("Order ID is generated Successfully");
+    
+            
+            ORDER_ID=resultdata['order_id']
+            var paymenttab = new bootstrap.Tab(document.querySelector('#paymentnav'))
+            document.getElementById('paymentnav').style.display="block"
+            document.getElementById("payment_amount").value = AMOUNT;
+
+            paymenttab.show()
+    
+
+            paymentpart(IKFUNIQUEID, PLAYERUPLOADID,ORDER_ID,AMOUNT,CUSTOMERNAME,EMAIL,MOBILE)
+           
+            
+            }
+            catch(e){
+    
+
+             alert(e)
+            }
+    
+            
+            
+          } 
+        
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) { 
+          $('.spinner-border').hide();
+          alert("Order Api Error. Please Try Again") }); 
+    
+      }
+    
+
+$("#passnav").click(function() {
+
+  makepass(IKFUNIQUEID,PLAYERUPLOADID)
+     
+
+  })
+$("#previewnav").click(function() {
+
+    preview()
+       
+  
+    })
+  function makepass(ikfuniqueid,playeruploadid){
+
+  
+
+  
+
+    $.ajax({
+      type: "POST",
+      url:"{% url 'playerdata' %}",
+      data:{ikfuniqueid:ikfuniqueid, playeruploadid:playeruploadid, csrfmiddlewaretoken:'{{ csrf_token }}' },
+      success:function(result){
+        try{
+        result['name']=result['first_name']+" "+result['last_name'];
+        result['category_age']=result['group_id'].substring(6,8);
+        result['pic_file']=result['pic_file']==""?(isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}"):"../media/images/"+result['pic_file'];
+
+        //result['pic_file']=checkempty(result['pic_file'])?isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}":result['pic_file'];
+        result['genderofplayer']="(" + result['gender'].substring(0,1)+ ")";
+        result['dateofbirth']=result['dob']
+        result['player_id_barcode']="../media/barcode/"+result['ikfuniqueid']+'.png';
+  
+        //for masking
+        if(result['document_id_number'] &&  result['document_id_number']!="" && result['document_id_number']!="NA"){
+
+        s="";
+        for(i=0;i<result['document_id_number'].length-4;i++)
+         s+='X';
+        //  temp=mask(result['document_id_number'],s);
+        result['document_id_number_pass']=s+result['document_id_number'].substring(result['document_id_number'].length-4);
+
+        }
+        else{
+          result['document_id_number_pass']="NA"
+        }
+
+        
+        console.log('success',result);
+        var allElementpassID=[];
+        $("#playerpass *").each(function(){
+          if(this.id){
+
+            allElementpassID.push(this.id);
+          }
+          
+          
+        })
+        console.log(allElementpassID);
+    
+          allElementpassID.forEach(function(element){
+          if(element=='tournament_city_id'||element=='tournament_state_id'||element=='document_id_selected_id'){
+            converterpass(checkempty(result[element]),element,element)
+          }
+          else if(element=="header_city"){
+            console.log("header_city");
+          }
+          else{
+            document.getElementById(element).innerHTML=result[element];
+          }
+        })
+        }
+        catch(e){
+          alert(JSON.stringify(e))
+        }
+
+
+        document.getElementsByClassName('pic_file')[0].src=result['pic_file'];
+        document.getElementsByClassName('player_id_barcode')[0].src=result['player_id_barcode'];
+  
+        $.ajax({
+    type: "POST",
+      url:"{% url 'partnerinfo' %}",
+      data:{season:result['season_id'], city:result['tournament_city_id'], category:result['category_id'],
+      csrfmiddlewaretoken:'{{ csrf_token }}'},
+      success:function(partnerinfo){
+        console.log('this is partnerinfo',partnerinfo);
+        document.getElementById('partner_name').innerHTML=partnerinfo['partner_name'];
+      },
+      error:function(error){}
+  
+  })
+      },
+      error:function(error){'error is here',console.error(error);},
+    })
+  }
+
+function mask(result,c){
+    s=result['document_id_number'];
+    var temp="";
+    for(i=0;i=s.length-4;i++)
+      temp+=c;
+    // result['document_id_number']=temp+s.substring(s.length-3,s.length);
+    console.log(temp);
+}
+
+function converterpass(data,type, documentid){
+  if(type=='header_city'){
+    data="tournament_city_id";
+  }
+   $.ajax({
+     type: "POST",
+     url: "{% url 'converter' %}",
+     data:{id:data,type:type,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+     success: function(result){
+       if(result){
+         var converterdata=JSON.parse(result)
+         console.log(converterdata[0]['label'])
+         if(documentid=="tournament_city_id"){
+           document.getElementById('tournament_city_id').innerHTML=converterdata[0]['label'];
+           console.log(document.getElementById("header_city"),converterdata[0]['label'],'this is header ciity');
+           document.getElementById('header_city').innerHTML=converterdata[0]['label'];
+         }
+         else{
+           document.getElementById(documentid).innerHTML=converterdata[0]['label'] 
+         }
+       }
+     }
+   }
+  )  
+ }
+// function downloadpass(event,self){
+
+//     alert("downloadpass")
+//     // self.addClass("active")
+//     self.setAttribute("data-bs-target","#passtab")
+ 
+//     self.setAttribute("aria-controls","passtab")
+//     self.setAttribute("aria-selected","true")
+//     self.setAttribute("class","active")
+    
+    
+
+
+
+// }
+
+function isMale(data){
+  if(data=="Male")
+    return true;
+  return false;
+}
+
+$("#download").on('click', function () {
+  html2canvas(document.getElementById("playerpass"),{
+    allowTaint: true,
+    useCORS: true,
+  }).then(function (canvas) {
+    var anchorTag = document.createElement("a");
+    document.body.appendChild(anchorTag);
+    // document.getElementById("previewImg").appendChild(canvas);			
+    anchorTag.download = "playerpass.jpg";
+    anchorTag.href = canvas.toDataURL();
+    anchorTag.target = '_blank';
+    anchorTag.click();
+  });
+});
+
+
+function paymentpart(ikfuniqueid, plyaeruploadid,order_id,amount,customer_name,email,mobile){
+  console.log(plyaeruploadid)
+  var amount = document.getElementById("payment_amount").value;
+  var realamount = 100 * parseInt(amount);
+  var stringamount = realamount.toString();
+  var customer_name = customer_name;
+
+
+  var options = {
+    key: "rzp_test_ahDEPkxQSa6Ykb", // Enter the Key ID generated from the Dashboard
+    amount: stringamount, // Amount is in currency subunits. Default currency is INR. Hence, 50000 refers to 50000 paise
+    currency: "INR",
+    name: "India Khelo Football",
+    description: "Transaction",
+    image:"https://season2.indiakhelofootball.com/static/img/ikflogo.png",
+    order_id:order_id, //sessionStorage.getItem("order_id")This is a sample Order ID. Pass the `id` obtained in the response of Step 1
+    handler: function (response) {
+      console.log(response)
+      $.ajax({
+        type: "POST",
+        url: "{% url 'paymentstatus' %}",
+        data: {
+          ikfuniqueid: ikfuniqueid,
+          playeruploadid:plyaeruploadid,
+          status:"success",
+          razorpay_payment_id:response.razorpay_payment_id,
+          razorpay_order_id:response["razorpay_order_id"],
+          razorpay_signature:response["razorpay_signature"],
+          error_code:"",
+          error_description:"",
+          error_source:"",
+          error_reason:"",
+          error_meta_order_id:"",
+          error_meta_payment_id:"",
+
+          amount:document.getElementById("payment_amount").value,
+          csrfmiddlewaretoken: "{{ csrf_token }}",
+        
+        },
+
+        success: function (result) {
+          if (result) {
+            AMOUNTDATA = JSON.parse(result);
+            console.log(AMOUNTDATA)
+
+            alert("Payment Successfull");
+           
+            var passtab = new bootstrap.Tab(document.querySelector('#passnav'))
+            document.getElementById('passnav').style.display="block"
+           
+
+            passtab.show()
+            makepass(ikfuniqueid,plyaeruploadid)
+            document.getElementById('paymentnav').style.display="none"
+            
+          }
+        },
+        error: function (error) {
+          alert("Payment Successfull");
+          alert("Integrity Error");
+       
+
+        },
+      });
+      
+
+      
+      
+    },
+    prefill: {
+      name: customer_name,
+      email: email,
+      contact: mobile,
+    },
+    notes: {
+      address: "",
+      ikfuniqueid: ikfuniqueid,
+      playeruploadid:plyaeruploadid,
+      
+      
+      
+    },
+    theme: {
+      color: "#3399cc",
+    },
+  };
+
+
+
+  var rzp1 = new Razorpay(options);
+
+  rzp1.on("payment.failed", function (response) {alert(response.error.description);});
+
+  document.getElementById("rzp-button1").onclick = function (e) {
+   rzp1.open();
+   e.preventDefault();
+  };
+
+}
+                
+
+
+
+
+    </script>
+{% endblock %}   

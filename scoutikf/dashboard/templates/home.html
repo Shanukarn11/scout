@@ -1,0 +1,79 @@
+{% extends "common.html" %}
+{% block content %}
+ 
+ <h1 style="color:white">Registrations</h1>
+
+
+
+<hr>
+<div class="card">
+  <h5 class="card-header">Total</h5>
+  <div class="card-body">
+    <h5 class="card-title">Total no of registrations : {{totalcount}}</h5>
+    <p class="card-text">Total No. of unique registrations : {{totalunicount}}</p>
+    <p class="card-text">Total No. of unique Successful registrations : {{totalunicounts}}</p>
+
+    <p class="card-text">Total Failed Payments : {{tfailedcount}}</p>
+
+
+    <p class="card-text">Total Payment not initiated: : {{tnotinc}}</a></p>
+    <p class="card-text"><a href="payment_status/{{s}}">Total Successful Payments : {{tsucescount}}</a></p>
+    <p class="card-text"><a href="payment_status/{{f}}">Unique Failed Payments : {{tfailedcountunique}}</a></p>
+
+    <p class="card-text"><a href="payment_status/{{n}}">Unique Payment not initiated : {{tnotincunique}}</a></p>
+
+
+
+
+    <!-- <a href="#" class="btn btn-primary">Go somewhere</a> -->
+  </div>
+</div>
+<br>
+
+<h1>City Wise</h1>
+{% for city in cityCount %}
+
+<div class="card"  >
+  <h5 class="card-header" id="city.tournament_city">{{city.tournament_city}}</h5>
+  <div class="card-body">
+    <!-- <h5 class="card-title">No of registrations : {{city.c}}</h5> -->
+    {% for city1 in mobilecount %}
+    {% if city1.tournament_city_id == city.tournament_city_id  %}
+    <h7 class="card-title">No. of Successful registrations :{{city1.c}}</h7>
+    {% endif%}
+    {% endfor %}
+    <p><b>Category Wise Successful Registrations</b></p>
+    {% for city1 in cityCount1 %}
+    {% if city1.tournament_city_id == city.tournament_city_id  %}
+    <p class="card-text">{{city1.group_id}} :{{city1.g}}</p>
+    {% endif%}
+    {% endfor %}
+    <!-- <p><b>
+      Payment Status 
+    </b></p> -->
+    <!-- {% for city2 in sucess %}
+    {% if city2.tournament_city_id == city.tournament_city_id  %}
+    <p class="card-title">Successful Payments: {{city2.c}}</p>
+    {% endif%} -->
+    <!-- {% endfor %}
+    {% for fail in failed %}
+    {% if fail.tournament_city_id == city.tournament_city_id  %}
+    <p class="card-title">Failed Payments: {{fail.c}}</p>
+    {% endif%}
+    {% endfor %} -->
+    <!-- {% for not in notin %}
+    {% if not.tournament_city_id == city.tournament_city_id  %}
+    <p class="card-title">Payment not initiated: {{not.c}}</p>
+    {% endif%}
+    {% endfor %} -->
+   
+    <!-- <a  onclick="viewfun('{{city.tournament_city_id}}')" class="btn btn-primary">View</a> -->
+   
+    <a href="citydetail/{{city.tournament_city}}" id="qv{{city.tournament_city_id}}" class="btn btn-secondary">Details</a>
+
+  </div>
+</div>
+  {% endfor %}
+
+  {}
+{% endblock %}

@@ -1,0 +1,167 @@
+{% extends "common.html" %}
+{% block content %}
+
+
+<div style=" background-color: rgba(0,0,0,.5);
+color: #fff; width: 100%;" class="card text-center">
+  <div class="card-header">
+   <h2> {{city}}</h2>
+  </div>
+  <div style="text-align:left" class="card-body">
+    <h5 class="card-title">State:{{stateName}}</h5>
+    <h5   class="card-title">Group :{{groupName}}</h5>
+    <h5   class="card-title">Primary_position : {{posName}}</h5>
+<button  class="btn btn-outline-warning" onclick="window.location.href='/dashboard/citydetail/group/player/{{ idd }}'"><i class="fa fa-arrow-circle-left"></i></button>
+<button  class="btn btn-outline-warning" onclick="window.location.href={% url 'home' %}"><i class="fa fa-home"></i></button>
+    
+  </div>
+  
+</div>
+
+
+<!-- <h1>{{stateName}}</h1>
+<h1>{{city}}</h1>
+<h1>{{groupName}}</h1>
+<h1>primary_position:{{posName}}</h1>
+<h1>{{posid}}</h1> -->
+
+<input type="text" id="searchInput" onkeyup="myFunction()" placeholder="Search " title="Type in a name">
+
+<br><br>
+
+  
+  
+
+<table class="table  table-bordered" id="userTable">
+    <thead>
+      <tr>
+        <th scope="col">Id</th>
+        <th scope="col">Name</th>
+        <th scope="col">Status</th>
+        <th scope="col">Secondary Position</th>
+        <th scope="col">Height</th>
+        <th scope="col">Weight</th>
+        <th scope="col">Whatsapp</th>
+        <th scope="col">email</th>
+        <th scope="col">address line 1</th>
+        <th scope="col">address line 2</th>
+        <th scope="col">Pincode</th>
+        <th scope="col">DOB</th>
+       
+        <th scope="col">Category</th>
+      </tr>
+    </thead>
+    <tbody>
+        {%for player in players%}
+      <tr>
+        <th scope="row">{{player.id}}</th>
+        <td>{{player.first_name}} {{player.last_name}}</td>
+        <td>{{player.status}}</td>
+        <td>{{player.secondary_position}}</td>
+        <td>{{player.height}}</td>
+        <td>{{player.weight}}</td>
+        <td>{{player.whatsapp}}</td>
+        <td>{{player.email}}</td>
+        <td>{{player.address_line1}}</td>
+        <td>{{player.address_line2}}</td>
+        <td>{{player.pincode}}</td>
+        <td>{{player.dob}}</td>
+        
+        <td>{{player.category}}</td>
+
+
+
+
+      </tr>
+      {% endfor %} 
+      
+      
+    </tbody>
+  </table>
+  </select>
+  <script>function myFunction() {
+    var input, filter, table, tr, td, cell, i, j;
+    filter = document.getElementById("searchInput").value.toLowerCase();
+    table = document.getElementById("userTable");
+    tr = table.getElementsByTagName("tr");
+    for (i = 1; i < tr.length; i++) {
+      tr[i].style.display = "none";
+      const tdArray = tr[i].getElementsByTagName("td");
+      for (var j = 0; j < tdArray.length; j++) {
+        const cellValue = tdArray[j];
+        if (cellValue && cellValue.innerHTML.toLowerCase().indexOf(filter) > -1) {
+          tr[i].style.display = "";
+          break;
+        }
+      }
+    }
+  }
+  
+  
+  (function(document) {
+	'use strict';
+
+	var LightTableFilter = (function(Arr) {
+
+		var _input;
+    var _select;
+
+		function _onInputEvent(e) {
+			_input = e.target;
+			var tables = document.getElementsByClassName(_input.getAttribute('data-table'));
+			Arr.forEach.call(tables, function(table) {
+				Arr.forEach.call(table.tBodies, function(tbody) {
+					Arr.forEach.call(tbody.rows, _filter);
+				});
+			});
+		}
+    
+		function _onSelectEvent(e) {
+			_select = e.target;
+			var tables = document.getElementsByClassName(_select.getAttribute('data-table'));
+			Arr.forEach.call(tables, function(table) {
+				Arr.forEach.call(table.tBodies, function(tbody) {
+					Arr.forEach.call(tbody.rows, _filterSelect);
+				});
+			});
+		}
+
+		function _filter(row) {
+      
+			var text = row.textContent.toLowerCase(), val = _input.value.toLowerCase();
+			row.style.display = text.indexOf(val) === -1 ? 'none' : 'table-row';
+
+		}
+    
+		function _filterSelect(row) {
+     
+			var text_select = row.textContent.toLowerCase(), val_select = _select.options[_select.selectedIndex].value.toLowerCase();
+			row.style.display = text_select.indexOf(val_select) === -1 ? 'none' : 'table-row';
+
+		}
+
+		return {
+			init: function() {
+				var inputs = document.getElementsByClassName('light-table-filter');
+				var selects = document.getElementsByClassName('select-table-filter');
+				Arr.forEach.call(inputs, function(input) {
+					input.oninput = _onInputEvent;
+				});
+				Arr.forEach.call(selects, function(select) {
+         select.onchange  = _onSelectEvent;
+				});
+			}
+		};
+	})(Array.prototype);
+
+	document.addEventListener('readystatechange', function() {
+		if (document.readyState === 'complete') {
+			LightTableFilter.init();
+		}
+	});
+
+})(document);
+  </script>
+
+
+{% endblock %}

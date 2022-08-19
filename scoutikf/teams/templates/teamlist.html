@@ -1,0 +1,132 @@
+{% extends "common2.html" %}
+{% block content %}
+        
+        {{id}}
+        <h1>
+          {{cityName}}
+            city id :{{city}}
+            group:{{groupid}}
+        </h1>
+<button   class="btn btn-outline-warning" onclick="window.location.href={% url 'team' %}"><i class="fa fa-home"></i></i></button>
+        
+        <button type="button" onClick='location.href="/teams/team_table/{{id}}"'class="btn btn-info">Update Team</button>
+      
+
+  
+
+       <br>
+       <br>
+    <button onclick="myFunc()">Show cards</button>
+    <button onclick="myFunc1()">Show/hide table</button>
+    <div id="table">
+        <table class="table table-hover">
+            <thead>
+                <th scope="col">Positions</th>
+                {% for k in looplist %}
+                <th scope="col">Team {{k}}</th>
+                {% endfor %}
+                        
+                
+              </tr>
+            </thead>
+            <tbody>
+              {% for ip, r in positions.iterrows %} 
+              <tr>
+                <td scope="row">{{r.label}}</td>
+                
+                {% for i in looplist %}
+                {% for j, prow in player.iterrows %} 
+                {%if prow.team == i and prow.position1 == r.position %}
+                <!-- <td scope="row">{{prow.id}}{{prow.position1}}{{prow.team}}{{prow.first_name}}</td> -->
+                <td scop="row">{{prow.ikfuniqueid}}</td>
+                {%endif%}
+                {% empty %}
+                
+                {% endfor %}
+               
+                {% endfor %}
+
+              </tr>
+              {% endfor %}
+              
+            </tbody>
+          </table> 
+          
+    </div> 
+
+
+<div id="myDIV">
+    {% for i in looplist %}
+
+    <div class="card bg-light mb-3" style="max-width: 18rem;">
+        <div class="card-header">Team {{i}}</div>
+        <div class="card-body">
+            <h5 class="card-title"> </h5>
+            {% for ip, r in positions.iterrows %} 
+            <p class="card-text"> {{ r.label}}:
+          
+          {% for j, prow in player.iterrows %} 
+          
+          {%if prow.team == i and prow.position1 == r.position %}
+          {{ prow.first_name }} {{ prow.last_name }}</p>
+          {%endif%}
+          {% endfor %}  
+          {% endfor %}
+        </div>
+    </div>
+    
+        {% endfor %} 
+
+<br>
+<h1> Remaining  Players</h1>
+        <div class="card bg-light mb-3" style="max-width: 18rem;">
+          <div class="card-header"></div>
+          <div class="card-body">
+              <h5 class="card-title"></h5>
+              <!-- {% for ip, r in positions.iterrows %} 
+              <p class="card-text"> {{ r.label}}: -->
+            
+            <!-- {% for j, prow in player.iterrows %} 
+            
+            {%if prow.team == i and prow.position1 == r.position %}
+            {{ prow.first_name }} {{ prow.last_name }}</p>
+            {%endif%}
+            {% endfor %}  
+            {% endfor %} -->
+            {% for j, prow in player.iterrows %}
+            {%if prow.team == a and prow.position1 == a %}
+            <p class="card-text">{{prow.first_name }} {{ prow.last_name }}</p>
+            {% for ip, r in positions.iterrows %}
+            {%if prow.primary_position == r.id    %}
+            <p class="card-text"> Primary position :{{ r.label}}                </p>
+            {%endif%}
+            {% endfor %}
+            {%endif%}
+            {% endfor %}
+
+          </div>
+      </div>
+    </div>
+    <script>
+        function myFunc() {
+  var x = document.getElementById("myDIV");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+
+
+function myFunc1() {
+  var x = document.getElementById("table");
+  if (x.style.display === "none") {
+    x.style.display = "block";
+  } else {
+    x.style.display = "none";
+  }
+}
+    </script>
+            
+      
+{% endblock %}

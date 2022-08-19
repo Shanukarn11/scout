@@ -1,0 +1,253 @@
+{% extends "base.html" %}
+{% block content %}
+
+<form method="post"  name="form1" id="form1" class="glass-morphism-container1">
+                            <h3 class="form-heading">{{heading_player_name__form}}</h3>
+                            {% csrf_token %}
+                        <input type="hidden" name="_token" value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3">
+                            <div class="row">
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{first_name}}<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="text" name="first_name"  id="first_name" required minlength="3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{last_name}}<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="text" name="last_name" id="last_name" required minlength="3">
+                                    </div>
+                                </div>
+                                {% comment %} <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{height_text}}<span class="mandatory"></span></label>
+                                        <input class="form-control" type="number" onkeydown="limit(this,3);" onkeyup="limit(this,3);"  max="243" name="height" id="height"  minlength="3">
+                                    </div>
+                                </div>
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{weight_text}}<span class="mandatory"></span></label>
+                                        <input class="form-control" type="number" onkeydown="limit(this,3);" onkeyup="limit(this,3);" step=".01"  max="150" name="weight" id="weight"  minlength="3">
+                                    </div>
+                                </div> {% endcomment %}
+
+
+
+
+
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{primary_position}} <span class="mandatory">*
+                                            </span></label>
+                                        <select class="form-control" name="primary_position" id="primary_position" required="" data-fillr-id="1552374762" data-fillr="bound" autocomplete="off">
+                                            <option value="">{{dropdown_select_position}}</option>
+
+                                        </select>
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{secondary_position}}<span class="mandatory">*
+                                            </span></label>
+                                            <select class="form-control" name="secondary_position" id="secondary_position" required="" data-fillr-id="1552374762" data-fillr="bound" autocomplete="off">
+                                                <option value="">{{dropdown_select_position}}</option>
+
+                                            </select>
+                                    </div>
+                                </div>
+                                {% comment %} <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{address_line1}}<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="text" name="address_line1" id="address_line1" required minlength="3">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{address_line2}}<span class="mandatory"> </span></label>
+                                        <input class="form-control" type="text" name="address_line2" id="address_line2"  minlength="3">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{pincode}}<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="number" onkeydown="limitmob(this,6);" onkeyup="limitmob(this,6);"name="pincode" id="pincode" pattern="^[1-9]{1}[0-9]{2}\\s{0,1}[0-9]{3}$" required minlength="6" maxlength="6">
+                                    </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                    <div class="form-group">
+                                        <label class="text-left">{{state}}<span class="mandatory">*
+                                            </span></label>
+                                        <select class="form-control" name="state" id="state" required="" data-fillr-id="1552374762" data-fillr="bound" autocomplete="off">
+                                            <option value="">{{dropdown_select_state}}</option>
+                                            
+
+
+                                        </select>
+                                    </div>
+                                </div> {% endcomment %}
+                                <div class="col-lg-12 col-md-12 col-sm-12 mt-3 border p-3 rounded bg-white">
+                                    <div class="custom-control custom-checkbox checkbox-lg" style="color:black">
+                                        <input type="checkbox" class="custom-control-input" id="checkbox-2" required>
+                                        <label class="custom-control-label" for="checkbox-2"> {{i_authorize}}
+                                            </span></label>
+                                    </div>
+                                </div>
+
+                                <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+                                    <div class="form-group mb-0">
+                                        <button class="btn login-btn" onclick="nextprev(this,'prev')" formnovalidate> {{prev}} </button>
+                                        <button class="btn login-btn" onclick="nextprev(this,'next')" type="submit"> {{next}} </button>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </form>
+                        <script>
+                            const playeruploadid="{{playeruploadid}}"
+                            function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
+ 
+                            function nextprev(node,urlitem){
+                                var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
+                                var dict={}
+                                formData.forEach(function (item) {
+                                   dict[item['name']]=item['value']
+                                });
+                                if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
+                                if(dict['_token']){delete dict['_token']}
+                                var inputobj=JSON.parse(sessionStorage.getItem("data"))
+                                newdict=Object.assign(inputobj,dict);
+                                if(newdict['playeruploadid']){
+
+                                }
+                                else{
+                                    newdict['playeruploadid']=playeruploadid
+                                }
+                                
+                                sessionStorage.setItem("data", JSON.stringify(newdict));
+                                console.log(newdict)
+                                if(urlitem=="prev"){document.getElementById("form1").action="{% url 'preview1' %}"}
+                                else if(urlitem=="next"){document.getElementById("form1").action="{% url 'uploadpic' %}"} 
+
+
+
+                                }
+
+function positionchange(self,doc){
+    console.log("position change function is called")
+    doc.length = 1;
+    if(self.value){
+        $.ajax({
+            type: "POST",
+            url: "{% url 'positiondata' %}",
+            data:{csrfmiddlewaretoken:'{{ csrf_token }}'},
+            success: function(result){
+                      var positiondata=JSON.parse(result)
+                      for (var x in positiondata) {
+                       
+                        if(positiondata[x].id==self.value){}
+                        else{
+                            doc.options[doc.options.length] = new Option(positiondata[x].value, positiondata[x].id);
+                        }
+                    }
+                  }
+                })
+              }
+}
+window.onload = function() {
+
+                {% comment %} var stateSel = document.getElementById("state"); {% endcomment %}
+                var primarySel=document.getElementById("primary_position")
+                var secondarySel=document.getElementById("secondary_position")
+                primarySel.onchange = function(){positionchange(this,secondarySel)}
+                secondarySel.onclick=function(){
+                    if(primarySel.value){}
+                    else{alert("Please Select Primary Position Before selecting Secondary Position")}
+                    
+                }
+
+
+                if(sessionStorage.getItem("data")){
+                    var inputdata=JSON.parse(sessionStorage.getItem("data"))
+                    if(inputdata['first_name']||inputdata['last_name']||inputdata['last_name']||inputdata['height']||inputdata['weight']||inputdata['state']||inputdata['pincode']|| inputdata['address_line1']||inputdata['address_line2']||inputdata['primary_position']||inputdata['secondary_position']){
+                        
+                        document.getElementById("first_name").value=checkempty(inputdata["first_name"])
+                        document.getElementById("last_name").value=checkempty(inputdata["last_name"])
+                        {% comment %} document.getElementById("height").value=checkempty(inputdata["height"])
+                        document.getElementById("weight").value=checkempty(inputdata["weight"])
+                        document.getElementById("state").value=checkempty(inputdata["state"])
+                        document.getElementById("pincode").value=checkempty(inputdata["pincode"])
+                        document.getElementById("address_line1").value=checkempty(inputdata["address_line1"])
+                        document.getElementById("address_line2").value=checkempty(inputdata["address_line2"]) {% endcomment %}
+                        //document.getElementById("primary_position").value=checkempty(inputdata["primary_position"])
+                        //document.getElementById("secondary_position").value=checkempty(inputdata["secondary_position"])
+                        
+
+
+                       
+                        
+
+
+                    }
+                    
+
+                }    
+
+                {% comment %} $.ajax({
+                    type: "POST",
+                    url: "{% url 'statedata' %}",
+                    data:{include:3,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+                    success: function(result){
+                        statedata=JSON.parse(result)
+                        for (var x in statedata) {
+                            stateSel.options[stateSel.options.length] = new Option(statedata[x].value, statedata[x].id);
+
+
+
+                        }
+                        if(sessionStorage.getItem("data")){
+                        if(inputdata["state"]){
+                            document.getElementById("state").value=inputdata["state"]
+                        }}
+                        
+
+                    }}) {% endcomment %}
+
+                    $.ajax({
+                        type: "POST",
+                        url: "{% url 'positiondata' %}",
+                        data:{csrfmiddlewaretoken:'{{ csrf_token }}'},
+    
+                        success: function(result){
+                            var positiondata=JSON.parse(result)
+                            for (var x in positiondata) {
+                                primarySel.options[primarySel.options.length] = new Option(positiondata[x].value, positiondata[x].id);
+                                secondarySel.options[secondarySel.options.length] = new Option(positiondata[x].value, positiondata[x].id);
+    
+    
+                            }
+
+                            if(sessionStorage.getItem("data")){
+
+                                if(inputdata["primary_position"] && inputdata["secondary_position"]){
+                                    primarySel.value=inputdata["primary_position"]
+                                    secondarySel.value=inputdata["secondary_position"]
+                                    
+                                    secondarySel.remove(inputdata["primary_position"])
+                                }
+
+
+                            }
+
+
+                            
+    
+                        }})
+
+}
+                        
+                        </script>
+                        {% endblock %}   

@@ -1,0 +1,470 @@
+{% extends "base.html" %} 
+{% block content %}
+<div class="d-flex justify-content-center" >
+  <div class="spinner-border"  role="status" >
+    <span class="sr-only">..</span>
+  </div>
+</div>
+<div  name="form1" id="form1" class="glass-morphism-container1"> 
+  <h3 class="form-heading">{{heading_player_preview}}</h3>
+  {% csrf_token %}
+
+  <div class="row" id="thisid">
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-1">
+      <div class="form-group mb-0">
+        <h5 class="text-center" id="information_text">
+          
+        </h5>
+      </div>
+    </div>
+    {% for field in formikf %} 
+    {% if field.type == "label" or field.type == "cstate"  or field.type == "dob" or field.type == "cposition" %}
+
+
+  <div class="col-lg-12 col-md-6 col-sm-12  ">
+                    <div class="card-body px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: row; ">
+                      
+                      
+                      <label class="text-secondary  small font-weight-600 " style="color: wheat !important;">{{field.label}}</label>
+                      
+                      <label class="px-1">  :  </label>
+                      <label class="card-btn "  id="{{field.columnid}}"></label>
+                      
+                      
+                  </div>
+
+    </div>
+    {% elif field.type == "ccity" %}
+
+    <div class="col-lg-12 col-md-6 col-sm-12 " id="ccity">
+      <div class="card-body px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: row; ">
+        
+        
+        <label class="text-secondary  small font-weight-600 " style="color: wheat !important;">{{field.label}}</label>
+        
+        <label class="px-1">  :  </label>
+        <label class="card-btn "  id="{{field.columnid}}"></label>
+        
+        
+    </div>
+
+</div>
+    {% elif field.type == "uploadpic" %}
+    <div id="pic_file_set"class="col-lg-12 col-md-6 col-sm-12 mt-1">
+      
+      <div class="form-group px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: column; ">
+        <label>{{uploaded_pic_preview_label}}</label>
+        <img
+          
+         
+          id="pic_file"
+          name="pic_file"
+          width="260px"
+          height="200px"
+          >
+        </img>
+      </div>
+    </div>
+    {% elif field.type == "uploaddoc" %}
+    
+    <div class="col-lg-12 col-md-6 col-sm-12 mt-1">
+      
+      <div class="form-group px-1-6  d-flex justify-content-center align-items-center position-relative" style="flex-direction: column; ">
+        <label>{{uploaded_doc_preview_label}}</label>
+        <img
+          
+         
+          id="document_id_file"
+          name="document_id_file"
+          width="260px"
+          height="200px"
+          >
+        </img>
+      </div>
+    </div>
+    {% endif %} 
+    {% endfor %}
+
+
+
+
+
+
+
+
+
+    <div class="d-flex justify-content-center" >
+      <div class="spinner-border"  role="status" >
+        <span class="sr-only">..</span>
+      </div>
+    </div>
+
+
+    <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
+      <div class="form-group mb-0">
+        <button class="btn login-btn mt-2" onclick="nextprev(this,'prev')" id="prev" formnovalidate>
+          {{prev}}
+        </button>
+
+        <button class="btn login-btn  mt-2" onclick="nextprev(this,'next')"  id="next">
+        
+        </button>
+      
+        <button class="btn login-btn mt-2" onclick="proceed_to_payment(this)"  id="proceed" disabled >Proceed to Payment</button>
+      </div>
+    </div>
+
+
+  </div>
+</div> 
+<script>
+
+var GROUP_DATA=""
+var AMOUNT=""
+var IKFUNIQUEID=""
+var ID=""
+  function checkempty(data) {
+    if (data == null || data == "" || data == undefined) {
+      return "NA";
+    } else {
+      return data;
+    }
+  }
+
+  function converter(data,type, documentid){
+    $.ajax({
+      type: "POST",
+      url: "{% url 'converter' %}",
+      data:{id:data,type:type,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+      success: function(result){
+        if(result){
+          var converterdata=JSON.parse(result)
+          if(converterdata[0]){
+            console.log(converterdata[0]['label'])
+            document.getElementById(documentid).innerHTML=converterdata[0]['label']
+
+          }
+
+          
+
+          
+        }
+        
+
+
+      }
+    }
+    )  
+
+  }
+
+
+
+window.onload = function() {
+
+
+  if(sessionStorage.getItem("saved")){
+    if(sessionStorage.getItem('saved')=='true'){
+      document.getElementById("prev").disabled=true
+      document.getElementById("next").disabled=true
+      document.getElementById("proceed").disabled=false
+    }
+
+  }
+  var PREVIEW_TYPE="{{ preview_type }}"
+  $('.spinner-border').hide();
+  var allElements =document.getElementById("thisid").getElementsByTagName("*");
+  var allIds = [];
+  for (var i = 0, n = allElements.length; i < n; ++i) {
+    var el = allElements[i];
+    if (el.id) { allIds.push(el.id); }
+  }
+  
+
+
+
+if(sessionStorage.getItem("data")){
+    var inputdata=JSON.parse(sessionStorage.getItem("data"))
+    document.getElementById('next').innerHTML="{{button_text}}"
+    if(inputdata){
+           allIds.forEach(item => {
+           
+           if(item=='csrfmiddlewaretoken' || item=='_token' || item=='information_text' || item=='next'||item=='prev'||item=='proceed'||item=='ccity'){}
+           else if(item=='tournament_city'||item=='state'||item=='primary_position'||item=='secondary_position'||item=='document_id_selected'){
+            converter(checkempty(inputdata[item]),item,item)
+
+           }
+           else if(item=='pic_file_set'){
+           
+           
+          }
+           else if(item=='pic_file'|| item=='document_id_file'){
+           
+           
+           }
+           else{document.getElementById(item).innerHTML=checkempty(inputdata[item])}
+
+            }); 
+
+      
+
+
+
+            
+            $.ajax({
+              type: "POST",
+              url: "{% url 'mygroup' %}",
+              data:{dob:inputdata['dob'],gender:inputdata['gender'],city:inputdata['tournament_city'],include:1,csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+              success: function(result){
+                previewdata=JSON.parse(result)
+                
+                if(previewdata['present']=="1"){
+                  GROUP_DATA=previewdata['id'] 
+                  if(previewdata['gender']=="Male"){
+                    previewdata['gender']="{{ boy_text_in_preview }}"
+                  }
+                  if(previewdata['gender']=="Female"){
+                    previewdata['gender']="{{ girl_text_in_preview }}"
+                  }
+                  var textoutput="{{you_are_elgible_for}}" + " " + previewdata['group'] + " "+ previewdata["gender"]+" "+"{{category_for_eligibility}}" +" ( " + previewdata['start'] +"-"+ " "+previewdata['end']+" "+ ")"
+                  document.getElementById("information_text").innerHTML=textoutput 
+                }
+                else{
+                  GROUP_DATA=""
+                  var if_not_eligible_hyperlink_text="{{if_not_eligible_hyperlink_text}}"
+                  var if_not_eligible_reason="{{if_not_eligible_reason}}"
+                  document.getElementById("information_text").innerHTML= `<a style="color:red;" href="{% url 'coachorplayer' 'en' 'Player' %}">${if_not_eligible_reason} </a>`
+                  document.getElementById("next").hidden=true
+                 document.getElementById("ccity").hidden=true 
+                }
+                  
+
+              }})  
+
+
+
+       }
+    }
+
+  if (PREVIEW_TYPE=="preview2"){
+    var inputdataforimg=JSON.parse(sessionStorage.getItem("data"))
+    $.ajax({
+              type: "POST",
+              url: "{% url 'amount' %}",
+              data:{data:sessionStorage.getItem("data"),csrfmiddlewaretoken:'{{ csrf_token }}'},
+
+              success: function(result){
+                if(result){
+                  AMOUNT=JSON.parse(result)
+                  console.log(AMOUNT)
+                }
+
+                
+
+              },
+              error:function(error){
+
+              }
+            })
+            const imageBox=document.getElementById("pic_file");
+            const fileBox=document.getElementById("document_id_file")
+
+            if(inputdataforimg["pic_file"] && inputdataforimg["pic_file"]!=""){
+
+              $.ajax({
+                type: "POST",
+                url: "{% url 'viewpic' %}",
+                data:{playeruploadidfinal:inputdataforimg["playeruploadid"],csrfmiddlewaretoken:'{{ csrf_token }}'},
+                success: function(result){
+                  if(result){
+                    
+                    
+                    
+                    imageBox.src=result;
+                    
+                    }
+                  },
+                error:function(error){}
+              })
+              
+            }else{
+             
+              document.getElementById("pic_file_set").style.display = "none";
+            }
+
+            if(inputdataforimg["document_id_file"] && inputdataforimg["document_id_file"]!=""){
+              $.ajax({
+                type: "POST",
+                url: "{% url 'viewdoc' %}",
+                data:{playeruploadidfinal:inputdataforimg["playeruploadid"],csrfmiddlewaretoken:'{{ csrf_token }}'},
+                success: function(result){
+                  if(result){
+                    
+                    
+                    
+                    
+                      fileBox.src=result;
+                    
+                    
+                    
+                    }
+                  },
+                error:function(error){}
+              })
+              
+            }
+
+  
+  }
+
+  else if(PREVIEW_TYPE=="preview1"){
+  document.getElementById("proceed").hidden=true;
+
+  }
+  
+  }
+
+function proceed_to_payment(self){
+  $('.spinner-border').show();
+  if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
+    IKFUNIQUEID=sessionStorage.getItem('ikfuniqueid')
+    ID=sessionStorage.getItem('id')
+
+  }
+
+$.ajax({type: "POST",
+        url: "{% url 'order' %}",
+        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:AMOUNT, csrfmiddlewaretoken:'{{csrf_token}}'} }
+      ) .done(function (result) { 
+        $('.spinner-border').hide();
+                                  console.log(result)
+                                  resultdata=JSON.parse(result)
+                                 if(resultdata['error']=="true"){
+                                               alert(resultdata['message'] )
+                                    }
+                                 else{try{
+          alert("Order ID is generated Successfully");
+
+        sessionStorage.setItem("order_id",resultdata['order_id'] )
+        window.location="{% url 'payment' %}"
+       
+        
+        }
+        catch(e){
+
+         alert(e.message)
+        }
+
+        
+        
+      } 
+    
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) { 
+      $('.spinner-border').hide();
+      alert("Order Api Error. Please Try Again") }); 
+
+  }
+
+  function nextprev(node, urlitem) {
+    console.log("nextprev")
+    var inputobj=JSON.parse(sessionStorage.getItem("data"))
+    inputobj["group"]=GROUP_DATA
+    inputobj["category"]="C"
+    inputobj["season"]="S02"
+
+    sessionStorage.setItem("data", JSON.stringify(inputobj));
+    var formelement=document.getElementById("form1")
+    if (urlitem == "prev") {
+      var preview_type="{{ preview_type}}"
+      if(preview_type=="preview1"){
+
+        
+        window.location="{% url 'coachorplayer' 'en' 'Player' %}"
+            }
+      if(preview_type=="preview2"){
+        
+        window.location="{% url 'uploaddoc' %}"
+         }
+      
+      
+    } else if (urlitem == "next") {
+       var preview_type="{{ preview_type}}"
+       if(preview_type=="preview1"){
+        
+        window.location="{% url 'main' %}"
+       }
+       else if(preview_type=="preview2"){
+        
+
+        $('.spinner-border').show();
+        $.ajax({
+          
+          
+          type: "POST",
+          url: "{% url 'save' %}",
+          data:{data:sessionStorage.getItem("data"), csrfmiddlewaretoken:'{{csrf_token}}'} 
+
+
+        
+        }
+        
+        ) 
+        .done(function (result) {       console.log("done")
+          console.log(result)
+          resultdata=JSON.parse(result)
+          console.log(resultdata)
+          $('.spinner-border').hide();
+          if(resultdata['error']=="true"){
+            console.log("error",resultdata)
+            alert(resultdata['message'] )
+            
+          }
+          else{
+            IKFUNIQUEID=resultdata["ikfuniqueid"]
+            ID=resultdata["id"]
+            sessionStorage.setItem("ikfuniqueid",IKFUNIQUEID)
+            sessionStorage.setItem("id",ID)
+
+            
+            
+            try{
+              alert("Player Data Submitted Successfully");
+
+
+              document.getElementById("prev").disabled=true
+            document.getElementById("next").disabled=true
+            document.getElementById("proceed").disabled=false
+            sessionStorage.setItem("saved","true")
+           
+            
+            }
+            catch(e){
+
+             alert(e.message)
+            }
+
+            
+            
+          } 
+        
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) { 
+          $('.spinner-border').hide();
+          alert("Server API Error") }); 
+
+
+ 
+        
+
+
+
+
+       }
+      
+    }
+  }
+</script>
+{% endblock %}
