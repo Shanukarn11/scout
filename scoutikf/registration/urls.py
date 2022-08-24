@@ -10,8 +10,8 @@ import re
 urlpatterns = [
     path("", views.homeindex, name='homeindex'),
     path("category/<lang>", views.category, name='category'),
-    path("coachorplayer/<lang>/<category>",
-         views.coachorplayer, name='coachorplayer'),
+    path("scoutpage/<lang>/<category>",
+         views.scoutpage, name='scoutpage'),
 
 
 

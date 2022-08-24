@@ -305,7 +305,7 @@ def teamlist(request, id):
     else:
         message = ''
 
-    return render(request, 'teamlist.html', {'id': id, "city": city, "groupid": groupid, "teams": teams, "n": n, "player": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "message": message, "remain": remain, "dictt": dictt})
+    return render(request, 'teamlist.html', {'id': id, "city": city, "groupid": groupid, "teams": teams, "n": n, "Scout": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "message": message, "remain": remain, "dictt": dictt})
 
 
 def team_table(request, id):
@@ -417,7 +417,7 @@ def team_table(request, id):
         position_tag.append(r.position)
     # print(teams.head())
 
-    return render(request, 'team_table.html', {'id': id, "city": city, "groupid": groupid, "n": n, "player": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "remain": remain, "dictt": dictt, "message": message, "teams": teams, "Loop": Loop, "position_label": position_label, "position_tag": position_tag})
+    return render(request, 'team_table.html', {'id': id, "city": city, "groupid": groupid, "n": n, "Scout": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "remain": remain, "dictt": dictt, "message": message, "teams": teams, "Loop": Loop, "position_label": position_label, "position_tag": position_tag})
 
 
 def delete(request, id):
@@ -914,4 +914,4 @@ def team_table2(request, id):
     remain2= len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
     
     # print(teams)
-    return render(request, 'team_table2.html', {'id': id, "city": city, "groupid": groupid, "n": n, "player": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "remain": remain, "dictt": dictt, "message": message, "teams": teams, "Loop": Loop, "position_label": position_label, "position_tag": position_tag,"dd":dd,"remain2":remain2})
+    return render(request, 'team_table2.html', {'id': id, "city": city, "groupid": groupid, "n": n, "Scout": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "remain": remain, "dictt": dictt, "message": message, "teams": teams, "Loop": Loop, "position_label": position_label, "position_tag": position_tag,"dd":dd,"remain2":remain2})

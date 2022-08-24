@@ -197,7 +197,7 @@ def player(request, id):
         posName = i.primary_position
         break
 
-    return render(request, "player.html", {"players": players, "city": cityName, "groupName": groupName, "posid": posid, "cityid": cityid, "posName": posName, "stateName": stateName,"idd":alpha})
+    return render(request, "scout.html", {"players": players, "city": cityName, "groupName": groupName, "posid": posid, "cityid": cityid, "posName": posName, "stateName": stateName,"idd":alpha})
 
 
 def playertable(request, id):

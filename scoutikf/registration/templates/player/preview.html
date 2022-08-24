@@ -219,7 +219,7 @@ if(sessionStorage.getItem("data")){
                   GROUP_DATA=""
                   var if_not_eligible_hyperlink_text="{{if_not_eligible_hyperlink_text}}"
                   var if_not_eligible_reason="{{if_not_eligible_reason}}"
-                  document.getElementById("information_text").innerHTML= `<a style="color:red;" href="{% url 'coachorplayer' 'en' 'Player' %}">${if_not_eligible_reason} </a>`
+                  document.getElementById("information_text").innerHTML= `<a style="color:red;" href="{% url 'scoutpage' 'en' 'Scout' %}">${if_not_eligible_reason} </a>`
                   document.getElementById("next").hidden=true
                  document.getElementById("ccity").hidden=true 
                 }
@@ -367,7 +367,7 @@ $.ajax({type: "POST",
       if(preview_type=="preview1"){
 
         
-        window.location="{% url 'coachorplayer' 'en' 'Player' %}"
+        window.location="{% url 'scoutpage' 'en' 'Scout' %}"
             }
       if(preview_type=="preview2"){
         

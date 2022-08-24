@@ -183,7 +183,7 @@ def category(request, lang):
     return render(request, 'category.html', dict)
 
 
-def coachorplayer(request, lang, category):
+def scoutpage(request, lang, category):
     context = {}
 
     langqueryset = MasterLabels.objects.filter().values('keydata', lang)
@@ -196,8 +196,8 @@ def coachorplayer(request, lang, category):
         return redirect('/coach/', dict)
 
     else:
-        dict["coach_or_player"] = "Player"
-        return render(request, 'player/player.html', dict)
+        dict["coach_or_player"] = "Scout"
+        return render(request, 'player/scout.html', dict)
 
 
 def main(request):
@@ -246,8 +246,8 @@ def preview1(request):
     dict['formikf'] = mycolumns
 
     dict['preview_type'] = "preview1"
-    dict['url_prev'] = "coachorplayer"
-    dict['url_prev_para'] = "Player"
+    dict['url_prev'] = "scoutpage"
+    dict['url_prev_para'] = "Scout"
     dict['url_next'] = "main"
     dict['button_text'] = "Next"
 

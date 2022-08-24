@@ -16,7 +16,7 @@ urlpatterns = [
 
     path('citydetail/<str:id>', views.citydetail, name='citydetail'),
     path('citydetail/group/<str:id>', views.group, name='group'),
-    path('citydetail/group/player/<str:id>', views.player, name='player'),
+    path('citydetail/group/player/<str:id>', views.player, name='Scout'),
     path('citydetail/group/playersec/<str:id>',
          views.playersec, name='playersec'),
 

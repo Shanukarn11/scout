@@ -48,6 +48,6 @@ class playerForm(forms.Form):
    
     
 
-    player= forms.CharField(label='player')
+    player= forms.CharField(label='Scout')
     group= forms.CharField(label='category')
    
