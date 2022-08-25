@@ -86,41 +86,41 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
-                                        <label class="text-left">Assosicated With Football from how many years ?<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="first_name"  id="first_name" required minlength="3">
+                                        <label class="text-left">Associated With Football from how many years ?<span class="mandatory">* </span></label>
+                                        <input class="form-control" type="text" name="associated_years"  id="assosicated_years" required minlength="3">
                                     </div>
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
                                     <div class="form-group">
-                                        <label class="text-left">Assosicated with football as (can select multiple) <span class="mandatory">*
+                                        <label class="text-left">Associated with football as (can select multiple) <span class="mandatory">*
                                             </span></label>
                                             <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="yes">
                                                   player
                                                 </label>
-                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="radiomobile" id="yes" value=1>
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="association_as" id="yes" value=1>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="no">
                                                   Coach
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="no">
                                                   Refree
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="no">
                                                     Academy owner
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
                                               </div>
                                               <div class="form-check">
                                                 
@@ -139,17 +139,17 @@
                                             </span></label>
                                             <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="yes">
+                                                <label class="form-check-label" for="course1">
                                                     Course 1 – PFSA Talent Identification certification only – Fees Rs.3999
                                                 </label>
-                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="radiomobile" id="yes" value=1>
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="courseradio" id="course1" value="course1">
                                               </div>
                                               <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="no">
+                                                <label class="form-check-label" for="course2">
                                                     Course 2 – Three Modules + chance to become IKF Partner scout – Fees Rs.7499
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="courseradio" id="course2" value="course2" checked>
                                               </div>
 
                                         <span id="message"></span>
@@ -158,14 +158,14 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Referral Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="first_name"  id="first_name" required minlength="3">
+                                        <input class="form-control" type="text" name="referral_code"  id="referral_code" required minlength="3">
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Discount Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="last_name" id="last_name" required minlength="3">
+                                        <input class="form-control" type="text" name="discount_code" id="discount_code" required minlength="3">
                                     </div>
                                 </div>
                                 {% comment %} <div class="col-lg-12 col-md-12 col-sm-12 mt-3 border p-3 rounded bg-white">
@@ -195,34 +195,71 @@ function checkempty(data){if(data==null||data==""||data==undefined){return ""}el
 function prev(node){
 document.getElementById("form1").action="{% url 'homeindex'  %}"
 }
+function discountamount(course, type){
+
+    $.ajax({
+            type: "POST",
+            url: "{% url 'scoutdiscountamount' %}",
+            data:{type:type,course:course, csrfmiddlewaretoken:'{{ csrf_token }}'},
+            success: function(result){
+                      if (result){
+                        
+                        alert(result.discount)
+                        
+
+                      }
+   
+                    }
+            })
+}
 function next(node){
     window.onbeforeunload = null;
-    var mobiledoc= document.getElementById("mobile").value
-   
-    if(mobiledoc.indexOf('0')==0){
 
-        alert("Mobile Number should not start with 0")
+    // var course= document.getElementsByName("courseradio")[1].value
+    var typetext=document.getElementById("discount_code").value
+    if(typetext.length==6){
+     var type="type1"
     }
-    else if(mobiledoc.length<10){
-        alert("Mobile Number Should be 10 Digit")
+    else if(typetext.length==7){
+        var type="type2"
     }
-    else{
-        var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
-        var dict={}
-        formData.forEach(function (item) {
-           dict[item['name']]=item['value']
-        });
-        dict["whoisfilling"]="{{coach_or_player }}"
-        if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
-        if(dict['_token']){delete dict['_token']}
-        if(sessionStorage.getItem("data")){
-            var inputobj=JSON.parse(sessionStorage.getItem("data"))
-            newdict=Object.assign(inputobj,dict);
-            sessionStorage.setItem("data", JSON.stringify(newdict));
-        } 
-        else{
-            sessionStorage.setItem("data", JSON.stringify(dict));
-        }
+    else if(typetext.length==8){
+        var type="type3"
+    }
+    var course=$("input[type='radio'][name='courseradio']:checked").val();
+    if (typetext.match(/^[0-9A-Za-z]+$/) === null) { 
+ alert("not alphanumeric")
+ }else{
+    alert("alphanumeric")
+    discountamount(course,type)
+ }
+   
+    // var mobiledoc= document.getElementById("mobile").value
+   
+    // if(mobiledoc.indexOf('0')==0){
+
+    //     alert("Mobile Number should not start with 0")
+    // }
+    // else if(mobiledoc.length<10){
+    //     alert("Mobile Number Should be 10 Digit")
+    // }
+    // else{
+    //     var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
+    //     var dict={}
+    //     formData.forEach(function (item) {
+    //        dict[item['name']]=item['value']
+    //     });
+    //     dict["whoisfilling"]="{{coach_or_player }}"
+    //     if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
+    //     if(dict['_token']){delete dict['_token']}
+    //     if(sessionStorage.getItem("data")){
+    //         var inputobj=JSON.parse(sessionStorage.getItem("data"))
+    //         newdict=Object.assign(inputobj,dict);
+    //         sessionStorage.setItem("data", JSON.stringify(newdict));
+    //     } 
+    //     else{
+    //         sessionStorage.setItem("data", JSON.stringify(dict));
+    //     }
 
         
 
@@ -232,9 +269,9 @@ function next(node){
        
         
             
-            document.getElementById("form1").action="{% url 'preview1'  %}"
+    //         document.getElementById("form1").action="{% url 'preview1'  %}"
 
-    }
+    // }
 
 }
 

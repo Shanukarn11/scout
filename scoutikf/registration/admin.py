@@ -4,7 +4,7 @@ from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
-from .models import MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels, Payment,Player,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels, Payment,Player,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -186,3 +186,18 @@ class CoachModelAdmin(admin.ModelAdmin):
 class MasterColumnAdmin(admin.ModelAdmin):
     list_display=('id','columnid','label_key','includep1','includep2','type','orderid')
     search_fields=('columnid','label_key',)
+
+@admin.register(ScoutCourse)
+class ScoutCourseAdmin(admin.ModelAdmin):
+    list_display=('id','course')
+    
+
+@admin.register(ScoutDiscountType)
+class ScoutDiscountTypeAdmin(admin.ModelAdmin):
+    list_display=('id','type','length')
+    
+
+@admin.register(ScoutCourseDiscount)
+class ScoutCourseDiscountAdmin(admin.ModelAdmin):
+    list_display=('id','course','type','discount')
+    

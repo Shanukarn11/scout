@@ -487,6 +487,25 @@ class MasterPartner(models.Model):
     include = models.BooleanField(null=True, default=True, db_index=True)
 #user=models.ForeignKey(User,null=True,  verbose_name="files", on_delete=models.CASCADE)
 
+class ScoutCourse(models.Model):
+    id = models.CharField(max_length=100, primary_key=True,db_index=True)
+    course=models.TextField(null=True, blank=True,)
+    extra=models.CharField(max_length=100,null=True, blank=True,)
+class ScoutDiscountType(models.Model):
+    id = models.CharField(max_length=100, primary_key=True,db_index=True)
+    type=models.CharField(max_length=100,null=True, blank=True,)
+    length=models.CharField(max_length=100,null=True, blank=True,)
+    extra=models.CharField(max_length=100,null=True, blank=True,)
+
+class ScoutCourseDiscount(models.Model):
+    id = models.BigAutoField(primary_key=True, db_index=True)
+    course=models.ForeignKey(ScoutCourse,null=True, verbose_name="ScoutCourses", db_index=True, on_delete=models.SET_NULL)
+    type = models.ForeignKey(
+    ScoutDiscountType, null=True, verbose_name="ScoutDiscountTypes", db_index=True, on_delete=models.SET_NULL)
+    discount=models.CharField(max_length=100,null=True, blank=True,)
+      
+
+
 
 
 

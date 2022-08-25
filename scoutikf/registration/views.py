@@ -23,7 +23,7 @@ import pathlib
 from django.db import transaction
 
 from registration.modelhome import SocialMediaLink
-from .models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Player, Upload, Uploadfile,Payment
+from .models import ScoutCourseDiscount, MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Player, Upload, Uploadfile,Payment
 from .forms import UploadForm, UploadfileForm
 
 from django.db import IntegrityError
@@ -897,5 +897,15 @@ def limitdate(request):
         season = request.POST.getlist('season')[0]
         datevalue=list(MasterDateLimit.objects.filter(season=season).values())
         return JsonResponse(datevalue[0], safe=False)
+
+
+def scoutdiscountamount(request):
+    if request.method == 'POST':
+        type = request.POST.getlist('type')[0]
+        course = request.POST.getlist('course')[0]
+        scoutamount=list(ScoutCourseDiscount.objects.filter(type=type,course=course ).values())
+        print(scoutamount)
+        return JsonResponse(scoutamount[0], safe=False)
+
 
 

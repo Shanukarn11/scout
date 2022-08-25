@@ -45,7 +45,7 @@ urlpatterns = [
     
 
     path("limitdate",views.limitdate, name='limitdate'),
-
+    path("scoutdiscountamount",views.scoutdiscountamount, name='scoutdiscountamount'),
 
 
 

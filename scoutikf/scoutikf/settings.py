@@ -89,9 +89,9 @@ WSGI_APPLICATION = 'scoutikf.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'ikfreg',
-        'USER': os.environ['mysqluser'],
-        'PASSWORD': os.environ['mysqlpassword'],
+        'NAME': 'scout',
+        'USER': 'scout',
+        'PASSWORD': 'scout@123',
         'HOST': '127.0.0.1',
         'PORT': os.environ['mysqlport'],
     }

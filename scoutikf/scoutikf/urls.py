@@ -11,6 +11,6 @@ urlpatterns = [
     path('dashboard/', include('dashboard.urls')),
     path('login/', include('login.urls')),
     path('coachlogin/', include('coachlogin.urls')),
-    path('teams/', include('teams.urls')),
+    #path('teams/', include('teams.urls')),
 
 ]
