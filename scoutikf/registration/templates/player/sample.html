@@ -31,7 +31,7 @@ def playerdata(request):
         ikfuniqueid=request.POST.getlist('ikfuniqueid')[0]
         playeruploadid=request.POST.getlist('playeruploadid')[0]
         
-        player=Player.objects.get(ikfuniqueid=ikfuniqueid).values()
+        player=Scout.objects.get(ikfuniqueid=ikfuniqueid).values()
         context={
                 "data"
         }

@@ -4,6 +4,11 @@
                         <form  method="POST" class="glass-morphism-container1"  name="form1" id="form1">
                         <h3 class="form-heading">Scout Registration</h3>
                         {% csrf_token %}
+                        <div class="d-flex justify-content-center" >
+                            <div class="spinner-border"  role="status" >
+                              <span class="sr-only">..</span>
+                            </div>
+                          </div>
                         <input type="hidden" name="_token" value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3">
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
@@ -23,7 +28,7 @@
                                     <div class="form-group">
                                         <label class="text-left">Your State<span class="mandatory">*
                                             </span></label>
-                                        <select class="form-control" name="tournament_state" id="tournament_state" required="">
+                                        <select class="form-control" name="state" id="state" required="">
                                             <option value="">Select State </option>
                                             
 
@@ -36,7 +41,7 @@
                                     <div class="form-group">
                                         <label class="text-left">Your City<span class="mandatory">*
                                             </span></label>
-                                        <select id="tournament_city" name="tournament_city" class="form-control"  required="">
+                                        <select id="city" name="city" class="form-control"  required="">
                                             <option value="">Select City</option>
 
 
@@ -96,38 +101,38 @@
                                             </span></label>
                                             <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="yes">
+                                                <label class="form-check-label" for="player">
                                                   player
                                                 </label>
-                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="association_as" id="yes" value=1>
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="association_as" id="player" value="player">
                                               </div>
                                               <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="no">
+                                                <label class="form-check-label" for="coach">
                                                   Coach
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="coach" value="coach" checked>
                                               </div>
                                               <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="no">
+                                                <label class="form-check-label" for="refree">
                                                   Refree
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="refree" value="refree" checked>
                                               </div>
                                               <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="no">
-                                                    Academy owner
+                                                <label class="form-check-label" for="academy_owner">
+                                                    Academy Owner
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="academy_owner" value="academy_owner" checked>
                                               </div>
                                               <div class="form-check">
                                                 
-                                                <label class="form-check-label" for="no">
+                                                <label class="form-check-label" for="other">
                                                     Other
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="radiomobile" id="no" value=0 checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="other" value="other" checked>
                                               </div>
                                         <span id="message"></span>
                                     </div>
@@ -179,11 +184,16 @@
                                             </span></label>
                                     </div>
                                 </div> {% endcomment %}
-
+                                <div class="d-flex justify-content-center" >
+                                    <div class="spinner-border"  role="status" >
+                                      <span class="sr-only">..</span>
+                                    </div>
+                                  </div>
                                 <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
                                     <div class="form-group mb-0">
                                         <button class="btn login-btn" onclick="prev(this)" formnovalidate> {{prev}} </button>
-                                        <button class="btn login-btn" onclick="next(this)" type="submit"> {{next}} </button>
+                                        <button class="btn login-btn" onclick="next(this)" type="submit"> Save</button>
+                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" type="submit">Proceed to Payment</button>
                                     </div>
                                 </div>
 
@@ -211,6 +221,104 @@ function discountamount(course, type){
    
                     }
             })
+}
+function proceed_to_payment(self){
+  $('.spinner-border').show();
+  if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
+    IKFUNIQUEID=sessionStorage.getItem('ikfuniqueid')
+    ID=sessionStorage.getItem('id')
+
+  }
+
+$.ajax({type: "POST",
+        url: "{% url 'order' %}",
+        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:AMOUNT, csrfmiddlewaretoken:'{{csrf_token}}'} }
+      ) .done(function (result) { 
+        $('.spinner-border').hide();
+                                  console.log(result)
+                                  resultdata=JSON.parse(result)
+                                 if(resultdata['error']=="true"){
+                                               alert(resultdata['message'] )
+                                    }
+                                 else{try{
+          alert("Order ID is generated Successfully");
+
+        sessionStorage.setItem("order_id",resultdata['order_id'] )
+        window.location="{% url 'payment' %}"
+       
+        
+        }
+        catch(e){
+
+         alert(e.message)
+        }
+
+        
+        
+      } 
+    
+    })
+    .fail(function (jqXHR, textStatus, errorThrown) { 
+      $('.spinner-border').hide();
+      alert("Order Api Error. Please Try Again") }); 
+
+  }
+function save(){
+    $('.spinner-border').show();
+        $.ajax({
+          
+          
+          type: "POST",
+          url: "{% url 'save' %}",
+          data:{data:data,csrfmiddlewaretoken:'{{csrf_token}}'} 
+
+
+        
+        }
+        
+        ) 
+        .done(function (result) {       console.log("done")
+          console.log(result)
+          resultdata=JSON.parse(result)
+          console.log(resultdata)
+          $('.spinner-border').hide();
+          if(resultdata['error']=="true"){
+            console.log("error",resultdata)
+            alert(resultdata['message'] )
+            
+          }
+          else{
+            IKFUNIQUEID=resultdata["ikfuniqueid"]
+            ID=resultdata["id"]
+            sessionStorage.setItem("ikfuniqueid",IKFUNIQUEID)
+            sessionStorage.setItem("id",ID)
+
+            
+            
+            try{
+              alert('Scout Data Submitted Successfully. Now click to "Proceed to Payment" button to go to Payment page.');
+
+
+              document.getElementById("prev").disabled=true
+            document.getElementById("next").disabled=true
+            document.getElementById("proceed").disabled=false
+            sessionStorage.setItem("saved","true")
+           
+            
+            }
+            catch(e){
+
+             alert(e.message)
+            }
+
+            
+            
+          } 
+        
+        })
+        .fail(function (jqXHR, textStatus, errorThrown) { 
+          $('.spinner-border').hide();
+          alert("Server API Error") });    
 }
 function next(node){
     window.onbeforeunload = null;
@@ -300,14 +408,15 @@ function converter(doc,statevalue, cityvalue){
 
 
 window.onload = function() {
-var stateSel = document.getElementById("tournament_state");
-var citySel = document.getElementById("tournament_city");
+$('.spinner-border').hide();
+var stateSel = document.getElementById("state");
+var citySel = document.getElementById("city");
 var dobid=document.getElementById("dob");
 
 if(sessionStorage.getItem("data")){
     var inputdatajson=JSON.parse(sessionStorage.getItem("data"))
-    if(JSON.parse(sessionStorage.getItem("data"))["tournament_city"]){
-        converter(citySel,inputdatajson["tournament_state"],inputdatajson["tournament_city"])
+    if(JSON.parse(sessionStorage.getItem("data"))["city"]){
+        converter(citySel,inputdatajson["state"],inputdatajson["city"])
 
     }
 }
@@ -326,8 +435,8 @@ $.ajax({
         if(sessionStorage.getItem("data")){
             var datafortournament=JSON.parse(sessionStorage.getItem("data"))
             if(datafortournament){
-                document.getElementById("tournament_state").value=""
-                document.getElementById("tournament_state").value=datafortournament["tournament_state"]
+                document.getElementById("state").value=""
+                document.getElementById("state").value=datafortournament["state"]
                 
             }
         }

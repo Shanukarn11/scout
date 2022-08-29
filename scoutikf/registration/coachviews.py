@@ -30,7 +30,7 @@ from django.db import transaction
 from treepoem import barcode_types
 
 from registration.coach_models import CoachModel, MasterCoachLabels
-from .models import  MasterCategory, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPosition, MasterRoles, MasterSeason, MasterState, MasterCity, Player
+from .models import  MasterCategory, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPosition, MasterRoles, MasterSeason, MasterState, MasterCity, Scout
 from django.db import IntegrityError
 
 
@@ -159,7 +159,7 @@ def coachplayer(request):
         players =[]
         coach_id=request.GET.get('coach_id')
         try:
-            fetched_players=Player.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values()
+            fetched_players=Scout.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values()
             for player in fetched_players:
                 singleplayer={}
                 singleplayer['ikfuniqueid']=player["ikfuniqueid"]
@@ -173,7 +173,7 @@ def coachplayer(request):
                 singleplayer["mobile"]=player["mobile"]
                 singleplayer["document_id_selected"]=player["document_id_selected_id"]
                 players.append(singleplayer)
-        except Player.DoesNotExist:
+        except Scout.DoesNotExist:
             print("does not exist")
         return JsonResponse(players,safe=False)
 
@@ -190,7 +190,7 @@ def coachplayer(request):
             gender=playerdata["Gender"]
             dob=playerdata["D.O.B"]
             datagroup = MasterGroup.objects.filter(gender=gender, include=True, start__lte=dob, end__gte=dob)
-            playermodel=Player(
+            playermodel=Scout(
                 first_name=playerdata['First Name'],
                 last_name=playerdata['Last Name'],
                 dob=playerdata['D.O.B'],
@@ -231,7 +231,7 @@ def coachplayer(request):
     elif request.method=="DELETE":
         try:
             player_id=request.GET['id']
-            playermodel=Player.objects.get(ikfuniqueid=player_id)
+            playermodel=Scout.objects.get(ikfuniqueid=player_id)
             pic_url=str(playermodel.pic_file)
             doc_url=str(playermodel.document_id_file)
             playermodel.delete()
@@ -249,7 +249,7 @@ def coachplayer(request):
     elif request.method=="PUT":
         try:
             new_player_data=json.loads(request.body)
-            playermodel=Player.objects.get(ikfuniqueid=new_player_data['id'])
+            playermodel=Scout.objects.get(ikfuniqueid=new_player_data['id'])
             playermodel.first_name=new_player_data['First Name']
             playermodel.last_name=new_player_data['Last Name']
             playermodel.dob=new_player_data['D.O.B']

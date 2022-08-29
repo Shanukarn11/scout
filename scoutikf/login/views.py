@@ -16,7 +16,7 @@ from django.contrib import messages
 
 
 from registration.modelhome import SocialMediaLink
-from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Player, Upload, Uploadfile,Payment
+from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile,Payment
 
 
 from django.db import IntegrityError
@@ -50,7 +50,7 @@ def verifylogin(request):
     if request.method == 'POST':
         ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
         mobile = request.POST.getlist('mobile')[0]
-        player=list(Player.objects.filter(ikfuniqueid=ikfuniqueid,mobile=mobile).values())
+        player=list(Scout.objects.filter(ikfuniqueid=ikfuniqueid,mobile=mobile).values())
         if player:
             dictdata=dict()
             dictdata['error']="false"
@@ -93,7 +93,7 @@ def playerdatalogin(request):
     if request.method == 'POST':
         
         ikfid = request.POST.get('ikfuniqueid')
-        playerdata = list(Player.objects.filter(ikfuniqueid=ikfid).values())
+        playerdata = list(Scout.objects.filter(ikfuniqueid=ikfid).values())
         print(playerdata)
         
     return JsonResponse(playerdata[0], safe=False)

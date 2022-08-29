@@ -4,7 +4,7 @@ from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels, Payment,Player,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels, Payment,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -94,13 +94,13 @@ class MasterDocumentsAdmin(admin.ModelAdmin):
     list_display=('id','keydata','en','hi','mr','asm','ben','odia','bodo','include')
     search_fields=('keydata','en',)
 
-@admin.register(Player)
-class PlayerAdmin(admin.ModelAdmin):
-    list_filter = ('status','team',"position1",'error_description','gender','group_id','tournament_state', 'tournament_city_id',
-                   'primary_position', 'secondary_position','coach_id')
-    list_display = ('id','team',"position1", 'ikfuniqueid', 'playeruploadid', 'first_name', 'order_id', 'last_name', 'gender', 'mobile', 'email', 'dob', 'height', 'weight','primary_position', 'secondary_position', 'tournament_city', "tournament_state",
-                    'group_id', 'season_id', 'category_id', 'whoisfilling_id', 'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','document_id_selected','document_id_number','pic_file','document_id_file','created_at','updated_at')
-    search_fields = ('ikfuniqueid', 'playeruploadid', 'first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id','coach_id')
+@admin.register(Scout)
+class ScoutAdmin(admin.ModelAdmin):
+    list_filter = ('status','error_description','gender','state', 'city',
+                   )
+    list_display = ('id','ikfuniqueid', 'first_name', 'order_id', 'last_name', 'gender', 'mobile', 'email', 'dob', 'city', 'state',
+                     'season_id', 'category_id', 'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at')
+    search_fields = ('ikfuniqueid','first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id')
 
     def has_delete_permission(self, request, obj=None):
         return False

@@ -20,7 +20,7 @@ from registration.coach_models import CoachModel, MasterCoachLabels
 
 
 from registration.modelhome import SocialMediaLink
-from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Player, Upload, Uploadfile,Payment
+from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile,Payment
 
 
 from django.db import IntegrityError
@@ -107,7 +107,7 @@ def coachdatalogin(request):
     if request.method == 'POST':
         
         ikfid = request.POST.get('coach_id')
-        coachdata = list(Player.objects.filter(coach_id=ikfid).values())
+        coachdata = list(Scout.objects.filter(coach_id=ikfid).values())
         #print(coachdata)
         
     return JsonResponse(coachdata[0], safe=False)
@@ -116,7 +116,7 @@ def amount(request):
     if request.method == "POST":
         coach_id = request.POST['coach_id']
 
-        player_list=list(Player.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
+        player_list=list(Scout.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
         #print(player_list)
         amount=0
         for player in player_list:
@@ -128,11 +128,11 @@ def amount(request):
 def order(request):
     if request.method == "POST":
         coach_id = request.POST.getlist('coach_id')[0]
-        player_list=list(Player.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
+        player_list=list(Scout.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
         # #print(request.POST.getlist('amount'))
         amount=0
         for player in player_list:
-            obj=Player.objects.get(id=player['id'])
+            obj=Scout.objects.get(id=player['id'])
             entry_fee=int(MasterAmount.objects.filter(group=player['group_id'],city_id=player['tournament_city_id']).values()[0]['amount'])
             obj.amount=entry_fee
             obj.save(update_fields=['amount'])
@@ -155,14 +155,14 @@ def order(request):
         if response:
                 try:
                     for player in player_list:
-                        obj=Player.objects.get(id=player['id'])
+                        obj=Scout.objects.get(id=player['id'])
                         obj.order_id=response["id"]
 
                         obj.save()
                     errordict = {"error": "false",
                                 "message": "order generated successfully", "order_id":response["id"]}
                     return HttpResponse(json.dumps(errordict))
-                except Player.DoesNotExist:
+                except Scout.DoesNotExist:
                     errordict = {"error": "true",
                                 "message": "erro in order id"}
                     return HttpResponse(json.dumps(errordict))
@@ -192,9 +192,9 @@ def paymentstatus(request):
                 coach_id=coach_id),
             try:
                 ##print"gettig data")
-                player_list=list(Player.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
+                player_list=list(Scout.objects.filter(Q(coach_id=coach_id)).filter(Q(status='failed')|Q(status=None)).values())
                 for player in player_list:
-                    obj=Player.objects.get(id=player['id'])
+                    obj=Scout.objects.get(id=player['id'])
                     obj.status=request.POST.getlist('status')[0]
                     obj.razorpay_payment_id=request.POST.getlist('razorpay_payment_id')[0]
                     obj.razorpay_order_id=request.POST.getlist('razorpay_order_id')[0]
@@ -248,7 +248,7 @@ def reciept(request):
         #print(request.POST)
         coach_id=request.POST['coach_id']
         #print(coach_id,'coach_id')
-        player_list=list(Player.objects.filter(coach_id=coach_id,status='success').values())
+        player_list=list(Scout.objects.filter(coach_id=coach_id,status='success').values())
         dict_list=[]
         for player in player_list:
             dict={}

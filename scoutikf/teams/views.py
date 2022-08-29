@@ -5,7 +5,7 @@ from django.shortcuts import render
 from .forms import NameForm, playerForm, NameForm2
 from django.http import HttpResponseRedirect
 from django.shortcuts import redirect
-from registration.models import Player, MasterCity, MasterState, MasterCategory, MasterGroup, MasterPosition
+from registration.models import Scout, MasterCity, MasterState, MasterCategory, MasterGroup, MasterPosition
 import pandas as pd
 from django.contrib import messages
 
@@ -27,7 +27,7 @@ def team(request):
 
             city = form.cleaned_data['city']
             group = form.cleaned_data['group']
-            player = Player.objects.filter(
+            player = Scout.objects.filter(
                 tournament_city_id=city, group=group,status="success")
             
            
@@ -83,15 +83,15 @@ def teamlist(request, id):
         cityName = i.city
     # ******************************************************************
     # data from player as dataframe
-    player = Player.objects.all()
+    player = Scout.objects.all()
     for i in player:
-        player_obj = Player.objects.get(id=i.id)
+        player_obj = Scout.objects.get(id=i.id)
         player_obj.team = ""
         player_obj.position1 = ""
         player_obj.save()
 
-    datas = Player.objects.filter(tournament_city_id=city, group=groupid)
-    # column_headers = Player._meta.get_fields()
+    datas = Scout.objects.filter(tournament_city_id=city, group=groupid)
+    # column_headers = Scout._meta.get_fields()
     player = pd.DataFrame(list(datas.values('id', 'userid', 'ikfuniqueid', 'password', 'team', 'position1', 'tournament_city',
                           'tournament_state', 'gender', 'first_name', 'last_name', 'height', 'weight', 'primary_position', 'secondary_position')))
     # player=
@@ -182,7 +182,7 @@ def teamlist(request, id):
 
                                     player.at[index, 'team'] = j
                                     player.at[index, 'position1'] = posname
-                                    player_obj = Player.objects.get(
+                                    player_obj = Scout.objects.get(
                                         id=row['id'])
                                     player_obj.team = str(j)
                                     player_obj.position1 = posname
@@ -222,7 +222,7 @@ def teamlist(request, id):
 
                         player.at[index, 'team'] = j
                         player.at[index, 'position1'] = posname
-                        player_obj = Player.objects.get(id=row['id'])
+                        player_obj = Scout.objects.get(id=row['id'])
                         player_obj.team = str(j)
                         player_obj.position1 = posname
                         player_obj.save()
@@ -241,7 +241,7 @@ def teamlist(request, id):
                                 flag = 1
                                 player.at[index, 'team'] = k
                                 player.at[index, 'position1'] = secposname
-                                player_obj = Player.objects.get(id=row['id'])
+                                player_obj = Scout.objects.get(id=row['id'])
                                 player_obj.team = str(k)
                                 player_obj.position1 = secposname
                                 player_obj.save()
@@ -292,12 +292,12 @@ def teamlist(request, id):
         player_team = request.GET['position'][0:F]
 
         position_name = request.GET['position'][F+1:]
-        message = "Player added  "
+        message = "Scout added  "
         for i, row in positions.iterrows():
             if row['position'] == position_name:
                 positionid = row['label']
 
-        player_obj = Player.objects.get(id=pid)
+        player_obj = Scout.objects.get(id=pid)
         player_obj.team = player_team
         player_obj.position1 = posname
         player_obj.save()
@@ -317,7 +317,7 @@ def team_table(request, id):
     city_ = MasterCity.objects.filter(id=city)
     for i in city_:
         cityName = i.city
-    datas = Player.objects.filter(tournament_city_id=city, group=groupid)
+    datas = Scout.objects.filter(tournament_city_id=city, group=groupid)
     player = pd.DataFrame(list(datas.values('id', 'userid', 'password', 'tournament_city', 'team', 'ikfuniqueid', 'tournament_state',
                           'position1', 'gender', 'first_name', 'last_name', 'height', 'weight', 'primary_position', 'secondary_position')))
     # player=
@@ -376,7 +376,7 @@ def team_table(request, id):
             message = "player added at positon " + \
                 str(position_name)+" in team number :"+str(player_team)
 
-            player_obj = Player.objects.get(id=pid)
+            player_obj = Scout.objects.get(id=pid)
             player_obj.team = player_team
             player_obj.position1 = position_name
             player_obj.save()
@@ -398,7 +398,7 @@ def team_table(request, id):
             for p in positions.position:
 
                 try:
-                    player_obj = Player.objects.get(
+                    player_obj = Scout.objects.get(
                         team=i, position1=p, tournament_city=city)
                     #  print("adede")
                     teams.at[i, p] = player_obj.ikfuniqueid
@@ -422,7 +422,7 @@ def team_table(request, id):
 
 def delete(request, id):
    
-    player_obj = Player.objects.get(ikfuniqueid=id)
+    player_obj = Scout.objects.get(ikfuniqueid=id)
     print(player_obj.first_name)
     idd = str(player_obj.tournament_city_id)+"-"+str(player_obj.group)
    
@@ -446,7 +446,7 @@ def download(request, id):
     city_ = MasterCity.objects.filter(id=city)
     for i in city_:
         cityName = i.city
-    player = Player.objects.filter(tournament_city_id=city, status="success", group=groupid)
+    player = Scout.objects.filter(tournament_city_id=city, status="success", group=groupid)
 
     n = len(player)//11
    
@@ -455,7 +455,7 @@ def download(request, id):
     for i in range(n+1):
         
 
-        T0 = player = Player.objects.filter(
+        T0 = player = Scout.objects.filter(
             tournament_city_id=city, status="success", group=groupid, team=i).order_by('position1')
         if len(T0)>0:
             dict[i] = T0
@@ -482,7 +482,7 @@ def download(request, id):
     if request.GET.get('Team_no'):
         ti = request.GET['Team_no']
         dict = {}
-        T0 =  Player.objects.filter(
+        T0 =  Scout.objects.filter(
             tournament_city_id=city, status="success", group=groupid, team=ti)
         dict[int(ti)] = T0
         p=pend_dict
@@ -506,7 +506,7 @@ def download(request, id):
         x=n+1
   
         
-    remain2= len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
+    remain2= len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
     
     return render(request, "download.html", {"id": id, "cityName": cityName, "dict": dict, "n": n, "Heading": Heading, 'range': range(x),"remain2":remain2,"groupid":groupid,"pend_dict":pend_dict})
 
@@ -523,12 +523,12 @@ def formteam(request, id):
     city_ = MasterCity.objects.filter(id=city)
     for i in city_:
         cityName = i.city
-    player = Player.objects.filter(
+    player = Scout.objects.filter(
         tournament_city_id=city, group=groupid,status="success").order_by('id')
     dup_list=[]
     for i in player:
       
-        p=Player.objects.filter(mobile=i.mobile,tournament_city_id=city, group=groupid,status="success")
+        p=Scout.objects.filter(mobile=i.mobile,tournament_city_id=city, group=groupid,status="success")
         
        
         if i.mobile not in dup_list:
@@ -536,7 +536,7 @@ def formteam(request, id):
             i.team="-"
          
             i.position1="NOT ASSIGNED"
-            player_obj = Player.objects.get(id=i.id)
+            player_obj = Scout.objects.get(id=i.id)
             player_obj.team = "-"
             player_obj.position1 = "NOT ASSIGNED"
             player_obj.save()
@@ -545,7 +545,7 @@ def formteam(request, id):
             i.team="*"
             
             i.position1="*"
-            player_obj = Player.objects.get(id=i.id)
+            player_obj = Scout.objects.get(id=i.id)
             player_obj.team = "*"
             player_obj.position1 = "*"
             player_obj.save()
@@ -561,13 +561,13 @@ def formteam(request, id):
             for j in positions:
                 if (i.primary_position_id == j.id):
                     if(j.id != 2):
-                        if((len(Player.objects.filter(tournament_city_id=city, group=groupid, status="success", team=str(team_no), position1=j.label)) == 0) and i.position1 == "NOT ASSIGNED"):
+                        if((len(Scout.objects.filter(tournament_city_id=city, group=groupid, status="success", team=str(team_no), position1=j.label)) == 0) and i.position1 == "NOT ASSIGNED"):
 
                             i.position1 = j.label
                             i.team = str(team_no)
 
                             player
-                            player_obj = Player.objects.get(id=i.id)
+                            player_obj = Scout.objects.get(id=i.id)
                             player_obj.team = str(team_no)
                             player_obj.position1 = j.label
                             player_obj.save()
@@ -575,11 +575,11 @@ def formteam(request, id):
                         
 
                     else:
-                        if(len(Player.objects.filter(tournament_city_id=city, group=groupid,  status="success",team=str(team_no), position1=j.label)) <2 and i.position1 == "NOT ASSIGNED"):
+                        if(len(Scout.objects.filter(tournament_city_id=city, group=groupid,  status="success",team=str(team_no), position1=j.label)) <2 and i.position1 == "NOT ASSIGNED"):
 
                             i.position1 = j.label
                             i.team = str(team_no)
-                            player_obj = Player.objects.get(id=i.id)
+                            player_obj = Scout.objects.get(id=i.id)
                             player_obj.team = str(team_no)
 
                             player_obj.position1 = j.label
@@ -588,25 +588,25 @@ def formteam(request, id):
                             # print("addded 2")
                 if (i.secondary_position_id == j.id): 
                     if(j.id != 2):
-                        if((len(Player.objects.filter(tournament_city_id=city,  status="success",group=groupid, team=str(team_no), position1=j.label)) == 0) and i.position1 == "NOT ASSIGNED"):
+                        if((len(Scout.objects.filter(tournament_city_id=city,  status="success",group=groupid, team=str(team_no), position1=j.label)) == 0) and i.position1 == "NOT ASSIGNED"):
 
                             i.position1 = j.label
                             i.team = str(team_no)
 
                             player
-                            player_obj = Player.objects.get(id=i.id)
+                            player_obj = Scout.objects.get(id=i.id)
                             player_obj.team = str(team_no)
                             player_obj.position1 = j.label
                             player_obj.save()
                             # print("added 1")
 
                     else:
-                        if(len(Player.objects.filter(tournament_city_id=city, group=groupid, status="success", team=str(team_no), position1=j.label)) < 2 and i.position1 == "NOT ASSIGNED"):
+                        if(len(Scout.objects.filter(tournament_city_id=city, group=groupid, status="success", team=str(team_no), position1=j.label)) < 2 and i.position1 == "NOT ASSIGNED"):
 
                             i.position1 = j.label
                             
                             i.team = str(team_no)
-                            player_obj = Player.objects.get(id=i.id)
+                            player_obj = Scout.objects.get(id=i.id)
                             player_obj.team = str(team_no)
 
                             player_obj.position1 = j.label
@@ -614,7 +614,7 @@ def formteam(request, id):
                             player_obj.save()
    
 
-    remain= len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
+    remain= len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
     
     dict_round1={}
     dict_round1["Left Mid/Left Winger"]=["Right Mid/Right Winger"]
@@ -644,11 +644,11 @@ def formteam(request, id):
                     # print(i.first_name,i.primary_position)
                      for pos in alterList:
                         if pos!="Center Back/Stopper":
-                            if((len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) == 0) ):
+                            if((len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) == 0) ):
                                 i.position1 = pos
                                     
                                 i.team = str(team_no)
-                                player_obj = Player.objects.get(id=i.id)
+                                player_obj = Scout.objects.get(id=i.id)
                                 player_obj.team = str(team_no)
 
                                 player_obj.position1 = pos
@@ -656,12 +656,12 @@ def formteam(request, id):
                                 player_obj.save()
                                 # print("round 2-1")
                         else:
-                            if(len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) <= 2 ):
+                            if(len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) <= 2 ):
 
                                 i.position1 = pos
                                     
                                 i.team = str(team_no)
-                                player_obj = Player.objects.get(id=i.id)
+                                player_obj = Scout.objects.get(id=i.id)
                                 player_obj.team = str(team_no)
 
                                 player_obj.position1 = pos
@@ -688,11 +688,11 @@ def formteam(request, id):
                     
                         # print(i.first_name,i.primary_position)
                     for pos in alterList:
-                        if((len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) == 0) ):
+                        if((len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid, team=str(team_no), position1=pos)) == 0) ):
                             i.position1 = pos
                                     
                             i.team = str(team_no)
-                            player_obj = Player.objects.get(id=i.id)
+                            player_obj = Scout.objects.get(id=i.id)
                             player_obj.team = str(team_no)
 
                             player_obj.position1 = pos
@@ -710,11 +710,11 @@ def formteam(request, id):
 
 
     # print("gsdhkf", str(0))
-    v = Player.objects.filter(id="248")
+    v = Scout.objects.filter(id="248")
 
 
-    remain2= len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
-    player=Player.objects.filter(tournament_city_id=city,  status="success",group=groupid).order_by("team")
+    remain2= len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
+    player=Scout.objects.filter(tournament_city_id=city,  status="success",group=groupid).order_by("team")
     teams = []
     index = []
     for i in range(n):
@@ -750,7 +750,7 @@ def team_table2(request, id):
     city_ = MasterCity.objects.filter(id=city)
     for i in city_:
         cityName = i.city
-    datas = Player.objects.filter(tournament_city_id=city, status="success", group=groupid)
+    datas = Scout.objects.filter(tournament_city_id=city, status="success", group=groupid)
     player = pd.DataFrame(list(datas.values('id', 'userid', 'password', 'tournament_city', 'team', 'ikfuniqueid', 'tournament_state',
                           'position1', 'gender', 'first_name', 'last_name', 'height', 'weight', 'primary_position', 'secondary_position')))
     # player=
@@ -797,7 +797,7 @@ def team_table2(request, id):
             for k, row in player.iterrows():
                 if(row["position1"] == j and row["team"] == str(i)):
                         found = 1
-                        if(row["position1"] =="Center Back/Stopper" and len(Player.objects.filter(tournament_city=city,group=groupid,status="success",position1="Center Back/Stopper",team=str(i)))<2):
+                        if(row["position1"] =="Center Back/Stopper" and len(Scout.objects.filter(tournament_city=city,group=groupid,status="success",position1="Center Back/Stopper",team=str(i)))<2):
                             found=1
     
             if found == 0:
@@ -822,7 +822,7 @@ def team_table2(request, id):
             message = "player added at positon " + \
                 str(position_name)+" in team number :"+str(player_team)
 
-            player_obj = Player.objects.get(id=pid)
+            player_obj = Scout.objects.get(id=pid)
             player_obj.team = player_team
             player_obj.position1 = position_name
             player_obj.save()
@@ -848,7 +848,7 @@ def team_table2(request, id):
                 try:
                    
                     if(p['label']!="Center Back/Stopper"):
-                        player_obj = Player.objects.get(
+                        player_obj = Scout.objects.get(
                             team=i, position1=p['label'], tournament_city=city,group=groupid,status="success")
                     
                         teams.at[i, p['position'] ]= player_obj.ikfuniqueid
@@ -862,7 +862,7 @@ def team_table2(request, id):
                         teams.at[i, "Center_Back_Or_Stopper2name" ]= "NOT Assigned"
 
 
-                        player_obj = Player.objects.filter(
+                        player_obj = Scout.objects.filter(
                             team=i, position1=p['label'], status="success", tournament_city=city)
                         c=0
                         for pl in player_obj:
@@ -894,7 +894,7 @@ def team_table2(request, id):
     #         for a,p in positions.iterrows():
     #             try:
     #                 if(p['label']!="Center Back/Stopper"):
-    #                     player_obj = Player.objects.get(
+    #                     player_obj = Scout.objects.get(
     #                         team=i, position1=p['label'],group=group_id, tournament_city=city, status="success")
     #                     teams.at[i, p['position'] ]= player_obj.ikfuniqueid
     #             except Exception as e:
@@ -911,7 +911,7 @@ def team_table2(request, id):
         position_tag.append(r.position)
     # print(teams.head())
     dd="dd2"
-    remain2= len(Player.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
+    remain2= len(Scout.objects.filter(tournament_city_id=city, status="success", group=groupid,team="-"))
     
     # print(teams)
     return render(request, 'team_table2.html', {'id': id, "city": city, "groupid": groupid, "n": n, "Scout": player, "looplist": looplist, "positions": positions, "a": a, "cityName": cityName, "remain": remain, "dictt": dictt, "message": message, "teams": teams, "Loop": Loop, "position_label": position_label, "position_tag": position_tag,"dd":dd,"remain2":remain2})

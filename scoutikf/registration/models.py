@@ -206,77 +206,53 @@ class MasterColumn(models.Model):
 #     academy = models.CharField(max_length=300, null=True)
 
 
-class Player(models.Model):
+class Scout(models.Model):
     id = models.BigAutoField(primary_key=True)
-    userid = models.CharField(max_length=300,blank=True,)
-    password = models.CharField(max_length=300,blank=True,)
-    team=models.CharField(max_length=5,default='')
-    position1=models.CharField(max_length=50,default='',verbose_name="Position given")
+    
+    associated_years = models.CharField(max_length=100,blank=True,)
+    associated_as = models.CharField(max_length=200,blank=True,)
+
+    referral = models.CharField(max_length=100,blank=True,)
+    discount = models.CharField(max_length=100,blank=True,)
+
 
 
 #   tournament city
-    tournament_city = models.ForeignKey( 
+    city = models.ForeignKey( 
         MasterCity, null=True, verbose_name="master city", db_index=True, on_delete=models.SET_NULL)
-    tournament_state = models.ForeignKey(
+    state = models.ForeignKey(
         MasterState, null=True, verbose_name="master state", related_name='state2', db_index=True, on_delete=models.SET_NULL)
 
 #   profile
     gender = models.CharField(max_length=200, null=True, db_index=True)
     first_name = models.CharField(max_length=300, null=True)
     last_name = models.CharField(max_length=300, null=True)
-    height = models.CharField(max_length=10,blank=True, db_index=True)
-    weight = models.CharField(max_length=10,blank=True, db_index=True)
 
-#   Player Position
-    primary_position = models.ForeignKey(MasterPosition, null=True, related_name='primary_position2',
-                                         verbose_name="primary position", db_index=True, on_delete=models.SET_NULL)
-    secondary_position = models.ForeignKey(MasterPosition, null=True, related_name='secondary_position',
-                                           verbose_name="secondary position", db_index=True, on_delete=models.SET_NULL)
+
+
 
 #   Contact Information
     mobile = models.CharField(max_length=10, null=True, default="")
-    radiomobile = models.BooleanField(blank=True,null=True)
-    whatsapp = models.CharField(max_length=10,blank=True, null=True)
+
     email = models.EmailField(null=True,blank=True,)
     ipv4 = models.GenericIPAddressField(max_length=100,blank=True, null=True)
     ipv6 = models.GenericIPAddressField(max_length=100,blank=True, null=True)
     ikfuniqueid = models.CharField(max_length=200, null=True, db_index=True)
 
 
-#   Address
-    address_line1 = models.TextField(blank=True,null=True)
-    address_line2 = models.TextField(blank=True,null=True)
-    state = models.ForeignKey(
-        MasterState, null=True, verbose_name="state", related_name='state',blank=True, db_index=True, on_delete=models.SET_NULL)
-    pincode = models.IntegerField(null=True,blank=True, db_index=True)
 
-#   File location
-    pic_file = models.CharField(max_length=300,blank=True, null=True)
-
-    document_id_selected = models.ForeignKey(
-        MasterDocument, null=True, verbose_name="document", db_index=True,blank=True, on_delete=models.SET_NULL)
-    document_id_number = models.CharField(max_length=300,blank=True, null=True)
-    document_id_file = models.CharField(max_length=300,blank=True, null=True)
-    playeruploadid = models.CharField(max_length=300,blank=True, null=True)
-
-# Coach Id
-    coach_id=models.CharField(max_length=300,blank=True, null=True)
-#   Dates
     dob = models.DateField(db_index=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
-    language = models.CharField(max_length=10,blank=True,)
+
     status = models.CharField(max_length=10, null=True,blank=True, db_index=True)
 
     season = models.ForeignKey(
         MasterSeason, null=True, verbose_name="master_season_id", db_index=True, on_delete=models.SET_NULL)
     category = models.ForeignKey(
         MasterCategory, null=True, verbose_name="master_category_id", db_index=True, on_delete=models.SET_NULL)
-    group = models.ForeignKey(
-        MasterGroup, null=True, verbose_name="master_group_id", db_index=True, on_delete=models.SET_NULL)
-    whoisfilling = models.ForeignKey(
-        MasterRoles, null=True, verbose_name="master_roles_id", db_index=True, on_delete=models.SET_NULL)
+
     order_id = models.CharField(max_length=300,blank=True, null=True)
 
     status = models.CharField(max_length=10, null=True,blank=True, db_index=True)
@@ -319,7 +295,7 @@ class Interkart(models.Model):
     height = models.CharField(max_length=10,blank=True, db_index=True)
     weight = models.CharField(max_length=10,blank=True, db_index=True)
 
-#   Player Position
+#   Scout Position
     primary_position = models.ForeignKey(MasterPosition, null=True, related_name='primary_position201',
                                          verbose_name="primary position", db_index=True, on_delete=models.SET_NULL)
     secondary_position = models.ForeignKey(MasterPosition, null=True, related_name='secondary_position201',

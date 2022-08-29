@@ -12,7 +12,7 @@
         <form id="alpha" name="alpha" action = "" method = "get">
             {% csrf_token %}
            
-            <label for="Playername">Choose Player:</label>
+            <label for="Playername">Choose Scout:</label>
         <select id="nams" name="name">
           {% for j, row in remain.iterrows %} 
           <option value="{{row.id}}">{{row.name}}</option>
@@ -30,7 +30,7 @@
           {%endfor%}
           {%endfor%}
         </select>
-            <input type="submit" value="Add Player">
+            <input type="submit" value="Add Scout">
       
         </form>
 

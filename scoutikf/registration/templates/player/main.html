@@ -134,7 +134,7 @@
                                 if(urlitem=="prev"){document.getElementById("upload-form").action="{% url 'preview1' %}"}
                                 else if(urlitem=="next"){
                                   if(!document.getElementById("primary_position").value || !document.getElementById("secondary_position").value ){
-                                    alert("Please fill both the Primary and Secondary Position of the Player")
+                                    alert("Please fill both the Primary and Secondary Position of the Scout")
                                   }
                                   else{
                                     document.getElementById("upload-form").action="{% url 'preview2' %}"

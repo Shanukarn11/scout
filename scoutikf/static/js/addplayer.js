@@ -78,7 +78,7 @@ function loadPlayers() {
 
 function editPlayer(editButton) {
   //scroll to top
-  addplayerButton.textContent = "Update Player";
+  addplayerButton.textContent = "Update Scout";
   $("#cancel-button").show();
   $("html,body").animate(
     {
@@ -145,7 +145,7 @@ async function addplayer() {
 
 function cancel() {
   $(player_form)[0].reset();
-  addplayerButton.textContent = "Add Player";
+  addplayerButton.textContent = "Add Scout";
   player_form.setAttribute("player_id", "newplayer");
   $("#cancel-button").hide();
 }
@@ -222,7 +222,7 @@ async function deletePlayer(deleteButton) {
       delete local_database[playerid];
       playerCard.remove();
       spinner.hide();
-      alert("Player Deleted Successfully");
+      alert("Scout Deleted Successfully");
     } else {
       spinner.hide();
       alert("An error occured");
@@ -544,7 +544,7 @@ function playerCard({
         alt=""
         onerror="this.onerror=null;this.src='${error_image_url}';"
       />
-      <div class="image-title">Player Image</div>
+      <div class="image-title">Scout Image</div>
     </div>
     <div class="player-image-container">
       <img

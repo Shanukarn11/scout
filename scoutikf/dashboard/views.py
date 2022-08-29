@@ -10,23 +10,23 @@ from django.shortcuts import render
 
 from django.db.models import Count
 
-from registration.models import Player, MasterCity, MasterState, MasterCategory
+from registration.models import Scout, MasterCity, MasterState, MasterCategory
 
 
 def home(request):
 
     # total
     citytext = 'select `id`, `tournament_city_id`,count(*) as c from `registration_player`  '
-    cityCount = Player.objects.raw(citytext
+    cityCount = Scout.objects.raw(citytext
                                    )
     for i in cityCount:
         totalcount = i.c
     totaluniqtxt = 'select `id`, `tournament_city_id`,COUNT(DISTINCT  `mobile`) as c from `registration_player`  '
-    totalunique = Player.objects.raw(totaluniqtxt)
+    totalunique = Scout.objects.raw(totaluniqtxt)
     for i in totalunique:
         totalunicount = i.c
     s = "'failed'"
-    tfailedu = Player.objects.raw(
+    tfailedu = Scout.objects.raw(
         'select count(*) as c,`id`   from (select *  from `registration_player` where `status`="failed")  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile` ')
     count = 0
     for i in tfailedu:
@@ -35,14 +35,14 @@ def home(request):
     tfailedcountunique = count
     tfailedtxt = 'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status`= {}   '
 
-    tfailed = Player.objects.raw(tfailedtxt.format(s))
+    tfailed = Scout.objects.raw(tfailedtxt.format(s))
     for i in tfailed:
         tfailedcount = i.c
-    tnotin = Player.objects.raw(
+    tnotin = Scout.objects.raw(
         'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status` IS NULL ')
     for i in tnotin:
         tnotinc = i.c
-    tnotinuni = Player.objects.raw(
+    tnotinuni = Scout.objects.raw(
         'select  count(*) as c,`id` from `registration_player`  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`')
     count = 0
     for i in tnotinuni:
@@ -53,36 +53,36 @@ def home(request):
     # citywise
 
     txtt = 'select `id`, `tournament_city_id`,COUNT(DISTINCT  `mobile`) as c from `registration_player` group by `tournament_city_id`  '
-    mobilecount = Player.objects.raw(txtt
+    mobilecount = Scout.objects.raw(txtt
                                      )
-    tsucess = Player.objects.raw(
+    tsucess = Scout.objects.raw(
         'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status`="success" ')
     for i in tsucess:
         tsucescount = i.c
 
     txt = 'select `id`, `tournament_city_id`,count(*) as c from `registration_player` group by `tournament_city_id` '
-    cityCount = Player.objects.raw(txt
+    cityCount = Scout.objects.raw(txt
                                    )
     txtt = 'select `id`, `tournament_city_id`,COUNT(*) as c from `registration_player` where `status`="success" group by `tournament_city_id`  '
-    mobilecount = Player.objects.raw(txtt
+    mobilecount = Scout.objects.raw(txtt
                                      )
 
-    sucess = Player.objects.raw(
+    sucess = Scout.objects.raw(
         'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status`="success"   group by `tournament_city_id` ')
     s = "'failed'"
     txt1 = 'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status`= {}   group by `tournament_city_id` '
     # txt2=
-    failed = Player.objects.raw(txt1.format(s))
+    failed = Scout.objects.raw(txt1.format(s))
 
-    notin = Player.objects.raw(
+    notin = Scout.objects.raw(
         'select `id`, `tournament_city_id`,count(*) as c from `registration_player` where `status` IS NULL group by `tournament_city_id` ')
 
-    dupPhone = Player.objects.raw(
+    dupPhone = Scout.objects.raw(
         'select `id`,`mobile` , `tournament_city_id`,count(distinct mobile) as c from `registration_player`  group by `tournament_city_id` ')
-    dupPhone2 = Player.objects.raw(
+    dupPhone2 = Scout.objects.raw(
         'select `id`, `tournament_city_id`,`mobile`,count(*) as c from `registration_player` group by `mobile` ')
 
-    cityCount1 = Player.objects.raw(
+    cityCount1 = Scout.objects.raw(
         'select `id`,  `tournament_city_id`,`group_id`,count(*) as g from `registration_player`  where `status`="success"  group by `group_id`,`tournament_city_id`')
     s = "success"
     f = "failed"
@@ -103,21 +103,21 @@ def citydetail(request, id):
         break
 
     # txt0 = 'select `id`, `tournament_city_id` from `registration_player` where `tournament_city_id`={} '
-    # city = Player.objects.raw(txt0.format(id))
+    # city = Scout.objects.raw(txt0.format(id))
     # for c in city:
     #     cityName = c.tournament_city
     #     break
     txt = 'select `id`, `primary_position_id`,count(*) as c from `registration_player` where `tournament_city_id`={} group by `primary_position_id` '
 
-    priPosCount = Player.objects.raw(txt.format(id))
+    priPosCount = Scout.objects.raw(txt.format(id))
     txt2 = 'select `id`, `secondary_position_id`,count(*) as c from `registration_player` where `tournament_city_id`={} group by `secondary_position_id`'
 
-    secPostCount = Player.objects.raw(txt2.format(id))
+    secPostCount = Scout.objects.raw(txt2.format(id))
     txt3 = 'select `id`, `group_id`,count(*) as c from `registration_player` where `tournament_city_id`={} group by `group_id`'
-    grpCount = Player.objects.raw(txt3.format(id))
+    grpCount = Scout.objects.raw(txt3.format(id))
     count_={}
-    totalregi=len(Player.objects.filter(tournament_city_id=id))
-    total_suc_regi=len(Player.objects.filter(tournament_city_id=id,status="success"))
+    totalregi=len(Scout.objects.filter(tournament_city_id=id))
+    total_suc_regi=len(Scout.objects.filter(tournament_city_id=id,status="success"))
 
     return render(request, 'citydetail.html', {'priPosCount': priPosCount, 'secPostCount': secPostCount, "cityName": cityName, "grpCount": grpCount, 'city': id,"totalregi":totalregi,"total_suc_regi":total_suc_regi})
 
@@ -138,23 +138,23 @@ def group(request, id):
 
     txt = 'select `id`, `primary_position_id`,`group_id`,count(*) as c from `registration_player` where `group_id`={} and  `tournament_city_id`={} group by `primary_position_id` '
 
-    priPosCount = Player.objects.raw(txt.format(g, city))
+    priPosCount = Scout.objects.raw(txt.format(g, city))
 
     txt1 = 'select `id`, `secondary_position_id`,`group_id`,count(*) as c from `registration_player` where `group_id`={} and  `tournament_city_id`={} group by `secondary_position_id` '
 
-    secPosCount = Player.objects.raw(txt1.format(g, city))
+    secPosCount = Scout.objects.raw(txt1.format(g, city))
     txt=('select *  from (select *  from `registration_player` where `status`="failed" and `group_id`={} and  `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile` ')
-    failplayers=Player.objects.raw(txt.format(g, city)) 
+    failplayers=Scout.objects.raw(txt.format(g, city)) 
     
     txt=('select *  from ( select *  from `registration_player` where  `group_id`={} and  `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`')
     
-    not_initiated=Player.objects.raw(txt.format(g, city)) 
+    not_initiated=Scout.objects.raw(txt.format(g, city)) 
 
     
     
 
     txt=('select * from `registration_player` where `status`="success" and `group_id`={} and  `tournament_city_id`={} ')
-    successplayer=fail=Player.objects.raw(txt.format(g, city)) 
+    successplayer=fail=Scout.objects.raw(txt.format(g, city)) 
   
     
 
@@ -170,7 +170,7 @@ def player(request, id):
     cityid = id[0:f]
     txt0 = 'select `id`, `tournament_city_id` from `registration_player` where `tournament_city_id`={} '
 
-    city_ = Player.objects.raw(txt0.format(int(cityid)))
+    city_ = Scout.objects.raw(txt0.format(int(cityid)))
     for c in city_:
         cityName = c.tournament_city
 
@@ -181,7 +181,7 @@ def player(request, id):
     alpha=cityid+"-"+idd[0:f1]
     txt1 = 'select `id`, `tournament_city_id` from `registration_player` where `group_id`={} '
 
-    group_ = Player.objects.raw(txt1.format(groupid))
+    group_ = Scout.objects.raw(txt1.format(groupid))
     for c in group_:
 
         groupName = c.group
@@ -190,7 +190,7 @@ def player(request, id):
 
     txt = 'select * from`registration_player` where `group_id`={} and  `tournament_city_id`={} and  `primary_position_id`={} '
 
-    players = Player.objects.raw(txt.format(groupid, int(cityid), int(posid)))
+    players = Scout.objects.raw(txt.format(groupid, int(cityid), int(posid)))
 
     for i in players:
         stateName = i.state
@@ -206,7 +206,7 @@ def playertable(request, id):
     cityid = id[0:f]
     txt0 = 'select `id`, `tournament_city_id` from `registration_player` where `tournament_city_id`={} '
 
-    city_ = Player.objects.raw(txt0.format(int(cityid)))
+    city_ = Scout.objects.raw(txt0.format(int(cityid)))
     for c in city_:
         cityName = c.tournament_city
         break
@@ -215,14 +215,14 @@ def playertable(request, id):
     groupid = "'"+idd[0:f1]+"'"
     txt1 = 'select `id`, `tournament_city_id` from `registration_player` where `group_id`={} '
 
-    group_ = Player.objects.raw(txt1.format(groupid))
+    group_ = Scout.objects.raw(txt1.format(groupid))
     for c in group_:
         groupName = c.group
         break
     posid = idd[f1+1:]
     txt = 'select * from`registration_player` where `group_id`={} and  `tournament_city_id`={} and  `primary_position_id`={} '
 
-    players = Player.objects.raw(txt.format(groupid, int(cityid), int(posid)))
+    players = Scout.objects.raw(txt.format(groupid, int(cityid), int(posid)))
     for i in players:
         stateName = i.state
         posName = i.primary_position
@@ -235,7 +235,7 @@ def playersec(request, id):
     cityid = id[0:f]
     txt0 = 'select `id`, `tournament_city_id` from `registration_player` where `tournament_city_id`={} '
 
-    city_ = Player.objects.raw(txt0.format(int(cityid)))
+    city_ = Scout.objects.raw(txt0.format(int(cityid)))
     for c in city_:
         cityName = c.tournament_city
 
@@ -246,7 +246,7 @@ def playersec(request, id):
     alpha=cityid+"-"+idd[0:f1]
     txt1 = 'select `id`, `tournament_city_id` from `registration_player` where `group_id`={} '
 
-    group_ = Player.objects.raw(txt1.format(groupid))
+    group_ = Scout.objects.raw(txt1.format(groupid))
     for c in group_:
 
         groupName = c.group
@@ -255,7 +255,7 @@ def playersec(request, id):
 
     txt = 'select * from`registration_player` where `group_id`={} and  `tournament_city_id`={} and  `secondary_position_id`={} '
 
-    players = Player.objects.raw(txt.format(groupid, int(cityid), int(posid)))
+    players = Scout.objects.raw(txt.format(groupid, int(cityid), int(posid)))
 
     for i in players:
         stateName = i.state
@@ -272,7 +272,7 @@ def playersectable(request, id):
     cityid = id[0:f]
     txt0 = 'select `id`, `tournament_city_id` from `registration_player` where `tournament_city_id`={} '
 
-    city_ = Player.objects.raw(txt0.format(int(cityid)))
+    city_ = Scout.objects.raw(txt0.format(int(cityid)))
     for c in city_:
         cityName = c.tournament_city
         break
@@ -281,7 +281,7 @@ def playersectable(request, id):
     groupid = "'"+idd[0:f1]+"'"
     txt1 = 'select `id`, `tournament_city_id` from `registration_player` where `group_id`={} '
 
-    group_ = Player.objects.raw(txt1.format(groupid))
+    group_ = Scout.objects.raw(txt1.format(groupid))
     for c in group_:
 
         groupName = c.group
@@ -289,7 +289,7 @@ def playersectable(request, id):
     posid = idd[f1+1:]
     txt = 'select * from`registration_player` where `group_id`={} and  `tournament_city_id`={} and  `secondary_position_id`={} '
 
-    players = Player.objects.raw(txt.format(groupid, int(cityid), int(posid)))
+    players = Scout.objects.raw(txt.format(groupid, int(cityid), int(posid)))
     for i in players:
         stateName = i.state
         posName = i.secondary_position
@@ -308,12 +308,12 @@ def payment_status(request, id):
     if f == -1:
         if id == "success":
             s = '"'+id+'"'
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select * from `registration_player` where `status`="success" ')
             Heading = "Successfully Payments"
-            # playersfail = Player.objects.raw(
+            # playersfail = Scout.objects.raw(
             # 'SELECT * ,COUNT(*) FROM (SELECT DISTINCT *,COUNT(*) FROM  `registration_player`  ) GROUP BY `mobile`,   HAVING COUNT(*) < 1')
-            playersfail = Player.objects.raw(
+            playersfail = Scout.objects.raw(
                 'SELECT `mobile`,`id` FROM `registration_player` HAVING COUNT(`mobile`) = 1')
             count = 0
 
@@ -324,7 +324,7 @@ def payment_status(request, id):
             status="failed"
             s = '"'+id+'"'
 
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select *  from (select *  from `registration_player` where `status`="failed")  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile` ')
 
             count = 0
@@ -334,7 +334,7 @@ def payment_status(request, id):
             Heading = "Failed Payments"
 
         elif id == "not_initiated":
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select *  from `registration_player`  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`')
 
             Heading = " Payments not initiated"
@@ -358,7 +358,7 @@ def payment_status(request, id):
         if id == "success":
 
             txt = 'select * from `registration_player` where `status`="success" and `tournament_city_id`={} '
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
             Heading = "Successfully Payments"
 
             count = 0
@@ -368,7 +368,7 @@ def payment_status(request, id):
         elif id == "failed":
 
             txt = 'select *  from (select *  from `registration_player` where `status`="failed" and `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile`  '
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
 
             count = 0
             for p in players:
@@ -377,7 +377,7 @@ def payment_status(request, id):
 
         elif id == "not_initiated":
             txt = 'select *  from (select * from `registration_player` where `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`'
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
 
             Heading = " Payments not initiated"
             count = 0
@@ -394,10 +394,10 @@ def payment_statustable(request, id):
     if f == -1:
         if id == "success":
             s = '"'+id+'"'
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select * from `registration_player` where `status`="success" ')
             Heading = "Successfully Payments"
-            playersfail = Player.objects.raw(
+            playersfail = Scout.objects.raw(
                 'SELECT `mobile`,`id` FROM `registration_player` HAVING COUNT(`mobile`) = 1')
             count = 0
 
@@ -407,7 +407,7 @@ def payment_statustable(request, id):
         elif id == "failed":
             s = '"'+id+'"'
 
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select *  from (select *  from `registration_player` where `status`="failed")  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile` ')
 
             count = 0
@@ -417,7 +417,7 @@ def payment_statustable(request, id):
             Heading = "Failed Payments"
 
         elif id == "not_initiated":
-            players = Player.objects.raw(
+            players = Scout.objects.raw(
                 'select *  from `registration_player`  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`')
 
             Heading = " Payments not initiated"
@@ -442,7 +442,7 @@ def payment_statustable(request, id):
         if id == "success":
 
             txt = 'select * from `registration_player` where `status`="success" and `tournament_city_id`={} '
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
             Heading = "Successfully Payments"
 
             count = 0
@@ -452,7 +452,7 @@ def payment_statustable(request, id):
         elif id == "failed":
 
             txt = 'select *  from (select *  from `registration_player` where `status`="failed" and `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile`  '
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
 
             count = 0
             for p in players:
@@ -461,7 +461,7 @@ def payment_statustable(request, id):
 
         elif id == "not_initiated":
             txt = 'select *  from (select * from `registration_player` where `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where r.`mobile`= a.`mobile` and (a.`status`="success" or a.`status`="failed" ))group by `mobile`'
-            players = Player.objects.raw(txt.format(s))
+            players = Scout.objects.raw(txt.format(s))
 
             Heading = " Payments not initiated"
             count = 0
@@ -477,7 +477,7 @@ def payment_citywise_status(request):
         city = request.POST.getlist('city')[0]
 
         txt = 'select *  from (select *  from `registration_player` where `status`="failed" and `tournament_city_id`={})  as r  WHERE NOT EXISTS (SELECT * FROM `registration_player`a where  r.`mobile`= a.`mobile` and a.`status`="success")  group by `mobile`  '
-        players = Player.objects.raw(txt.format(city))
+        players = Scout.objects.raw(txt.format(city))
         
        
        

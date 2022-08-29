@@ -23,7 +23,7 @@ import pathlib
 from django.db import transaction
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutCourseDiscount, MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Player, Upload, Uploadfile,Payment
+from .models import ScoutCourseDiscount, MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile,Payment
 from .forms import UploadForm, UploadfileForm
 
 from django.db import IntegrityError
@@ -72,7 +72,7 @@ def order(request):
         # data['season']
         # data['category']
         # data['']
-        playerdata = Player
+        playerdata = Scout
 
         client = razorpay.Client(
             auth=("rzp_test_ahDEPkxQSa6Ykb", "wtkc1kSruJq0bAjevDepqbjJ"))
@@ -86,7 +86,7 @@ def order(request):
         #printresponse)
         if response:
                 try:
-                    obj = Player.objects.get(
+                    obj = Scout.objects.get(
                          ikfuniqueid=ikfuniqueid,
                          id=id
                     )
@@ -96,7 +96,7 @@ def order(request):
                     errordict = {"error": "false",
                                 "message": "order generated successfully", "order_id":response["id"],"ikfuniqueid": obj.ikfuniqueid ,"id":obj.id}
                     return HttpResponse(json.dumps(errordict))
-                except Player.DoesNotExist:
+                except Scout.DoesNotExist:
                     errordict = {"error": "true",
                                 "message": "erro in order id"}
                     return HttpResponse(json.dumps(errordict))
@@ -582,55 +582,46 @@ def save(request):
 
 
 
-        player = Player(
-            tournament_city=MasterCity.objects.get(
-                id=dictdata['tournament_city']),
-            tournament_state=MasterState.objects.get(
-                id=dictdata['tournament_state']),
+        scout = Scout(
+            city=MasterCity.objects.get(
+            id=dictdata['city']),
+            state=MasterState.objects.get(
+                id=dictdata['state']),
             gender=dictdata['gender'],
             first_name=dictdata['first_name'],
             last_name=dictdata['last_name'],
-            # height=dictdata['height'],
-            # weight=dictdata['weight'],
-            primary_position=MasterPosition.objects.get(
-                id=dictdata['primary_position']),
-            secondary_position=MasterPosition.objects.get(
-                id=dictdata['secondary_position']),
+
+
             mobile=dictdata['mobile'],
-            radiomobile=dictdata['radiomobile'],
-            whatsapp=dictdata['whatsapp'],
+
             email=dictdata['email'],
             dob=dictdata['dob'],
-            # address_line1=dictdata['address_line1'],
-            # address_line2=dictdata['address_line2'],
-            # state=MasterState.objects.get(id=dictdata['state']),
 
-            # pincode=dictdata['pincode'],
-            # document_id_selected=data_selected,
-            # document_id_number=dictdata['document_id_number'],
-            # document_id_file="media/documents/"+dictdata['document_id_file'],
-            playeruploadid=dictdata['playeruploadid'],
-            # pic_file="media/images/"+dictdata['pic_file'],
-            pic_file=dictdata['pic_file'],
+            associated_years = dictdata['associated_years'],
+            associated_as = dictdata['associated_as'],
+            
+            referral = dictdata['referral'],
+            discount = dictdata['discount'],
 
 
-            group=MasterGroup.objects.get(id=dictdata['group']),
+
+
+ 
             season=MasterSeason.objects.get(id=dictdata['season']),
-            category=MasterCategory.objects.get(id=dictdata['category']),
-            whoisfilling=MasterRoles.objects.get(id=dictdata['whoisfilling']),
+
         )
 
         try:
-            player.save()
+            scout.save()
             try:
-                obj = Player.objects.get(
+                obj = Scout.objects.get(
                     tournament_city=MasterCity.objects.get(
-                        id=dictdata['tournament_city']),
+                        id=dictdata['city']),
 
                     tournament_state=MasterState.objects.get(
-                        id=dictdata['tournament_state']),
+                        id=dictdata['state']),
 
-                    playeruploadid=dictdata['playeruploadid'],
+                    
                     dob=dictdata['dob'],
                     mobile=dictdata['mobile'],
 
@@ -644,15 +635,15 @@ def save(request):
                 gender = obj.gender[0:1]
                 number = f'{obj.id:06}'
 
-                obj.ikfuniqueid = "IKF-" + obj.season.id + state + city + gender + number + obj.category.id
+                obj.ikfuniqueid = "IKF-" + obj.season.id + state + city + gender + number
                 obj.save() 
                 errordict = {"error": "false",
                              "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id}
                              
                 return HttpResponse(json.dumps(errordict))
-            except Player.DoesNotExist:
+            except Scout.DoesNotExist:
                 errordict = {"error": "true",
-                             "message": "Player does not exist"}
+                             "message": "Scout does not exist"}
                 return HttpResponse(json.dumps(errordict))
 
         except IntegrityError as e:
@@ -781,7 +772,7 @@ def playerdata(request):
     if request.method == 'POST':
         playerid = request.POST.get('playeruploadid')
         ikfid = request.POST.get('ikfuniqueid')
-        playerdata = list(Player.objects.filter(playeruploadid=playerid,ikfuniqueid=ikfid).values())
+        playerdata = list(Scout.objects.filter(playeruploadid=playerid,ikfuniqueid=ikfid).values())
         print(playerdata)
         generatebarcode(playerdata[0])
     return JsonResponse(playerdata[0], safe=False)
@@ -842,7 +833,7 @@ def paymentstatus(request):
         #printikfuniqueid)
         #printplayeruploadid)
         try:
-            obj = Player.objects.get(
+            obj = Scout.objects.get(
                 ikfuniqueid=ikfuniqueid,
 
                 playeruploadid=playeruploadid,
@@ -886,7 +877,7 @@ def paymentstatus(request):
             errordict = {"error": "false",
                             "message": "Saved Successfully"}
             return HttpResponse(json.dumps(errordict))
-        except Player.DoesNotExist:
+        except Scout.DoesNotExist:
             errordict = {"error": "true",
                             "message": "Payment didn't saved"}
             return HttpResponse(json.dumps(errordict))

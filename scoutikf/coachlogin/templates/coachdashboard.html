@@ -103,7 +103,7 @@
   player_id="newplayer"
   enctype="multipart/form-data"
 >
-  <h3 class="form-heading">Add Player</h3>
+  <h3 class="form-heading">Add Scout</h3>
   {% csrf_token %}
   <div class="row" id="player_form_container">
     <!-- first name -->
@@ -250,7 +250,7 @@
         <label for="textfield8">Upload Image</label>
         <input
           type="file"
-          name="Player Image"
+          name="Scout Image"
           accept="image/png, image/gif, image/jpeg"
           class=""
           id="textfield8"
@@ -289,7 +289,7 @@
         >
         <input
           type="file"
-          name="Player Document"
+          name="Scout Document"
           accept="image/png, image/gif, image/jpeg"
           class="form-control-file"
           id="textfield9"
@@ -302,7 +302,7 @@
     <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
       <div class="mb-0">
         <button class="btn login-btn" type="button" id="addplayer">
-          Add Player
+          Add Scout
         </button>
       </div>
     </div>

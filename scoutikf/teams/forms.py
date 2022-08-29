@@ -1,6 +1,6 @@
 # from unicodedata import category
 from django import forms
-from registration.models import Player, MasterCity, MasterState, MasterCategory,MasterGroup
+from registration.models import Scout, MasterCity, MasterState, MasterCategory,MasterGroup
 
 
 
