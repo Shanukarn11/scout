@@ -598,7 +598,7 @@ def save(request):
             dob=dictdata['dob'],
 
             associated_years = dictdata['associated_years'],
-            associated_as = dictdata['associated_as'],
+            # associated_as = dictdata['associated_as'],
             
             referral = dictdata['referral'],
             discount = dictdata['discount'],

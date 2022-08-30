@@ -104,35 +104,35 @@
                                                 <label class="form-check-label" for="player">
                                                   player
                                                 </label>
-                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="association_as" id="player" value="player">
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="associated_as" id="player" value="player">
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="coach">
                                                   Coach
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="coach" value="coach" checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="associated_as" id="coach" value="coach" checked>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="refree">
                                                   Refree
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="refree" value="refree" checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="associated_as" id="refree" value="refree" checked>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="academy_owner">
                                                     Academy Owner
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="academy_owner" value="academy_owner" checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="associated_as" id="academy_owner" value="academy_owner" checked>
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="other">
                                                     Other
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="association_as" id="other" value="other" checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="associated_as" id="other" value="other" checked>
                                               </div>
                                         <span id="message"></span>
                                     </div>
@@ -163,14 +163,14 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Referral Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="referral_code"  id="referral_code" required minlength="3">
+                                        <input class="form-control" type="text" name="referral"  id="referral" required minlength="3">
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Discount Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="discount_code" id="discount_code" required minlength="3">
+                                        <input class="form-control" type="text" name="discount" id="discount" required minlength="3">
                                     </div>
                                 </div>
                                 {% comment %} <div class="col-lg-12 col-md-12 col-sm-12 mt-3 border p-3 rounded bg-white">
@@ -193,7 +193,7 @@
                                     <div class="form-group mb-0">
                                         <button class="btn login-btn" onclick="prev(this)" formnovalidate> {{prev}} </button>
                                         <button class="btn login-btn" onclick="next(this)" type="submit"> Save</button>
-                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" type="submit">Proceed to Payment</button>
+                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" id="proceed" type="submit">Proceed to Payment</button>
                                     </div>
                                 </div>
 
@@ -263,14 +263,14 @@ $.ajax({type: "POST",
       alert("Order Api Error. Please Try Again") }); 
 
   }
-function save(){
+function save(data){
     $('.spinner-border').show();
         $.ajax({
           
           
           type: "POST",
           url: "{% url 'save' %}",
-          data:{data:data,csrfmiddlewaretoken:'{{csrf_token}}'} 
+          data:{data:JSON.stringify(data),csrfmiddlewaretoken:'{{csrf_token}}'} 
 
 
         
@@ -320,54 +320,46 @@ function save(){
           $('.spinner-border').hide();
           alert("Server API Error") });    
 }
+function typeverification(typetext){
+    
+    if     (typetext.length==6){return "type1"}
+    else if(typetext.length==7){return "type2"}
+    else if(typetext.length==8){return "type3"}
+    else                       {alert("Not Valid Code");return false}
+}
+
+function mobileverification(mobiledoc){
+if(mobiledoc.indexOf('0')==0){alert("Mobile Number should not start with 0");return false;}
+else if(mobiledoc.length<10) {alert("Mobile Number Should be 10 Digit");return false;}
+else{return true}
+}
 function next(node){
     window.onbeforeunload = null;
+    var mobiledoc= document.getElementById("mobile").value
+    if(mobileverification(mobiledoc)){
+        //full data 
+        var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
+        var dict={}
+        formData.forEach(function (item) {
+           dict[item['name']]=item['value']
+        });
+        
+        if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
+        if(dict['_token']){delete dict['_token']}
+        console.log(dict)
+        var typetext=document.getElementById("discount_code").value
 
-    // var course= document.getElementsByName("courseradio")[1].value
-    var typetext=document.getElementById("discount_code").value
-    if(typetext.length==6){
-     var type="type1"
-    }
-    else if(typetext.length==7){
-        var type="type2"
-    }
-    else if(typetext.length==8){
-        var type="type3"
-    }
-    var course=$("input[type='radio'][name='courseradio']:checked").val();
-    if (typetext.match(/^[0-9A-Za-z]+$/) === null) { 
- alert("not alphanumeric")
- }else{
-    alert("alphanumeric")
-    discountamount(course,type)
- }
-   
-    // var mobiledoc= document.getElementById("mobile").value
-   
-    // if(mobiledoc.indexOf('0')==0){
+        // if(typeverification(typetext)){
+            
 
-    //     alert("Mobile Number should not start with 0")
-    // }
-    // else if(mobiledoc.length<10){
-    //     alert("Mobile Number Should be 10 Digit")
-    // }
-    // else{
-    //     var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
-    //     var dict={}
-    //     formData.forEach(function (item) {
-    //        dict[item['name']]=item['value']
-    //     });
-    //     dict["whoisfilling"]="{{coach_or_player }}"
-    //     if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
-    //     if(dict['_token']){delete dict['_token']}
-    //     if(sessionStorage.getItem("data")){
-    //         var inputobj=JSON.parse(sessionStorage.getItem("data"))
-    //         newdict=Object.assign(inputobj,dict);
-    //         sessionStorage.setItem("data", JSON.stringify(newdict));
-    //     } 
-    //     else{
-    //         sessionStorage.setItem("data", JSON.stringify(dict));
-    //     }
+        // }
+
+        //save data
+        save(dict)
+
+        
+
+
 
         
 
@@ -377,9 +369,11 @@ function next(node){
        
         
             
-    //         document.getElementById("form1").action="{% url 'preview1'  %}"
+            
 
-    // }
+    }
+   
+
 
 }
 
@@ -472,20 +466,7 @@ else{
     }
 }
 
-$.ajax({
-    type: "POST",
-    url: "{% url 'limitdate' %}",
-    data:{season:"S02",csrfmiddlewaretoken:'{{ csrf_token }}'},
-    success: function(result){
-     console.log(result);
-     dobid.max=result["upperlimit"];
-     dobid.min=result["lowerlimit"]
 
-    },
-    error:function(error){
-        alert("API Error")
-    }
-    })
 
 var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
 if(sessionStorage.getItem("data")){
@@ -515,4 +496,4 @@ if(sessionStorage.getItem("data")){
 
 
 </script>
-                        {% endblock %}   
+{% endblock %}   
