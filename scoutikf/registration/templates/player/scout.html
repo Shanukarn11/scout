@@ -147,14 +147,14 @@
                                                 <label class="form-check-label" for="course1">
                                                     Course 1 – PFSA Talent Identification certification only – Fees Rs.3999
                                                 </label>
-                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="courseradio" id="course1" value="course1">
+                                                <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="course" id="course1" value="course1">
                                               </div>
                                               <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="course2">
                                                     Course 2 – Three Modules + chance to become IKF Partner scout – Fees Rs.7499
                                                 </label>
-                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="courseradio" id="course2" value="course2" checked>
+                                                <input class="form-check-input" onchange="checkfun(this)" type="radio" name="course" id="course2" value="course2" checked>
                                               </div>
 
                                         <span id="message"></span>
@@ -162,15 +162,15 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
-                                        <label class="text-left">Referral Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="referral"  id="referral" required minlength="3">
+                                        <label class="text-left">Referral Code<span class="mandatory"> </span></label>
+                                        <input class="form-control" type="text" name="referral"  id="referral"  minlength="3">
                                     </div>
                                 </div>
 
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
-                                        <label class="text-left">Discount Code<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="discount" id="discount" required minlength="3">
+                                        <label class="text-left">Discount Code<span class="mandatory"> </span></label>
+                                        <input class="form-control" type="text" name="discount" id="discount" minlength="3">
                                     </div>
                                 </div>
                                 {% comment %} <div class="col-lg-12 col-md-12 col-sm-12 mt-3 border p-3 rounded bg-white">
@@ -191,8 +191,8 @@
                                   </div>
                                 <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
                                     <div class="form-group mb-0">
-                                        <button class="btn login-btn" onclick="prev(this)" formnovalidate> {{prev}} </button>
-                                        <button class="btn login-btn" onclick="next(this)" type="submit"> Save</button>
+                                        <button class="btn login-btn" onclick="prev(this)" id="prevbutton" formnovalidate> {{prev}} </button>
+                                        <button class="btn login-btn" onclick="next(this)" id="nextbutton" formnovalidate> Save</button>
                                         <button class="btn login-btn" onclick="proceed_to_payment(this)" id="proceed" type="submit">Proceed to Payment</button>
                                     </div>
                                 </div>
@@ -200,7 +200,8 @@
                             </div>
                         </form>
 <script>
-window.onbeforeunload=function(event){return "You have some unsaved changes";}
+// window.onbeforeunload=function(event){return "You have some unsaved changes";}
+
 function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
 function prev(node){
 document.getElementById("form1").action="{% url 'homeindex'  %}"
@@ -264,26 +265,28 @@ $.ajax({type: "POST",
 
   }
 function save(data){
+    console.log('267');
     $('.spinner-border').show();
+
         $.ajax({
           
           
           type: "POST",
           url: "{% url 'save' %}",
-          data:{data:JSON.stringify(data),csrfmiddlewaretoken:'{{csrf_token}}'} 
+          data:{data:JSON.stringify(data),csrfmiddlewaretoken:'{{csrf_token}}'},
+          
 
 
         
-        }
-        
-        ) 
-        .done(function (result) {       console.log("done")
-          console.log(result)
+        }) 
+        .done(function (result) {    
+
+
           resultdata=JSON.parse(result)
-          console.log(resultdata)
+         
           $('.spinner-border').hide();
           if(resultdata['error']=="true"){
-            console.log("error",resultdata)
+            
             alert(resultdata['message'] )
             
           }
@@ -295,21 +298,17 @@ function save(data){
 
             
             
-            try{
+
               alert('Scout Data Submitted Successfully. Now click to "Proceed to Payment" button to go to Payment page.');
 
 
-              document.getElementById("prev").disabled=true
-            document.getElementById("next").disabled=true
-            document.getElementById("proceed").disabled=false
+            document.getElementById("prevbutton").disabled=true
+            document.getElementById("nextbutton").disabled=true
+            // document.getElementById("proceed").disabled=false
             sessionStorage.setItem("saved","true")
            
             
-            }
-            catch(e){
 
-             alert(e.message)
-            }
 
             
             
@@ -317,7 +316,7 @@ function save(data){
         
         })
         .fail(function (jqXHR, textStatus, errorThrown) { 
-          $('.spinner-border').hide();
+         
           alert("Server API Error") });    
 }
 function typeverification(typetext){
@@ -336,7 +335,7 @@ else{return true}
 function next(node){
     window.onbeforeunload = null;
     var mobiledoc= document.getElementById("mobile").value
-    if(mobileverification(mobiledoc)){
+    if(true){
         //full data 
         var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
         var dict={}
@@ -347,7 +346,7 @@ function next(node){
         if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
         if(dict['_token']){delete dict['_token']}
         console.log(dict)
-        var typetext=document.getElementById("discount_code").value
+        //var typetext=document.getElementById("discount").value
 
         // if(typeverification(typetext)){
             
@@ -355,6 +354,7 @@ function next(node){
         // }
 
         //save data
+        dict['season']="S02"
         save(dict)
 
         
@@ -368,10 +368,7 @@ function next(node){
 
        
         
-            
-            
-
-    }
+}
    
 
 

@@ -23,7 +23,7 @@ import pathlib
 from django.db import transaction
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutCourseDiscount, MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile,Payment
+from .models import ScoutCourseDiscount, ScoutCourse,MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile
 from .forms import UploadForm, UploadfileForm
 
 from django.db import IntegrityError
@@ -49,9 +49,9 @@ def amount(request):
         datastr = request.POST.getlist('data')[0]
         data = json.loads(datastr)
         #printdata)
-        #printdata['tournament_city'])
+        #printdata['city'])
         amount = MasterAmount.objects.filter(
-            city_id=data['tournament_city'],
+            city_id=data['city'],
             season=data['season'],
             group=data['group'],
             coach_or_player=data["whoisfilling"]).values()
@@ -580,16 +580,18 @@ def save(request):
         
 
 
-
+        print("first_name") 
+        print(dictdata['first_name'])
 
         scout = Scout(
-            city=MasterCity.objects.get(
-            id=dictdata['city']),
-            state=MasterState.objects.get(
-                id=dictdata['state']),
-            gender=dictdata['gender'],
             first_name=dictdata['first_name'],
             last_name=dictdata['last_name'],
+
+            city=MasterCity.objects.get(id=dictdata['city']),
+            state=MasterState.objects.get(id=dictdata['state']),
+            gender=dictdata['gender'],
+            course=ScoutCourse.objects.get(id=dictdata['course']),
+
 
 
             mobile=dictdata['mobile'],
@@ -598,7 +600,7 @@ def save(request):
             dob=dictdata['dob'],
 
             associated_years = dictdata['associated_years'],
-            # associated_as = dictdata['associated_as'],
+            associated_as = dictdata['associated_as'],
             
             referral = dictdata['referral'],
             discount = dictdata['discount'],
@@ -615,10 +617,10 @@ def save(request):
             scout.save()
             try:
                 obj = Scout.objects.get(
-                    tournament_city=MasterCity.objects.get(
+                    city=MasterCity.objects.get(
                         id=dictdata['city']),
 
-                    tournament_state=MasterState.objects.get(
+                    state=MasterState.objects.get(
                         id=dictdata['state']),
 
                     
@@ -627,9 +629,9 @@ def save(request):
 
                 )
                 state = MasterState.objects.get(
-                    id=obj.tournament_state_id).name[0:3]
+                    id=obj.state_id).name[0:3]
                 city = MasterCity.objects.get(
-                    id=obj.tournament_city_id).city[0:3].upper()
+                    id=obj.city_id).city[0:3].upper()
 
                 # category=MasterCategory.objects.get(id=obj.category).id
                 gender = obj.gender[0:1]
@@ -660,7 +662,7 @@ def converter(request):
         if(inputid=="" or inputid=="undefined" or inputid=="NA"):
             inputid=None
         inputtype = request.POST.getlist('type')[0]
-        if(inputtype == "state" or inputtype == "state_id" or  inputtype == "tournament_state" or inputtype == "tournament_state_id"):
+        if(inputtype == "state" or inputtype == "state_id" or  inputtype == "state" or inputtype == "state_id"):
             input = MasterState.objects.filter(id=inputid)
             namevar = 'name'
             inputvalue = input.values()
@@ -674,7 +676,7 @@ def converter(request):
             js_state = json.dumps(arrayobj)
             return HttpResponse(js_state)
 
-        elif(inputtype == "tournament_city" or inputtype == "tournament_city_id"):
+        elif(inputtype == "city" or inputtype == "city_id"):
             input = MasterCity.objects.filter(id=inputid)
             namevar = 'city'
             inputvalue = input.values()
@@ -855,27 +857,7 @@ def paymentstatus(request):
             #print"setting data")
 
             obj.save()
-            payment=Payment(
-             ikfuniqueid=ikfuniqueid,
-             playeruploadid=playeruploadid,
-             status=request.POST.getlist('status')[0],
-             razorpay_payment_id=request.POST.getlist('razorpay_payment_id')[0],
-             razorpay_order_id=request.POST.getlist('razorpay_order_id')[0],
-             razorpay_signature=request.POST.getlist('razorpay_signature')[0],
 
-             error_code=request.POST.getlist('error_code')[0],
-             error_description=request.POST.getlist('error_description')[0],
-             error_source=request.POST.getlist('error_source')[0],
-             error_reason=request.POST.getlist('error_reason')[0],
-             error_meta_order_id=request.POST.getlist('error_meta_order_id')[0],
-             error_meta_payment_id=request.POST.getlist('error_meta_payment_id')[0],
-             amount=request.POST.getlist('amount')[0]
-
-          
-            )
-            payment.save()
-            errordict = {"error": "false",
-                            "message": "Saved Successfully"}
             return HttpResponse(json.dumps(errordict))
         except Scout.DoesNotExist:
             errordict = {"error": "true",

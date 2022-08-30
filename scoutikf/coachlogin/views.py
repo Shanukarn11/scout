@@ -20,7 +20,7 @@ from registration.coach_models import CoachModel, MasterCoachLabels
 
 
 from registration.modelhome import SocialMediaLink
-from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile,Payment
+from registration.models import MasterAmount, MasterCategory, MasterColumn, MasterDateLimit, MasterDocument, MasterGroup, MasterGroupCity, MasterLabels, MasterPartner, MasterRoles, MasterSeason, MasterState, MasterCity, MasterPosition, Scout, Upload, Uploadfile
 
 
 from django.db import IntegrityError
@@ -207,23 +207,7 @@ def paymentstatus(request):
                     obj.error_meta_order_id=request.POST.getlist('error_meta_order_id')[0]
                     obj.error_meta_payment_id=request.POST.getlist('error_meta_payment_id')[0]
                     obj.save()
-                    payment=Payment(
-                    ikfuniqueid=obj.ikfuniqueid,
-                    playeruploadid=obj.playeruploadid,
-                    status=request.POST.getlist('status')[0],
-                    razorpay_payment_id=request.POST.getlist('razorpay_payment_id')[0],
-                    razorpay_order_id=request.POST.getlist('razorpay_order_id')[0],
-                    razorpay_signature=request.POST.getlist('razorpay_signature')[0],
 
-                    error_code=request.POST.getlist('error_code')[0],
-                    error_description=request.POST.getlist('error_description')[0],
-                    error_source=request.POST.getlist('error_source')[0],
-                    error_reason=request.POST.getlist('error_reason')[0],
-                    error_meta_order_id=request.POST.getlist('error_meta_order_id')[0],
-                    error_meta_payment_id=request.POST.getlist('error_meta_payment_id')[0],
-                    amount=request.POST.getlist('amount')[0]
-                    )
-                    payment.save()
                 errordict = {"error": "false",
                                 "message": "Saved Successfully"}
                 return HttpResponse(json.dumps(errordict))

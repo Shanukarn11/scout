@@ -4,7 +4,7 @@ from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels, Payment,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -99,7 +99,7 @@ class ScoutAdmin(admin.ModelAdmin):
     list_filter = ('status','error_description','gender','state', 'city',
                    )
     list_display = ('id','ikfuniqueid', 'first_name', 'order_id', 'last_name', 'gender', 'mobile', 'email', 'dob', 'city', 'state',
-                     'season_id', 'category_id', 'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at')
+                     'season_id',  'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at')
     search_fields = ('ikfuniqueid','first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id')
 
     def has_delete_permission(self, request, obj=None):
@@ -158,9 +158,7 @@ class MasterAmountAdmin(admin.ModelAdmin):
     search_fields = ('id',)
 
 
-@admin.register(Payment)
-class PaymentAdmin(admin.ModelAdmin):
-    list_display=('id','ikfuniqueid','playeruploadid','status','razorpay_payment_id','razorpay_order_id','razorpay_signature','error_code','error_description','error_source','error_reason','error_meta_order_id','error_meta_payment_id')
+
     
 
 @admin.register(MasterPartner)
