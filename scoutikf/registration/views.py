@@ -94,7 +94,7 @@ def order(request):
 
                     obj.save()
                     errordict = {"error": "false",
-                                "message": "order generated successfully", "order_id":response["id"],"ikfuniqueid": obj.ikfuniqueid ,"id":obj.id}
+                                "message": "order generated successfully", "order_id":response["id"],"ikfuniqueid": obj.ikfuniqueid ,"id":obj.id }
                     return HttpResponse(json.dumps(errordict))
                 except Scout.DoesNotExist:
                     errordict = {"error": "true",
@@ -590,7 +590,7 @@ def save(request):
             city=MasterCity.objects.get(id=dictdata['city']),
             state=MasterState.objects.get(id=dictdata['state']),
             gender=dictdata['gender'],
-            course=ScoutCourse.objects.get(id=dictdata['course']),
+            
 
 
 
@@ -599,6 +599,7 @@ def save(request):
             email=dictdata['email'],
             dob=dictdata['dob'],
 
+            course=ScoutCourse.objects.get(id=dictdata['course']),
             associated_years = dictdata['associated_years'],
             associated_as = dictdata['associated_as'],
             
@@ -640,7 +641,12 @@ def save(request):
                 obj.ikfuniqueid = "IKF-" + obj.season.id + state + city + gender + number
                 obj.save() 
                 errordict = {"error": "false",
-                             "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id}
+                             "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id,
+                             "first_name":obj.first_name, "last_name":obj.last_name,"city":obj.city_id ,"state":obj.state_id,
+                             "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
+                             "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"dob":obj.dob ,"mobile":obj.mobile ,
+                             "gender":obj.gender ,
+                             }
                              
                 return HttpResponse(json.dumps(errordict))
             except Scout.DoesNotExist:

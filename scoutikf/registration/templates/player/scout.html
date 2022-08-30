@@ -265,24 +265,18 @@ $.ajax({type: "POST",
 
   }
 function save(data){
-    console.log('267');
+  
     $('.spinner-border').show();
 
-        $.ajax({
-          
-          
-          type: "POST",
-          url: "{% url 'save' %}",
-          data:{data:JSON.stringify(data),csrfmiddlewaretoken:'{{csrf_token}}'},
-          
-
-
-        
-        }) 
+        $.ajax({type: "POST",
+                url: "{% url 'save' %}",
+                data:{data:JSON.stringify(data),csrfmiddlewaretoken:'{{csrf_token}}'},
+               }) 
         .done(function (result) {    
 
 
           resultdata=JSON.parse(result)
+          alert(resultdata)
          
           $('.spinner-border').hide();
           if(resultdata['error']=="true"){
