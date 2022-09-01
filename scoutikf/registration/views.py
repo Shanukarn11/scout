@@ -644,7 +644,7 @@ def save(request):
                              "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id,
                              "first_name":obj.first_name, "last_name":obj.last_name,"city":obj.city_id ,"state":obj.state_id,
                              "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
-                             "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"dob":obj.dob ,"mobile":obj.mobile ,
+                             "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"mobile":obj.mobile ,
                              "gender":obj.gender ,
                              }
                              

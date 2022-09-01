@@ -92,7 +92,7 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Associated With Football from how many years ?<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="associated_years"  id="assosicated_years" required minlength="3">
+                                        <input class="form-control" type="text" name="associated_years"  id="associated_years" required minlength="3">
                                     </div>
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
@@ -192,8 +192,8 @@
                                 <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
                                     <div class="form-group mb-0">
                                         <button class="btn login-btn" onclick="prev(this)" id="prevbutton" formnovalidate> {{prev}} </button>
-                                        <button class="btn login-btn" onclick="next(this)" id="nextbutton" formnovalidate> Save</button>
-                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" id="proceed" type="submit">Proceed to Payment</button>
+                                        <button class="btn login-btn" onclick="next(this)" id="nextbutton" > Save</button>
+                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" id="proceed" type="submit" disabled>Proceed to Payment</button>
                                     </div>
                                 </div>
 
@@ -201,7 +201,40 @@
                         </form>
 <script>
 // window.onbeforeunload=function(event){return "You have some unsaved changes";}
+IKFUNIQUEID=""
 
+window.onload=function(){
+    
+    if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
+        document.getElementById("prevbutton").disabled=true
+        document.getElementById("nextbutton").disabled=true
+        document.getElementById("proceed").disabled=false
+
+        var inputdata=JSON.parse(sessionStorage.getItem("data"))
+        var allElements =document.getElementById("thisid").getElementsByTagName("*");
+        var allIds = [];
+        for (var i = 0, n = allElements.length; i < n; ++i) {
+            var el = allElements[i];
+            if (el.id) { allIds.push(el.id); }
+        }
+
+        
+        allIds.forEach(item => {
+           
+           if(item=='csrfmiddlewaretoken' || item=='_token' || item=='information_text' || item=='nextbutton'||item=='prevbutton'||item=='proceed'||item=='ccity'){}
+           else if(item=="associated_as"|| item=="course"){
+
+            $('#' + inputdata[item]).prop('checked',true);
+
+            }
+          
+           else{document.getElementById(item).innerHTML=checkempty(inputdata[item])}
+
+            }); 
+      
+
+  }    
+}
 function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
 function prev(node){
 document.getElementById("form1").action="{% url 'homeindex'  %}"
@@ -225,6 +258,7 @@ function discountamount(course, type){
 }
 function proceed_to_payment(self){
   $('.spinner-border').show();
+  event.preventDefault();
   if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
     IKFUNIQUEID=sessionStorage.getItem('ikfuniqueid')
     ID=sessionStorage.getItem('id')
@@ -233,7 +267,7 @@ function proceed_to_payment(self){
 
 $.ajax({type: "POST",
         url: "{% url 'order' %}",
-        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:AMOUNT, csrfmiddlewaretoken:'{{csrf_token}}'} }
+        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:'200', csrfmiddlewaretoken:'{{csrf_token}}'} }
       ) .done(function (result) { 
         $('.spinner-border').hide();
                                   console.log(result)
@@ -265,7 +299,7 @@ $.ajax({type: "POST",
 
   }
 function save(data){
-  
+    
     $('.spinner-border').show();
 
         $.ajax({type: "POST",
@@ -276,19 +310,17 @@ function save(data){
 
 
           resultdata=JSON.parse(result)
-          alert(resultdata)
+          alert(JSON.stringify(resultdata))
          
           $('.spinner-border').hide();
-          if(resultdata['error']=="true"){
-            
-            alert(resultdata['message'] )
-            
-          }
+          if(resultdata['error']=="true"){alert(resultdata['message'] )}
           else{
             IKFUNIQUEID=resultdata["ikfuniqueid"]
             ID=resultdata["id"]
             sessionStorage.setItem("ikfuniqueid",IKFUNIQUEID)
             sessionStorage.setItem("id",ID)
+            sessionStorage.setItem("saved","true")
+            sessionStorage.setItem("data",JSON.stringify(resultdata))
 
             
             
@@ -298,8 +330,8 @@ function save(data){
 
             document.getElementById("prevbutton").disabled=true
             document.getElementById("nextbutton").disabled=true
-            // document.getElementById("proceed").disabled=false
-            sessionStorage.setItem("saved","true")
+            document.getElementById("proceed").disabled=false
+            
            
             
 
@@ -328,6 +360,8 @@ else{return true}
 }
 function next(node){
     window.onbeforeunload = null;
+    event.preventDefault()
+  
     var mobiledoc= document.getElementById("mobile").value
     if(true){
         //full data 
@@ -467,8 +501,19 @@ if(sessionStorage.getItem("data")){
         
            if(item['name']=='csrfmiddlewaretoken' || item['name']=='_token'||item['name']=='radiomobile'){}
            else{
+
+            try{
+                console.log(item['name'])
+                document.getElementById(item['name']).value=checkempty(inputdata[item['name']])
+                
+
+            }
+            catch(e){
+                console.log(e)
+            }
             
-            document.getElementById(item['name']).value=checkempty(inputdata[item['name']])}
+            
+        }
 
             });
 

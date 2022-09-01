@@ -93,7 +93,7 @@ DATABASES = {
         'USER': 'scout',
         'PASSWORD': 'scout@123',
         'HOST': '127.0.0.1',
-        'PORT': os.environ['mysqlport'],
+        'PORT': '3306',
     }
 }
 
