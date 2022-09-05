@@ -43,7 +43,7 @@ h3 {
   <div class="cards_wrapper" style="background-color:#c5d8e6 ;"  id="playerpass">
     <div class="card">
       <div class="card_heading">
-        <h3 style="font-weight: 500; ">IKF SEASON 2 <span id="header_city">CITY</span> TRIAL PASS</h3>
+        <h3 style="font-weight: 500; ">IKF SEASON 2 <span id="header_city">CITY</span> SCOUT PASS</h3>
       </div>
       <div class="card_trip">
         <img class="pic_file" alt="PROFILE PIC"
@@ -67,22 +67,22 @@ h3 {
       </div>
       <div class="tournament_details" style="margin-bottom: 0px;">
         <div class="details_state">
-          <h3 id="tournament_state_id">STATE</h3>
+          <h3 id="state_id">STATE</h3>
         </div>
         <div class="details_city">
-          <h3 id="tournament_city_id">CITY</h3>
+          <h3 id="city_id">CITY</h3>
         </div>
         <div class="details_category">
-          <h3>U<span id="category_age">AGE</span><span style="font-weight: 600;" id="gender">GEN</span></h3>
+          <h3><span style="font-weight: 600;" id="gender">GEN</span></h3>
         </div>
       </div>
        <!-- AADHAR details -->
        {% comment %} <div class="aadhar_details">
         <h3><span id="document_id_selected_id">DOCUMENT TYPE</span> <b>:</b></h3><h3 id="document_id_number">DOCUMENT ID</h3>
       </div> {% endcomment %}
-      <div class="aadhar_details" style="text-align: start;">
+      <!-- <div class="aadhar_details" style="text-align: start;">
         <h3>Regional Execution Partner ( REP) <b>:</b> <span style="font-weight: 600;" id="partner_name">REP NAME</span></h3>
-      </div>
+      </div> -->
       <div class="card_header" >
         <img class="player_id_barcode" alt="BARCODE" style="width:fit-content;height:fit-content; margin-top: 0px;"></img>
        </div>
@@ -158,14 +158,14 @@ function makepass(){
   $.ajax({
     type: "POST",
     url:"{% url 'playerdata' %}",
-    data:{ikfuniqueid:ikfuniqueid, playeruploadid:playeruploadid,
+    data:{ikfuniqueid:ikfuniqueid,
     csrfmiddlewaretoken:'{{ csrf_token }}'},
     success:function(result){
       result['name']=result['first_name']+" "+result['last_name'];
-      result['category_age']=result['group_id'].substring(6,8);
+      // result['category_age']=result['group_id'].substring(6,8);
       console.log("pic file checkempty")
       console.log(checkempty(result['pic_file']))
-      result['pic_file']=(checkempty(result['pic_file']==""))?isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}":"media/images/"+result['pic_file'];
+      result['pic_file']=isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}"
 
       //result['pic_file']=(checkempty(result['pic_file']==""))?(isMale(result['gender'])?"{% static 'img/player/default_profilepic_male.jpg' %}":"{% static 'img/player/default_profilepic_female.jpg' %}"):result['pic_file']; 
       result['gender']="(" + result['gender'].substring(0,1)+ ")";
@@ -179,11 +179,11 @@ s="";
 for(i=0;i<result['document_id_number'].length-4;i++)
  s+='X';
 //  temp=mask(result['document_id_number'],s);
-result['document_id_number_pass']=s+result['document_id_number'].substring(result['document_id_number'].length-4);
+//result['document_id_number_pass']=s+result['document_id_number'].substring(result['document_id_number'].length-4);
 
 }
 else{
-  result['document_id_number_pass']="NA"
+  //result['document_id_number_pass']="NA"
 }
       console.log('success',result);
       var allElementID=[];
@@ -193,7 +193,7 @@ else{
       })
       console.log(allElementID);
       allElementID.forEach(function(element){
-        if(element=='tournament_city_id'||element=='tournament_state_id'||element=='document_id_selected_id'){
+        if(element=='city_id'||element=='state_id'||element=='document_id_selected_id'){
           converter(checkempty(result[element]),element,element)
         }
         else if(element=="header_city"){
@@ -206,18 +206,18 @@ else{
       document.getElementsByClassName('pic_file')[0].src=result['pic_file'];
       document.getElementsByClassName('player_id_barcode')[0].src=result['player_id_barcode'];
 
-      $.ajax({
-  type: "POST",
-    url:"{% url 'partnerinfo' %}",
-    data:{season:result['season_id'], city:result['tournament_city_id'], category:result['category_id'],
-    csrfmiddlewaretoken:'{{ csrf_token }}'},
-    success:function(partnerinfo){
-      console.log('this is partnerinfo',partnerinfo);
-      document.getElementById('partner_name').innerHTML=partnerinfo['partner_name'];
-    },
-    error:function(error){}
+//       $.ajax({
+//   type: "POST",
+//     url:"{% url 'partnerinfo' %}",
+//     data:{season:result['season_id'], city:result['city_id'], category:result['category_id'],
+//     csrfmiddlewaretoken:'{{ csrf_token }}'},
+//     success:function(partnerinfo){
+//       console.log('this is partnerinfo',partnerinfo);
+//       document.getElementById('partner_name').innerHTML=partnerinfo['partner_name'];
+//     },
+//     error:function(error){}
 
-})
+// })
     },
     error:function(error){'error is here',console.error(error);},
   })
@@ -226,7 +226,7 @@ else{
 
 function converter(data,type, documentid){
    if(type=='header_city'){
-     data="tournament_city_id";
+     data="city_id";
    }
     $.ajax({
       type: "POST",
@@ -237,8 +237,8 @@ function converter(data,type, documentid){
         if(result){
           var converterdata=JSON.parse(result)
           console.log(converterdata[0]['label'])
-          if(documentid=="tournament_city_id"){
-            document.getElementById('tournament_city_id').innerHTML=converterdata[0]['label'];
+          if(documentid=="city_id"){
+            document.getElementById('city_id').innerHTML=converterdata[0]['label'];
             console.log(document.getElementById("header_city"),converterdata[0]['label'],'this is header ciity');
             document.getElementById('header_city').innerHTML=converterdata[0]['label'];
           }

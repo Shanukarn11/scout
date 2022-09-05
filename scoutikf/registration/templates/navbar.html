@@ -88,10 +88,18 @@
       {% csrf_token %}
       <div class="heading">
         <div class="title" style="font-size: 2.5vw; margin-bottom: 1em">
-          {{heading_ikf_registration_for}}
+          {{scout_title}}
           
         </div>
+
+
+
         <div class="title" style="font-size: 3.5vw">{{heading_homepage}}</div>
+
+        <div class="title" style="font-size: 2.5vw; margin-bottom: 1em;margin-top: 1em; ">
+          {{registration_for_talent_identification}}
+          
+        </div>
         <div style="display: flex; flex-direction: column; margin-top: 2em;max-width: 80%;width: 300px;">
           <button
             class="join-button"
@@ -123,17 +131,18 @@
     <!-- NoticeBoard area -->
     <div class="mt-5">
       <ul>
-        <li>{{index_registration_fees_desc}} <b>{{index_registration_fees}}</b></li>
+        <u><li><b></b>{{index_registration_fees_desc}}</b></li></u>
       </ul>
      
       <ul>
         <li>
-          <u><b>{{index_age_criteria_for_boys}}</b></u>
+          <b>{{index_age_criteria_for_boys}}</b>
         </li>
         <ul style="padding-left: 2em">
          
           <li>{{index_u17__boys_text}}</li>
           <li>{{index_u15__boys_text}}</li>
+          <li>{{experience_required}}</li>
           
 
        
@@ -142,11 +151,26 @@
 
       <ul>
         <li>
-          <u><b>{{index_age_criteria_for_girls}}</b></u>
+          <b>{{course_duration}} :</b>  {{course_duration_value}}
+        </li>
+        
+          <li>
+            <b>{{course_medium}} :</b> {{course_medium_value}}
+          </li>
+        <li>
+          <b>{{type_of_course}}</b>
         </li>
         <ul style="padding-left: 2em">
          
-          <li>{{index_u17_girl_text}}</li>
+          <li>{{course1_text}}</li>
+          <li>{{course2_text}}
+            <ul style="padding-left: 2em">
+            <li>{{module1}}</li>
+            <li>{{module2}}</li>
+            <li>{{module3}}</li>
+            </ul>
+          </li>
+          
 
 
        
@@ -164,7 +188,20 @@
         <ol>
           <li>{{index_step1}}</li>
           <li>{{index_step2}}</li>
-          <li>{{index_step3}}</li>
+         
+        </ol>
+       
+
+        <br />
+        
+      </p>
+
+      <p>
+        <b style="color: wheat; font-size: 1rem">{{benefit_of_becoming_scout}}</b><br />
+        <ol>
+          <li>{{scout_benefit1}}</li>
+          <li>{{scout_benefit2}}</li>
+          <li>{{scout_benefit3}}</li>
         </ol>
        
 

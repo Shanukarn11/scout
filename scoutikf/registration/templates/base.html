@@ -322,6 +322,22 @@
 
         
       }
+
+function limitreg(element, maxcharlength) {
+        var max_chars = maxcharlength;
+        
+        
+
+        if (element.value.length > max_chars) {
+          element.value = element.value.substr(0, max_chars);
+        } 
+          
+        
+       
+
+
+        
+      }
       function checkfun(self) {
         var value = $("input[type=radio][name=radiomobile]:checked").val();
         console.log("checkfun");

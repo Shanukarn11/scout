@@ -208,6 +208,7 @@ class MasterColumn(models.Model):
 class ScoutCourse(models.Model):
     id = models.CharField(max_length=100, primary_key=True,db_index=True)
     course=models.TextField(null=True, blank=True,)
+    amount = models.CharField(max_length=100,null=True,blank=True)
     extra=models.CharField(max_length=100,null=True, blank=True,)
 class ScoutDiscountType(models.Model):
     id = models.CharField(max_length=100, primary_key=True,db_index=True)

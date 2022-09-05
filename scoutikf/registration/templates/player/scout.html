@@ -92,12 +92,12 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Associated With Football from how many years ?<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="text" name="associated_years"  id="associated_years" required minlength="3">
+                                        <input class="form-control" type="number" name="associated_years"  id="associated_years" onkeydown="limitmob(this,2);" onkeyup="limitmob(this,2);" required minlength="1">
                                     </div>
                                 </div>
                                 <div class="col-lg-12 col-md-12 col-sm-12 mt-3">
                                     <div class="form-group">
-                                        <label class="text-left">Associated with football as (can select multiple) <span class="mandatory">*
+                                        <label class="text-left">Associated with football as <span class="mandatory">*
                                             </span></label>
                                             <div class="form-check">
                                                 
@@ -163,7 +163,7 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left">Referral Code<span class="mandatory"> </span></label>
-                                        <input class="form-control" type="text" name="referral"  id="referral"  minlength="3">
+                                        <input class="form-control" type="text" name="referral"  id="referral"  onkeydown="limitmob(this,6);" onkeyup="limitmob(this,6);">
                                     </div>
                                 </div>
 
@@ -202,39 +202,9 @@
 <script>
 // window.onbeforeunload=function(event){return "You have some unsaved changes";}
 IKFUNIQUEID=""
+DISCOUNTEDAMOUNT=""
 
-window.onload=function(){
-    
-    if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
-        document.getElementById("prevbutton").disabled=true
-        document.getElementById("nextbutton").disabled=true
-        document.getElementById("proceed").disabled=false
 
-        var inputdata=JSON.parse(sessionStorage.getItem("data"))
-        var allElements =document.getElementById("thisid").getElementsByTagName("*");
-        var allIds = [];
-        for (var i = 0, n = allElements.length; i < n; ++i) {
-            var el = allElements[i];
-            if (el.id) { allIds.push(el.id); }
-        }
-
-        
-        allIds.forEach(item => {
-           
-           if(item=='csrfmiddlewaretoken' || item=='_token' || item=='information_text' || item=='nextbutton'||item=='prevbutton'||item=='proceed'||item=='ccity'){}
-           else if(item=="associated_as"|| item=="course"){
-
-            $('#' + inputdata[item]).prop('checked',true);
-
-            }
-          
-           else{document.getElementById(item).innerHTML=checkempty(inputdata[item])}
-
-            }); 
-      
-
-  }    
-}
 function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
 function prev(node){
 document.getElementById("form1").action="{% url 'homeindex'  %}"
@@ -248,7 +218,11 @@ function discountamount(course, type){
             success: function(result){
                       if (result){
                         
-                        alert(result.discount)
+                        //alert(result.amount)
+                        console.log("result amount")
+                        console.log(result.amount)
+                        DISCOUNTEDAMOUNT=result.amount
+                        sessionStorage.setItem("DISCOUNTEDAMOUNT",result.amount)
                         
 
                       }
@@ -262,18 +236,19 @@ function proceed_to_payment(self){
   if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
     IKFUNIQUEID=sessionStorage.getItem('ikfuniqueid')
     ID=sessionStorage.getItem('id')
+    DISCOUNTEDAMOUNT=sessionStorage.getItem('DISCOUNTEDAMOUNT')
 
   }
 
 $.ajax({type: "POST",
         url: "{% url 'order' %}",
-        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:'200', csrfmiddlewaretoken:'{{csrf_token}}'} }
+        data:{ikfuniqueid:IKFUNIQUEID,id:ID,amount:DISCOUNTEDAMOUNT, csrfmiddlewaretoken:'{{csrf_token}}'} }
       ) .done(function (result) { 
         $('.spinner-border').hide();
                                   console.log(result)
                                   resultdata=JSON.parse(result)
                                  if(resultdata['error']=="true"){
-                                               alert(resultdata['message'] )
+                                               //alert(resultdata['message'] )
                                     }
                                  else{try{
           alert("Order ID is generated Successfully");
@@ -298,7 +273,7 @@ $.ajax({type: "POST",
       alert("Order Api Error. Please Try Again") }); 
 
   }
-function save(data){
+function save(data,type_of_text){
     
     $('.spinner-border').show();
 
@@ -310,7 +285,7 @@ function save(data){
 
 
           resultdata=JSON.parse(result)
-          alert(JSON.stringify(resultdata))
+          //alert(JSON.stringify(resultdata))
          
           $('.spinner-border').hide();
           if(resultdata['error']=="true"){alert(resultdata['message'] )}
@@ -319,6 +294,8 @@ function save(data){
             ID=resultdata["id"]
             sessionStorage.setItem("ikfuniqueid",IKFUNIQUEID)
             sessionStorage.setItem("id",ID)
+            sessionStorage.setItem("ikfcourse",resultdata.course)
+            sessionStorage.setItem("ikfdiscounttype",type_of_text)
             sessionStorage.setItem("saved","true")
             sessionStorage.setItem("data",JSON.stringify(resultdata))
 
@@ -331,6 +308,11 @@ function save(data){
             document.getElementById("prevbutton").disabled=true
             document.getElementById("nextbutton").disabled=true
             document.getElementById("proceed").disabled=false
+            
+                discountamount(resultdata.course,type_of_text)
+            
+            
+            
             
            
             
@@ -346,10 +328,11 @@ function save(data){
           alert("Server API Error") });    
 }
 function typeverification(typetext){
-    
-    if     (typetext.length==6){return "type1"}
-    else if(typetext.length==7){return "type2"}
-    else if(typetext.length==8){return "type3"}
+    var typetext=typetext.toUpperCase();
+    if (typetext.length==7 && typetext.match("[A-Z]{4}[0-9]{3}")){return "discount_a4n3"}
+    else if(typetext.length==8 && typetext.match("[A-Z]{5}[0-9]{3}") ){return "discount_a5n3"}
+    else if(typetext.length==9 &&  typetext.match("[A-Z]{5}[0-9]{4}")){return "discount_a5n4"}
+    else if(typetext.length==10 &&  typetext.match("[A-Z]{5}[0-9]{5}")){return "discount_a5n5"}
     else                       {alert("Not Valid Code");return false}
 }
 
@@ -374,7 +357,22 @@ function next(node){
         if(dict['csrfmiddlewaretoken']){delete dict['csrfmiddlewaretoken']}
         if(dict['_token']){delete dict['_token']}
         console.log(dict)
-        //var typetext=document.getElementById("discount").value
+        dict['season']="S02"
+        var typetext=document.getElementById("discount").value
+        if(typetext!="" && typetext!=null && typetext!=undefined){
+            if(typeverification(typetext)){
+               var type_of_text=typeverification(typetext)
+               if(mobileverification(mobiledoc)){
+                save(dict,type_of_text)
+               }
+              }
+        }
+        else{
+            var type_of_text=""
+            if(mobileverification(mobiledoc)){
+                save(dict,type_of_text)
+            }
+        }
 
         // if(typeverification(typetext)){
             
@@ -382,8 +380,8 @@ function next(node){
         // }
 
         //save data
-        dict['season']="S02"
-        save(dict)
+        
+        
 
         
 
@@ -428,6 +426,8 @@ function converter(doc,statevalue, cityvalue){
 
 window.onload = function() {
 $('.spinner-border').hide();
+
+
 var stateSel = document.getElementById("state");
 var citySel = document.getElementById("city");
 var dobid=document.getElementById("dob");
@@ -491,38 +491,43 @@ else{
     }
 }
 
+// if session storate condition
+if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
+        alert(sessionStorage.getItem('saved'))
+        document.getElementById("prevbutton").disabled=true
+        document.getElementById("nextbutton").disabled=true
+        document.getElementById("proceed").disabled=false
 
-
-var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
-if(sessionStorage.getItem("data")){
-    var inputdata=JSON.parse(sessionStorage.getItem("data"))
-    if(inputdata){
-      formData.forEach(item => {
-        
-           if(item['name']=='csrfmiddlewaretoken' || item['name']=='_token'||item['name']=='radiomobile'){}
-           else{
-
-            try{
-                console.log(item['name'])
-                document.getElementById(item['name']).value=checkempty(inputdata[item['name']])
-                
-
-            }
-            catch(e){
-                console.log(e)
-            }
-            
-            
+        var inputdata=JSON.parse(sessionStorage.getItem("data"))
+        var allElements =document.getElementById("form1").getElementsByTagName("*");
+        var allIds = [];
+        for (var i = 0, n = allElements.length; i < n; ++i) {
+            var el = allElements[i];
+            if (el.id) { allIds.push(el.id); }
         }
 
-            });
-
-
-            
-
         
-    }
-}
+        allIds.forEach(item => {
+           
+           if(item=='csrfmiddlewaretoken' || item=='_token' || item=='information_text' || item=='nextbutton'||item=='prevbutton'||item=='proceed'||item=='ccity'){}
+           else if(item=="associated_as"|| item=="course"){
+
+            // $('#' + inputdata[item]).prop('checked',true);
+
+            }
+          
+           else{
+            console.log(inputdata[item])
+            console.log(item)
+            document.getElementById(item).value=checkempty(inputdata[item])   }
+
+
+            }); 
+      
+
+  }
+//////////////////////////////
+
 
                                                         
 

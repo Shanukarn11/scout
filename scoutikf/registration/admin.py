@@ -102,8 +102,8 @@ class ScoutAdmin(admin.ModelAdmin):
                      'season_id',  'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at')
     search_fields = ('ikfuniqueid','first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id')
 
-    def has_delete_permission(self, request, obj=None):
-        return False
+    # def has_delete_permission(self, request, obj=None):
+    #     return False
     # list_filter=('tournament_state',CityListFilter)
 
     # def make_active(modeladmin, request, queryset):
@@ -187,7 +187,7 @@ class MasterColumnAdmin(admin.ModelAdmin):
 
 @admin.register(ScoutCourse)
 class ScoutCourseAdmin(admin.ModelAdmin):
-    list_display=('id','course')
+    list_display=('id','course','amount')
     
 
 @admin.register(ScoutDiscountType)

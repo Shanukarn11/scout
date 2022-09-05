@@ -53,7 +53,7 @@
                 url: "{% url 'paymentstatus' %}",
                 data: {
                   ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
-                  playeruploadid: data["playeruploadid"],
+                  
                   status: "success",
                   razorpay_payment_id: response.razorpay_payment_id,
                   razorpay_order_id: response.razorpay_order_id,
@@ -94,7 +94,7 @@
             notes: {
               address: "",
               ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
-              playeruploadid: data["playeruploadid"],
+              
             },
             theme: {
               color: "#3399cc",
@@ -108,7 +108,7 @@
               url: "{% url 'paymentstatus' %}",
               data: {
                 ikfuniqueid: sessionStorage.getItem("ikfuniqueid"),
-                playeruploadid: data["playeruploadid"],
+                
                 status: "failed",
                 razorpay_payment_id: "",
                 razorpay_order_id: "",
@@ -146,24 +146,34 @@
         </script>
 
         <script>
+
+          function discountamount(course, type,amount,node){
+
+$.ajax({
+        type: "POST",
+        url: "{% url 'scoutdiscountamount' %}",
+        data:{type:type,course:course, csrfmiddlewaretoken:'{{ csrf_token }}'},
+        success: function(result){
+                  if (result){
+                    var amountcalculated=parseFloat(amount) -parseFloat(result.discount)
+                    node.value=amountcalculated
+                      
+                    
+
+                  }
+
+                }
+        })
+}
           var AMOUNTDATA = "";
           window.onload = function () {
-            $.ajax({
-              type: "POST",
-              url: "{% url 'amount' %}",
-              data: {
-                data: sessionStorage.getItem("data"),
-                csrfmiddlewaretoken: "{{ csrf_token }}",
-              },
 
-              success: function (result) {
-                if (result) {
-                  AMOUNTDATA = JSON.parse(result);
-                  document.getElementById("payment_amount").value = AMOUNTDATA;
-                }
-              },
-              error: function (error) {},
-            });
+            var Course=sessionStorage.getItem("ikfcourse")
+            var AMOUNTDATA=sessionStorage.getItem("DISCOUNTEDAMOUNT")
+
+            
+            document.getElementById("payment_amount").value = AMOUNTDATA;
+
           };
         </script>
       </div>

@@ -46,15 +46,11 @@ OSS_ENDPOINT = "oss-ap-south-1.aliyuncs.com"
 
 def amount(request):
     if request.method == "POST":
-        datastr = request.POST.getlist('data')[0]
+        datastr = request.POST.getlist('course')[0]
         data = json.loads(datastr)
         #printdata)
         #printdata['city'])
-        amount = MasterAmount.objects.filter(
-            city_id=data['city'],
-            season=data['season'],
-            group=data['group'],
-            coach_or_player=data["whoisfilling"]).values()
+        amount = MasterAmount.objects.filter(course=data['course']).values()
         
         amount_value=amount[0]["amount"]
 
@@ -638,7 +634,7 @@ def save(request):
                 gender = obj.gender[0:1]
                 number = f'{obj.id:06}'
 
-                obj.ikfuniqueid = "IKF-" + obj.season.id + state + city + gender + number
+                obj.ikfuniqueid = "IKF" + obj.season.id + state + city + gender + number
                 obj.save() 
                 errordict = {"error": "false",
                              "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id,
@@ -778,9 +774,9 @@ def mygroup(request):
 
 def playerdata(request):
     if request.method == 'POST':
-        playerid = request.POST.get('playeruploadid')
+        
         ikfid = request.POST.get('ikfuniqueid')
-        playerdata = list(Scout.objects.filter(playeruploadid=playerid,ikfuniqueid=ikfid).values())
+        playerdata = list(Scout.objects.filter(ikfuniqueid=ikfid).values())
         print(playerdata)
         generatebarcode(playerdata[0])
     return JsonResponse(playerdata[0], safe=False)
@@ -837,14 +833,13 @@ def generatebarcode(data):
 def paymentstatus(request):
     if request.method == 'POST':
         ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
-        playeruploadid=request.POST.getlist('playeruploadid')[0]
-        #printikfuniqueid)
-        #printplayeruploadid)
+        
+
         try:
             obj = Scout.objects.get(
                 ikfuniqueid=ikfuniqueid,
 
-                playeruploadid=playeruploadid,
+                
 
             )
             #print"gettig data")
@@ -863,7 +858,8 @@ def paymentstatus(request):
             #print"setting data")
 
             obj.save()
-
+            errordict = {"error": "false",
+                            "message": "Payment didn't saved"}
             return HttpResponse(json.dumps(errordict))
         except Scout.DoesNotExist:
             errordict = {"error": "true",
@@ -880,11 +876,24 @@ def limitdate(request):
 
 def scoutdiscountamount(request):
     if request.method == 'POST':
-        type = request.POST.getlist('type')[0]
+        typeofdiscount = request.POST.getlist('type')[0]
         course = request.POST.getlist('course')[0]
-        scoutamount=list(ScoutCourseDiscount.objects.filter(type=type,course=course ).values())
-        print(scoutamount)
-        return JsonResponse(scoutamount[0], safe=False)
+        courseamount=list(ScoutCourse.objects.filter(id=course ).values())
+        if (typeofdiscount == None or typeofdiscount == ""):
+            newdict={}
+            newdict['amount']=float(courseamount[0]['amount'])
+            return JsonResponse(newdict, safe=False)
+        else:
+            scoutamount=list(ScoutCourseDiscount.objects.filter(type=typeofdiscount,course=course ).values())
+            print(float(scoutamount[0]['discount']))
+            print(float(courseamount[0]['amount']))
+            newdict={}
+            newdict['amount']=float(courseamount[0]['amount']) -float(scoutamount[0]['discount'])
+            return JsonResponse(newdict, safe=False)
+
+
+        
+
 
 
 
