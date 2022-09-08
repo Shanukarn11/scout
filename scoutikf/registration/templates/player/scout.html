@@ -24,31 +24,9 @@
                                         <input class="form-control" type="text" name="last_name" id="last_name" required minlength="3">
                                     </div>
                                 </div>
-                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
-                                    <div class="form-group">
-                                        <label class="text-left">Your State<span class="mandatory">*
-                                            </span></label>
-                                        <select class="form-control" name="state" id="state" required="">
-                                            <option value="">Select State </option>
-                                            
 
 
-                                        </select>
-                                    </div>
-                                </div>
 
-                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
-                                    <div class="form-group">
-                                        <label class="text-left">Your City<span class="mandatory">*
-                                            </span></label>
-                                        <select id="city" name="city" class="form-control"  required="">
-                                            <option value="">Select City</option>
-
-
-                             
-                                        </select>
-                                    </div>
-                                </div>
                                 
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
@@ -102,7 +80,7 @@
                                             <div class="form-check">
                                                 
                                                 <label class="form-check-label" for="player">
-                                                  player
+                                                  Player
                                                 </label>
                                                 <input class="form-check-input"  onchange="checkfun(this)" type="radio" name="associated_as" id="player" value="player">
                                               </div>
@@ -201,8 +179,9 @@
                         </form>
 <script>
 // window.onbeforeunload=function(event){return "You have some unsaved changes";}
-IKFUNIQUEID=""
-DISCOUNTEDAMOUNT=""
+var IKFUNIQUEID=""
+var DISCOUNTEDAMOUNT=""
+var PLAYERUPLOADID=""
 
 
 function checkempty(data){if(data==null||data==""||data==undefined){return ""}else{return data}}
@@ -295,6 +274,7 @@ function save(data,type_of_text){
             sessionStorage.setItem("ikfuniqueid",IKFUNIQUEID)
             sessionStorage.setItem("id",ID)
             sessionStorage.setItem("ikfcourse",resultdata.course)
+            sessionStorage.setItem('ikfplayeruploadid',resultdata.playeruploadid)
             sessionStorage.setItem("ikfdiscounttype",type_of_text)
             sessionStorage.setItem("saved","true")
             sessionStorage.setItem("data",JSON.stringify(resultdata))
@@ -333,7 +313,7 @@ function typeverification(typetext){
     else if(typetext.length==8 && typetext.match("[A-Z]{5}[0-9]{3}") ){return "discount_a5n3"}
     else if(typetext.length==9 &&  typetext.match("[A-Z]{5}[0-9]{4}")){return "discount_a5n4"}
     else if(typetext.length==10 &&  typetext.match("[A-Z]{5}[0-9]{5}")){return "discount_a5n5"}
-    else                       {alert("Not Valid Code");return false}
+    else                       {alert("Not Valid Discount Code");return false}
 }
 
 function mobileverification(mobiledoc){
@@ -344,9 +324,14 @@ else{return true}
 function next(node){
     window.onbeforeunload = null;
     event.preventDefault()
-  
+    var referral=document.getElementById('referral').value
+    if(referral!=null && referral!=undefined && referral!=""){
+      referral=referral.toUpperCase()
+      if(referral.length==6 && referral.match("[A-Z]{3}[0-9]{3}")){} else{ alert("Referral Code Not Valid");return 0}
+
+    }
     var mobiledoc= document.getElementById("mobile").value
-    if(true){
+    
         //full data 
         var formData = JSON.parse(JSON.stringify($('#form1').serializeArray()))
         var dict={}
@@ -358,6 +343,7 @@ function next(node){
         if(dict['_token']){delete dict['_token']}
         console.log(dict)
         dict['season']="S02"
+        dict['playeruploadid']=PLAYERUPLOADID
         var typetext=document.getElementById("discount").value
         if(typetext!="" && typetext!=null && typetext!=undefined){
             if(typeverification(typetext)){
@@ -394,111 +380,40 @@ function next(node){
 
        
         
-}
+
    
 
 
 }
 
 
-function converter(doc,statevalue, cityvalue){
-          var citydoc=doc
-          var cityvalue=cityvalue
-          $.ajax({
-            type: "POST",
-            url: "{% url 'citydata' %}",
-            data:{state:statevalue,csrfmiddlewaretoken:'{{ csrf_token }}'},
-            success: function(result){
-                      if (result){
-                        var citydata=JSON.parse(result)
-                        for (var x in citydata) {
-                            citydoc.options[citydoc.options.length] = new Option(citydata[x].value, citydata[x].id);
-                            }
 
-                        citydoc.value=cityvalue 
-
-                      }
-   
-                    }
-            })
-}
 
 
 window.onload = function() {
 $('.spinner-border').hide();
 
 
-var stateSel = document.getElementById("state");
-var citySel = document.getElementById("city");
+
 var dobid=document.getElementById("dob");
 
-if(sessionStorage.getItem("data")){
-    var inputdatajson=JSON.parse(sessionStorage.getItem("data"))
-    if(JSON.parse(sessionStorage.getItem("data"))["city"]){
-        converter(citySel,inputdatajson["state"],inputdatajson["city"])
-
-    }
-}
 
 
-$.ajax({
-    type: "POST",
-    url: "{% url 'statedata' %}",
-    data:{include:1,csrfmiddlewaretoken:'{{ csrf_token }}'},
-    success: function(result){
-        statedata=JSON.parse(result)
-        for (var x in statedata) {
-            stateSel.options[stateSel.options.length] = new Option(statedata[x].value, statedata[x].id);
-        }
 
-        if(sessionStorage.getItem("data")){
-            var datafortournament=JSON.parse(sessionStorage.getItem("data"))
-            if(datafortournament){
-                document.getElementById("state").value=""
-                document.getElementById("state").value=datafortournament["state"]
-                
-            }
-        }
-}
-}
-)
-stateSel.onchange = function(){
-        citySel.length = 1;
-        if(this.value){
-        $.ajax({
-        type: "POST",
-        url: "{% url 'citydata' %}",
-        data:{state:this.value,csrfmiddlewaretoken:'{{ csrf_token }}'},
-        success: function(result){
-                    citydata=JSON.parse(result)
-                    for (var x in citydata) {
-                            citySel.options[citySel.options.length] = new Option(citydata[x].value, citydata[x].id);
-                        }
 
-                        
-                }
-        })
-        //ajax city call end
-        }
-}
+
                                  
-citySel.onclick=function(){
-if(stateSel.value){
-console.log("")
-}
-else{
-     alert("Please Select State First")
-    }
-}
 
+PLAYERUPLOADID="{{playeruploadid}}"
 // if session storate condition
 if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
-        alert(sessionStorage.getItem('saved'))
+       // alert(sessionStorage.getItem('saved'))
         document.getElementById("prevbutton").disabled=true
         document.getElementById("nextbutton").disabled=true
         document.getElementById("proceed").disabled=false
 
         var inputdata=JSON.parse(sessionStorage.getItem("data"))
+        PLAYERUPLOADID=inputdata['playeruploadid']
         var allElements =document.getElementById("form1").getElementsByTagName("*");
         var allIds = [];
         for (var i = 0, n = allElements.length; i < n; ++i) {

@@ -193,6 +193,7 @@ def scoutpage(request, lang, category):
 
     else:
         dict["coach_or_player"] = "Scout"
+        dict['playeruploadid'] = uuid1()
         return render(request, 'player/scout.html', dict)
 
 
@@ -583,9 +584,9 @@ def save(request):
             first_name=dictdata['first_name'],
             last_name=dictdata['last_name'],
 
-            city=MasterCity.objects.get(id=dictdata['city']),
-            state=MasterState.objects.get(id=dictdata['state']),
+
             gender=dictdata['gender'],
+            playeruploadid=dictdata['playeruploadid'],
             
 
 
@@ -614,34 +615,28 @@ def save(request):
             scout.save()
             try:
                 obj = Scout.objects.get(
-                    city=MasterCity.objects.get(
-                        id=dictdata['city']),
 
-                    state=MasterState.objects.get(
-                        id=dictdata['state']),
 
                     
                     dob=dictdata['dob'],
                     mobile=dictdata['mobile'],
+                    playeruploadid=dictdata['playeruploadid'],
 
                 )
-                state = MasterState.objects.get(
-                    id=obj.state_id).name[0:3]
-                city = MasterCity.objects.get(
-                    id=obj.city_id).city[0:3].upper()
+
 
                 # category=MasterCategory.objects.get(id=obj.category).id
                 gender = obj.gender[0:1]
                 number = f'{obj.id:06}'
 
-                obj.ikfuniqueid = "IKF" + obj.season.id + state + city + gender + number
+                obj.ikfuniqueid = "IKF" + obj.season.id + gender + number
                 obj.save() 
                 errordict = {"error": "false",
                              "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id,
-                             "first_name":obj.first_name, "last_name":obj.last_name,"city":obj.city_id ,"state":obj.state_id,
+                             "first_name":obj.first_name, "last_name":obj.last_name,
                              "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
                              "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"mobile":obj.mobile ,
-                             "gender":obj.gender ,
+                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid
                              }
                              
                 return HttpResponse(json.dumps(errordict))

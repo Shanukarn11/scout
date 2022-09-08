@@ -257,6 +257,7 @@ class Scout(models.Model):
     ipv4 = models.GenericIPAddressField(max_length=100,blank=True, null=True)
     ipv6 = models.GenericIPAddressField(max_length=100,blank=True, null=True)
     ikfuniqueid = models.CharField(max_length=200, null=True, db_index=True)
+    playeruploadid=models.CharField(max_length=250, null=True, db_index=True)
 
 
 
