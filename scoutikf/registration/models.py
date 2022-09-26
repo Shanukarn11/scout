@@ -228,6 +228,9 @@ class Scout(models.Model):
     
     associated_years = models.CharField(max_length=100,blank=True,)
     associated_as = models.CharField(max_length=200,blank=True,)
+    pan=models.CharField(max_length=200,blank=True,null=True)
+    extrafield1=models.CharField(max_length=200,blank=True,null=True)
+    extrafield2=models.CharField(max_length=200,blank=True,null=True)
 
     referral = models.CharField(max_length=100,blank=True,)
     discount = models.CharField(max_length=100,blank=True,)

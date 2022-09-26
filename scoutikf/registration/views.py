@@ -587,6 +587,7 @@ def save(request):
 
             gender=dictdata['gender'],
             playeruploadid=dictdata['playeruploadid'],
+            pan=dictdata['pan'],
             
 
 
@@ -636,7 +637,7 @@ def save(request):
                              "first_name":obj.first_name, "last_name":obj.last_name,
                              "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
                              "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"mobile":obj.mobile ,
-                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid
+                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid,"pan":obj.pan
                              }
                              
                 return HttpResponse(json.dumps(errordict))

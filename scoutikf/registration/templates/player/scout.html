@@ -57,6 +57,14 @@
                                     </div>
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
+                                  <div class="form-group">
+                                      <label class="text-left">{{pan}}<span class="mandatory">
+                                          </span></label>
+                                      <input class="form-control" type="text" title="Please Enter PAN" onkeydown="limitmob(this,10);" onkeyup="limitmob(this,10);"  name="pan"  id="pan">
+                                      <span id="message"></span>
+                                  </div>
+                                </div>
+                                <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left" >{{mobile}}<span class="mandatory">* </span></label>
                                         <div class="input-group">
@@ -313,6 +321,7 @@ function typeverification(typetext){
     else if(typetext.length==8 && typetext.match("[A-Z]{5}[0-9]{3}") ){return "discount_a5n3"}
     else if(typetext.length==9 &&  typetext.match("[A-Z]{5}[0-9]{4}")){return "discount_a5n4"}
     else if(typetext.length==10 &&  typetext.match("[A-Z]{5}[0-9]{5}")){return "discount_a5n5"}
+    else if(typetext.length==12 &&  typetext.match("[A-Z]{6}[0-9]{6}")){return "discount_a6n6"}
     else                       {alert("Not Valid Discount Code");return false}
 }
 
@@ -324,6 +333,14 @@ else{return true}
 function next(node){
     window.onbeforeunload = null;
     event.preventDefault()
+
+    var pan=document.getElementById('pan').value
+    if(pan!=null && pan!=undefined && pan!=""){
+        pan=pan.toUpperCase()
+      if(pan.length==10 && pan.match("[A-Z]{5}[0-9]{4}[A-Z]{1}")){} else{ alert("PAN Number Not Valid");return 0}
+
+    }
+
     var referral=document.getElementById('referral').value
     if(referral!=null && referral!=undefined && referral!=""){
       referral=referral.toUpperCase()
