@@ -58,9 +58,9 @@
                                 </div>
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                   <div class="form-group">
-                                      <label class="text-left">{{pan}}<span class="mandatory">
+                                      <label class="text-left">{{pan}}<span class="mandatory">*
                                           </span></label>
-                                      <input class="form-control" type="text" title="Please Enter PAN" onkeydown="limitmob(this,10);" onkeyup="limitmob(this,10);"  name="pan"  id="pan">
+                                      <input class="form-control" type="text" title="Please Enter PAN" onkeydown="limitmob(this,10);" onkeyup="limitmob(this,10);"  name="pan"  id="pan" required>
                                       <span id="message"></span>
                                   </div>
                                 </div>
@@ -339,6 +339,10 @@ function next(node){
         pan=pan.toUpperCase()
       if(pan.length==10 && pan.match("[A-Z]{5}[0-9]{4}[A-Z]{1}")){} else{ alert("PAN Number Not Valid");return 0}
 
+    }
+    else{
+      alert('Enter PAN Number');
+      return 0
     }
 
     var referral=document.getElementById('referral').value
