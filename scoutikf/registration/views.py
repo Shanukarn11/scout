@@ -71,7 +71,7 @@ def order(request):
         playerdata = Scout
 
         client = razorpay.Client(
-            auth=("rzp_test_ahDEPkxQSa6Ykb", "wtkc1kSruJq0bAjevDepqbjJ"))
+            auth=("rzp_live_q0RZ3B7Akwu3lx", "uluxDjy4YjJXypZEqtuncf2q"))
         DATA = {
             "amount": amount,
             "currency": "INR",
@@ -163,6 +163,7 @@ def homeindex(request):
     dict['website_links'] = website
     dict['phone_links'] = phone
     dict['notice_board'] = ""
+    dict['code']=request.GET.get('code')
     #printnoticeBoard)
     return render(request, 'index.html', dict)
 
@@ -578,7 +579,7 @@ def save(request):
 
 
         print("first_name") 
-        print(dictdata['first_name'])
+        print(dictdata['extrafield1'])
 
         scout = Scout(
             first_name=dictdata['first_name'],
@@ -596,6 +597,7 @@ def save(request):
 
             email=dictdata['email'],
             dob=dictdata['dob'],
+            extrafield1=dictdata['extrafield1'],
 
             course=ScoutCourse.objects.get(id=dictdata['course']),
             associated_years = dictdata['associated_years'],
@@ -637,7 +639,7 @@ def save(request):
                              "first_name":obj.first_name, "last_name":obj.last_name,
                              "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
                              "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"mobile":obj.mobile ,
-                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid,"pan":obj.pan
+                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid,"pan":obj.pan,"extrafield1":obj.extrafield1,
                              }
                              
                 return HttpResponse(json.dumps(errordict))

@@ -123,6 +123,12 @@
 </div> -->
 <script>
 window.onload=function(){
+
+var Code="{{code}}"
+
+  
+localStorage.setItem("ikfscoutcode",Code)
+console.log(localStorage.getItem("ikfscoutcode"))
   sessionStorage.clear()
 }
 </script>
