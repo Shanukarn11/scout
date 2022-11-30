@@ -98,8 +98,8 @@ class MasterDocumentsAdmin(admin.ModelAdmin):
 class ScoutAdmin(admin.ModelAdmin):
     list_filter = ('status','error_description','gender','state', 'city',
                    )
-    list_display = ('id','ikfuniqueid', 'extrafield1','first_name', 'last_name','order_id', 'pan', 'gender', 'mobile', 'email', 'dob', 'city', 'state',
-                     'season_id',  'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at')
+    list_display = ('id','ikfuniqueid', 'extrafield1','first_name', 'last_name','order_id','amount', 'pan', 'gender', 'mobile', 'email', 'dob', 'city', 'state',
+                     'season_id',  'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at','discount')
     search_fields = ('ikfuniqueid','first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id')
 
     # def has_delete_permission(self, request, obj=None):
