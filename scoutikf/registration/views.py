@@ -71,7 +71,7 @@ def order(request):
         playerdata = Scout
 
         client = razorpay.Client(
-            auth=("rzp_live_q0RZ3B7Akwu3lx", "uluxDjy4YjJXypZEqtuncf2q"))
+            auth=("rzp_live_KlzrczXDhMbptD", "VVQDQYdjlQp7LM2f9mouLOwK"))
         DATA = {
             "amount": amount,
             "currency": "INR",
