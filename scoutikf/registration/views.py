@@ -13,6 +13,8 @@ import datetime
 from django.shortcuts import render, redirect
 from django.conf import settings
 from django.http import HttpResponse, Http404, JsonResponse
+import requests
+import threading
 
 from django.views.static import serve
 
@@ -56,7 +58,96 @@ def amount(request):
 
         return HttpResponse(amount_value)
 
+def send_whatsapp_public_message(mobilenumber,firstname,lastname,obj):
+    url = 'https://api.interakt.ai/v1/public/message/'
+    api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+    print('mobilenumber')
+    print(mobilenumber)
+    headers = {
+        'Authorization': f'Basic {api_key}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+        'countryCode': '+91',
+        'phoneNumber': mobilenumber,
+        'callbackData': 'Succesfully sent Message',
+        'type': 'Template',
+        'template': {
+            'name': 'scouting_certification_2024',
+            'languageCode': 'en',
+            'headerValues': [
+                
+            ],
+            'bodyValues': [
+                firstname
+          
+                
+            ]
+        }
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        if response.status_code >= 200 and response.status_code < 300:
+            # The request was successful, do something here
+            print("Public message API request was successful!")
+            obj.whatsapp_sent=True
+            obj.save()
+        else:
+            # The request failed, handle the error here
+            print(f"Public message API request failed with status code {response.status_code}")
+            print(response.content)
 
+    except Exception as e:
+        print(e)
+        return None
+    
+def interakt_add_user(mobilenumber,firstname,lastname,obj):
+    # city=MasterCity.objects.get(id=obj.tournament_city_id).city
+   
+    # primary_position=MasterPosition.objects.get(id=obj.primary_position_id).label
+    # secondary_position=MasterPosition.objects.get(id=obj.secondary_position_id).label
+    
+    url = 'https://api.interakt.ai/v1/public/track/users/'
+    api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+    print('mobilenumber')
+    print(mobilenumber)
+    headers = {
+        'Authorization': f'Basic {api_key}',
+        'Content-Type': 'application/json'
+    }
+    payload = {
+    "userId": obj.ikfuniqueid,
+    "phoneNumber": mobilenumber,
+    "countryCode": "+91",
+    "traits": {
+
+        "first_name": obj.first_name,
+        "last_name":obj.last_name,
+        "gender":obj.gender,
+        "email": obj.email,
+        
+        "contact_number":obj.mobile,
+
+       
+
+    },
+    "tags": ["Scout4"]
+}
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        if response.status_code >= 200 and response.status_code < 300:
+            # The request was successful, do something here
+            print("add track API request was successful!")
+            obj.player_added_interakt=True
+            obj.save()
+        else:
+            # The request failed, handle the error here
+            print(f"Add track API request failed with status code {response.status_code}")
+            print(response.content)
+
+    except Exception as e:
+        print(e)
+        return None
 def order(request):
     if request.method == "POST":
         ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
@@ -634,6 +725,7 @@ def save(request):
 
                 obj.ikfuniqueid = "IKF" + obj.season.id + gender + number
                 obj.save() 
+
                 errordict = {"error": "false",
                              "message": "Saved Successfully", "ikfuniqueid": obj.ikfuniqueid ,"id":obj.id,
                              "first_name":obj.first_name, "last_name":obj.last_name,
@@ -856,6 +948,18 @@ def paymentstatus(request):
             #print"setting data")
 
             obj.save()
+            mobilenumber=""
+            if obj.mobile:
+               mobilenumber=obj.mobile
+
+
+            t1 = threading.Thread(target=send_whatsapp_public_message,args=(mobilenumber,obj.first_name,obj.last_name,obj))
+            
+            t2 = threading.Thread(target=interakt_add_user,args=(mobilenumber,obj.first_name,obj.last_name,obj))
+            t1.start()
+            t2.start()
+            t1.join()
+            t2.join()
             errordict = {"error": "false",
                             "message": "Payment didn't saved"}
             return HttpResponse(json.dumps(errordict))

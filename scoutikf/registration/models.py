@@ -290,6 +290,8 @@ class Scout(models.Model):
     error_meta_order_id = models.CharField(max_length=300,blank=True, null=True)
     error_meta_payment_id = models.CharField(max_length=300,blank=True, null=True)
     amount = models.CharField(max_length=100,blank=True, null=True)
+    whatsapp_sent = models.BooleanField(null=True,blank=True, default=False, db_index=True)
+    player_added_interakt = models.BooleanField(null=True,blank=True, default=False, db_index=True)
     # name=first_name+last_name
 
     def __repr__(self) -> str:
