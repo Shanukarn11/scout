@@ -1007,7 +1007,7 @@ def update_scout_payment_status(request):
 
     # Get all scouts where payment status needs checking, excluding records with more than 3 attempts
     scouts_to_update = Scout.objects.filter(
-         Q(status__in=["created", "attempted", '.','']) | Q(status__isnull=True),  # Include created, attempted, empty, and None statuses
+         Q(status__in=["created", "attempted", '.','','failed']) | Q(status__isnull=True),  # Include created, attempted, empty, and None statuses
          created_at__gte=cutoff_date,  # Add date filter
          order_id__isnull=False
     ).exclude(
