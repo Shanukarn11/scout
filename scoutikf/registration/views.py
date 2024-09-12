@@ -1,5 +1,6 @@
 #coding: utf8
 import os
+from django.utils import timezone
 import shutil
 import json
 import glob
@@ -7,7 +8,9 @@ import subprocess
 import time
 from uuid import uuid1
 import PIL
+from django.db.models import Q
 from django.core import serializers
+from django.core.paginator import Paginator
 import razorpay
 import datetime
 from django.shortcuts import render, redirect
@@ -33,7 +36,7 @@ from django.views.decorators.cache import cache_control
 
 import qrcode
 from PIL import Image
-
+from datetime import datetime
 from barcode.writer import ImageWriter
 import barcode
 import oss2
@@ -993,6 +996,73 @@ def scoutdiscountamount(request):
             newdict['amount']=float(courseamount[0]['amount']) -float(scoutamount[0]['discount'])
             return JsonResponse(newdict, safe=False)
 
+
+
+def update_scout_payment_status(request):
+    # Define batch size (number of records to process at a time)
+    batch_size = 30
+
+    # Define the date filter (replace with your desired date or use a query parameter)
+    cutoff_date = timezone.datetime(2024, 8, 18, tzinfo=timezone.get_current_timezone())  # Example: filter scouts after Jan 1, 2024
+
+    # Get all scouts where payment status needs checking, excluding records with more than 3 attempts
+    scouts_to_update = Scout.objects.filter(
+         Q(status__in=["created", "attempted", '.','']) | Q(status__isnull=True),  # Include created, attempted, empty, and None statuses
+         created_at__gte=cutoff_date,  # Add date filter
+         order_id__isnull=False
+    ).exclude(
+        # Exclude scouts with more than 3 attempts by checking the value in Extrafield4
+        Q(extrafield4__gte='3') 
+    ).order_by("id")
+    
+
+    # Paginate the results to handle large numbers of rows
+    paginator = Paginator(scouts_to_update, batch_size)
+    # return HttpResponse(scouts_to_update.values("first_name","order_id","status"))
+    
+    # Get page number from query params (default to 1 if not provided)
+    page_number = request.GET.get('page', 1)
+    page_obj = paginator.get_page(page_number)
+
+    processed_count = 0
+    
+    for scout in page_obj:
+        # Parse attempts from Extrafield4
+        attempts = int(scout.extrafield4) if scout.extrafield4 and scout.extrafield4.isdigit() else 0
+
+        # Call Razorpay API to check the payment status
+        try:
+            order_api_url = f"https://api.razorpay.com/v1/orders/{scout.order_id}"
+            response = requests.get(order_api_url, auth=("rzp_live_KlzrczXDhMbptD", "VVQDQYdjlQp7LM2f9mouLOwK"))
+            response.raise_for_status()  # Raise an exception for non-2xx responses
+            order_status = response.json().get('status')
+
+            if order_status in ["paid"]:
+                scout.status = "success"
+
+                # Trigger other APIs for successful payments
+                t1 = threading.Thread(target=send_whatsapp_public_message,args=(scout.mobile, scout.first_name, scout.last_name, scout))
+                
+                t2 = threading.Thread(target=interakt_add_user,args=(scout.mobile, scout.first_name, scout.last_name, scout))
+                t1.start()
+                t2.start()
+                t1.join()
+                t2.join()
+
+            else:
+                scout.status = order_status
+
+            # Update attempts in Extrafield4
+            attempts += 1
+            scout.extrafield4 = str(attempts)
+            scout.save()  # Save updated scout record
+
+            processed_count += 1
+
+        except requests.RequestException as e:
+            print(f"Error checking status for {scout.first_name}: {str(e)}")
+
+    return JsonResponse({"message": "Batch processed", "processed_count": processed_count})
 
         
 

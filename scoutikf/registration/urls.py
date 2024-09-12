@@ -46,6 +46,7 @@ urlpatterns = [
 
     path("limitdate",views.limitdate, name='limitdate'),
     path("scoutdiscountamount",views.scoutdiscountamount, name='scoutdiscountamount'),
+    path('update-scout-payment-status/', views.update_scout_payment_status, name='update_scout_payment_status'),
 
 
 
