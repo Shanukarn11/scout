@@ -27,3 +27,33 @@ share/python-wheels/
 .installed.cfg
 *.egg
 MANIFEST
+
+
+venv
+ikf/media/
+**/migrations/
+**/migrations/*.py
+**/migrations/*.pyc
+**/__pycache__/
+**/__pycache__/*.py
+**/__pycache__/*.pyc
+/ikf/main/migration
+ikf/main/media/.DS_Store
+ikf/main/media/ui/.DS_Store
+ikf/main/.DS_Store
+.DS_Store
+ikf/ikf/settings.py
+ikf/courses/
+settings.py
+ikf/.env
+
+
+# Ignore environment file
+.env
+**/.env
+ikf/.env
+
+# Ignore settings.py anywhere
+settings.py
+**/settings.py
+ikf/ikf/settings.py

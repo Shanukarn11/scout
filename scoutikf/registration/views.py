@@ -76,7 +76,7 @@ def send_whatsapp_public_message(mobilenumber,firstname,lastname,obj):
         'callbackData': 'Succesfully sent Message',
         'type': 'Template',
         'template': {
-            'name': 'scouting_certification_2024',
+            'name': 'scouting_certification_2025',
             'languageCode': 'en',
             'headerValues': [
                 
@@ -704,7 +704,7 @@ def save(request):
 
 
  
-            season=MasterSeason.objects.get(id=dictdata['season']),
+            season=MasterSeason.objects.get(id="S05"),
 
         )
 
