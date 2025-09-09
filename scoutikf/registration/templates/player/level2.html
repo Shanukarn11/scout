@@ -29,12 +29,70 @@
   /* inputs we actually use on this page */
   .l2 .form-control, .l2 .form-select { width:100% !important; max-width:100% !important; display:block !important; }
   @media (max-width:576px){ .l2 .btn-lg{padding-top:.65rem; padding-bottom:.65rem;} }
+
+  /* --- Glass overrides ONLY for the Level-2 page --- */
+.l2 .glass-morphism-container1{
+  /* kill the huge margins and fit-content width from the old class */
+  margin: 0 !important;
+  width: 100% !important;
+
+  /* actual glass look */
+  background-color: rgba(255,255,255,0.10) !important;  /* translucent */
+  border: 1px solid rgba(255,255,255,0.22);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-radius: 16px;
+
+  /* keep your existing padding from the card-body */
+}
+
+/* mobile tweaks */
+@media (max-width: 800px){
+  .l2 .glass-morphism-container1{
+    margin: 0 !important;
+  }
+}
+
+/* Make text readable on the darker glass */
+.l2 .glass-morphism-container1 h3,
+.l2 .glass-morphism-container1 .section-title,
+.l2 .preview.tidy .label,
+.l2 .preview.tidy .value {
+  color: #fff !important;
+}
+
+/* Alerts on glass so they don’t look like solid blocks */
+.l2 .glass-morphism-container1 .alert.alert-info{
+  background: rgba(13,110,253,0.14);
+  border-color: rgba(13,110,253,0.28);
+  color: #fff;
+}
+.l2 .glass-morphism-container1 .alert.alert-secondary{
+  background: rgba(255,255,255,0.10);
+  border-color: rgba(255,255,255,0.20);
+  color: #fff;
+}
+
+/* Inputs readable on glass header row (IKF field) */
+.l2 .glass-morphism-container1 .form-control{
+  background: rgba(255,255,255,0.16);
+  border-color: rgba(255,255,255,0.28);
+  color: #fff;
+}
+.l2 .glass-morphism-container1 .form-control::placeholder{
+  color: rgba(255,255,255,0.82);
+}
+.l2 .glass-morphism-container1 .form-control:focus{
+  background: rgba(255,255,255,0.20);
+  color: #fff;
+}
+
 </style>
 
-<div class="container py-4 l2">
-  <div class="row justify-content-center">
-    <div class="col-12">
-      <div class="card shadow-sm border-0">
+<div class="container py-4 l2  ">
+  <div class="row justify-content-center ">
+    <div class="col-12 ">
+      <div class="card shadow-sm border-0 glass-morphism-container1">
         <div class="card-body p-3 p-md-4 p-lg-5">
 
           <h3 class="mb-3 text-center text-md-start">Level-2 Enrollment</h3>
