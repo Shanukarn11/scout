@@ -1,0 +1,363 @@
+{% extends "base.html" %}
+{% block content %}
+<style>
+  /* widen the page container just for /level2 without touching base.html */
+  @media (min-width: 992px) {
+    #home .container { max-width: 1400px !important; width: min(96vw, 1400px) !important; }
+    #home .container .row > .col-lg-8 {
+      flex: 0 0 100% !important; max-width: 100% !important;
+      display: flex !important; justify-content: center !important;
+    }
+  }
+  @media (min-width: 1400px) {
+    #home .container { max-width: 1600px !important; width: min(94vw, 1600px) !important; }
+  }
+
+  /* card + layout hardening (avoid global CSS conflicts) */
+  .l2 .card { width: min(100%, 1200px); margin: 0 auto !important; border-radius: .75rem; }
+  .l2 .row > [class*="col-"] { padding-left:.5rem; padding-right:.5rem; }
+
+  /* tidy preview */
+  .preview.tidy .group { padding:.9rem 0; }
+  .preview.tidy .group + .group { border-top:1px solid #ececec; }
+  .preview.tidy .label { color:#6c757d; font-weight:600; font-size:.95rem; margin-bottom:.25rem; }
+  .preview.tidy .value { font-size:1.075rem; font-weight:500; word-break:break-word; }
+
+  .section-title { font-weight:700; margin-bottom:.25rem; }
+  .section-hr { margin:.75rem 0 1.25rem; }
+
+  /* inputs we actually use on this page */
+  .l2 .form-control, .l2 .form-select { width:100% !important; max-width:100% !important; display:block !important; }
+  @media (max-width:576px){ .l2 .btn-lg{padding-top:.65rem; padding-bottom:.65rem;} }
+</style>
+
+<div class="container py-4 l2">
+  <div class="row justify-content-center">
+    <div class="col-12">
+      <div class="card shadow-sm border-0">
+        <div class="card-body p-3 p-md-4 p-lg-5">
+
+          <h3 class="mb-3 text-center text-md-start">Level-2 Enrollment</h3>
+
+          <!-- 1) LOOKUP -->
+          <div class="row align-items-end mb-3">
+            <div class="col-12 col-md-8 mb-2 mb-md-0">
+              <label class="form-label">IKF SCOUT ID</label>
+              <input type="text" class="form-control" id="ikf" placeholder="e.g. IKFS05M000123" />
+
+            </div>
+            <div class="col-12 col-md-4">
+              <button class="btn btn-primary w-100" id="btnLookup" type="button">Verify</button>
+            </div>
+          </div>
+
+          <div class="row">
+            <div class="col-12">
+              <div class="alert alert-secondary py-2 px-3 mb-3 small" role="alert">
+                <strong>Tip:</strong> Enter your IKF SCOUT ID exactly as printed on your Level 1 Scouting Certificate.
+                Example: <code>IKFS05M000123</code> (no spaces, uppercase).
+              </div>
+            </div>
+          </div>
+
+          <hr class="section-hr"/>
+
+          <!-- 2) PREVIEW (read-only; only discount editable below) -->
+          <div id="previewWrap" style="display:none;">
+            <div class="section-title" id="pv_summary" >Profile Preview</div>
+            <!-- <small class="text-muted d-block mb-3" id="pv_summary">All details are locked. Only Discount Code can be applied.</small> -->
+
+            <div class="preview tidy">
+              <!-- Row 1 -->
+              <div class="group">
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <div class="label">First name</div>
+                    <div class="value" id="pv_first_name">—</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="label">Gender</div>
+                    <div class="value" id="pv_gender">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 2 -->
+              <div class="group">
+                <div class="row">
+
+                  <div class="col-12 col-md-6">
+                    <div class="label">DOB</div>
+                    <div class="value" id="pv_dob">—</div>
+                  </div>
+                  <div class="col-12 col-md-6">
+                    <div class="label">Mobile</div>
+                    <div class="value" id="pv_mobile">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 3 -->
+              <div class="group">
+                <div class="row">
+                  <div class="col-12 col-md-6">
+                    <div class="label">Email</div>
+                    <div class="value" id="pv_email">—</div>
+                  </div>
+
+                </div>
+              </div>
+
+              <!-- Row 4 -->
+              <div class="group">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="label">Course Completed / Certificate Received</div>
+                    <div class="value" id="pv_course">—</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row 5 -->
+              <div class="group">
+                <div class="row">
+                  <div class="col-12">
+                    <div class="label">You are applying for <span class="badge bg-success">Level-2 Course</span> — Fees 19000 Rs <i>(inclusive of all taxes)</i></div>
+                    <div class="value">
+                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 3) DISCOUNT (only editable field after lookup) -->
+            <form id="discountForm" class="mt-3">
+              {% csrf_token %}
+              <!-- keep course id for server -->
+              <input type="hidden" id="course" name="course" />
+              <div class="row g-2 align-items-end" hidden>
+                <div class="col-12 col-lg-8">
+                  <label class="form-label">Discount Code (optional)</label>
+                  <input class="form-control" id="discount_code" name="discount_code" placeholder="e.g. discount_a5n3"/>
+                </div>
+              </div>
+            </form>
+      <!-- 4) AMOUNT (hidden until you click Confirm) -->
+      <div class="mt-3" id="priceBox" style="display:none;">
+        <div class="alert alert-info mb-0 d-flex justify-content-between align-items-center">
+          <strong>Amount:</strong>
+          <span class="fs-5">₹ <span id="amountFinal">0.00</span></span>
+        </div>
+      </div>
+<div class="d-grid d-sm-flex gap-2 mt-4">
+  <button type="button" class="btn btn-success btn-lg" id="btnConfirm">Confirm</button>
+  <button type="button" class="btn btn-primary btn-lg" id="btnPay" disabled>Proceed to Pay</button>
+</div>
+            <!-- SINGLE BUTTON: save + order + redirect -->
+            <!-- <div class="d-grid d-sm-flex gap-2 mt-4">
+              <button type="button" class="btn btn-primary btn-lg" id="btnPay" disabled>Proceed to Pay</button>
+            </div> -->
+          </div>
+
+          <!-- Hidden course map (to show readable course name in preview) -->
+          <select id="course_map" class="d-none">
+            {% for c in courses %}
+              <option value="{{ c.id }}">{{ c.course }} {% if c.amount %}- ₹{{ c.amount }}{% endif %}</option>
+            {% endfor %}
+          </select>
+
+          <!-- Seed CSRF cookie (helps if no form rendered yet) -->
+          <input type="hidden" value="{{ csrf_token }}"/>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ===== CSRF cookie helper (Django) ===== */
+const btnConfirm   = document.getElementById("btnConfirm");
+function getCookie(name){
+  let value = null;
+  if (document.cookie && document.cookie !== '') {
+    const cookies = document.cookie.split(';');
+    for (let c of cookies) {
+      c = c.trim();
+      if (c.substring(0, name.length + 1) === (name + '=')) {
+        value = decodeURIComponent(c.substring(name.length + 1));
+        break;
+      }
+    }
+  }
+  return value;
+}
+const csrftoken = getCookie('csrftoken');
+
+(function(){
+  // auto-uppercase IKF and strip spaces
+  const ikfInput = document.getElementById('ikf');
+  if (ikfInput) {
+    ikfInput.addEventListener('input', e => {
+      e.target.value = e.target.value.toUpperCase().replace(/\s+/g, '');
+    });
+  }
+
+  const URL_PREFILL = "{% url 'level2_prefill' %}";
+  const URL_SAVE    = "{% url 'level2_save' %}";
+  const URL_ORDER   = "{% url 'level2_order' %}";
+  const URL_PAYMENT = "{% url 'payment' %}";
+
+  const ikfEl = document.getElementById("ikf");
+  const btnLookup = document.getElementById("btnLookup");
+  const previewWrap = document.getElementById("previewWrap");
+ const pv_summary = document.getElementById("pv_summary");
+  const pv_first = document.getElementById("pv_first_name");
+  const pv_last  = document.getElementById("pv_last_name");
+  const pv_gender= document.getElementById("pv_gender");
+  const pv_dob   = document.getElementById("pv_dob");
+  const pv_mobile= document.getElementById("pv_mobile");
+  const pv_email = document.getElementById("pv_email");
+  const pv_course= document.getElementById("pv_course");
+
+  const discountForm = document.getElementById("discountForm");
+  const discountCode = document.getElementById("discount_code");
+  const hiddenCourse = document.getElementById("course");
+
+  const priceBox     = document.getElementById("priceBox");
+  const amountFinal  = document.getElementById("amountFinal");
+  const btnPay       = document.getElementById("btnPay");
+
+  let currentIKF = null;
+
+  function courseLabelById(id){
+    const sel = document.getElementById("course_map");
+    const opt = Array.from(sel.options).find(o => o.value == id);
+    return opt ? opt.textContent.trim() : "";
+  }
+  function fillPreview(s){
+        const fullName = [s.first_name, s.last_name].filter(Boolean).join(' ').trim();
+  
+    pv_first.textContent  = fullName || "—";
+
+    pv_gender.textContent = s.gender || "—";
+    pv_dob.textContent    = s.dob || "—";
+    pv_mobile.textContent = s.mobile || "—";
+    pv_email.textContent  = s.email || "—";
+    pv_course.textContent = s.course ? courseLabelById(s.course) : "—";
+
+
+    pv_summary.textContent = fullName? `${fullName}, your following details are stored with us.`
+    : `Your following details are stored with us.`;
+  }
+
+  // LOOKUP
+  btnLookup.addEventListener("click", function(){
+    const ikf = (ikfEl.value || "").trim();
+    if (!ikf) return alert("Enter IKF Unique ID.");
+
+    const fd = new FormData();
+    fd.append("ikfuniqueid", ikf);
+
+    // reset view
+    previewWrap.style.display = "none";
+    priceBox.style.display = "none";
+    btnPay.disabled = true;
+
+    fetch(URL_PREFILL, {
+      method: "POST",
+      body: fd,
+      headers: { "X-CSRFToken": csrftoken },
+      credentials: "same-origin"
+    })
+    .then(r => {
+      if (!r.ok) return r.text().then(t => { throw new Error(t || "Lookup failed"); });
+      return r.json();
+    })
+    .then(({scout, level2}) => {
+      currentIKF = scout.ikfuniqueid;
+
+      // set preview
+      fillPreview(scout);
+
+      // set hidden course for save
+      const cid = (level2 && level2.course) ? level2.course : scout.course;
+      hiddenCourse.value = cid || "";
+
+      // discount shown if any
+      discountCode.value = (level2 && level2.discount_code) ? level2.discount_code : "";
+
+      // amount shown if already saved earlier
+      if (level2 && level2.final_amount){
+        amountFinal.textContent = level2.final_amount;
+        priceBox.style.display = "block";
+      } else {
+        priceBox.style.display = "none";
+      }
+
+      btnPay.disabled = false;         // one-click pay (will save first)
+      previewWrap.style.display = "block";
+    })
+    .catch(err => alert(err.message || "IKF not found"));
+  });
+
+  // SINGLE BUTTON: save (apply discount) + order + redirect
+  btnPay.addEventListener("click", async function(){
+    if (!currentIKF) return alert("Lookup first using IKF Unique ID!");
+
+    btnPay.disabled = true;
+    const originalText = btnPay.textContent;
+    btnPay.textContent = "Processing...";
+
+    try {
+      // 1) SAVE (apply discount if any)
+      const saveFd = new FormData(discountForm);
+      saveFd.append("ikfuniqueid", currentIKF);
+
+      const saveRes = await fetch(URL_SAVE, {
+        method: "POST",
+        body: saveFd,
+        headers: { "X-CSRFToken": csrftoken },
+        credentials: "same-origin"
+      });
+      if (!saveRes.ok) {
+        const msg = await saveRes.text();
+        throw new Error(msg || "Save failed");
+      }
+      const saveJson = await saveRes.json();
+      if (saveJson.error) throw new Error(saveJson.message || "Could not save");
+      if (saveJson.final_amount) {
+        amountFinal.textContent = saveJson.final_amount;
+        priceBox.style.display = "block";
+      }
+
+      // 2) ORDER
+      const orderFd = new FormData();
+      orderFd.append("ikfuniqueid", currentIKF);
+
+      const orderRes = await fetch(URL_ORDER, {
+        method: "POST",
+        body: orderFd,
+        headers: { "X-CSRFToken": csrftoken },
+        credentials: "same-origin"
+      });
+      if (!orderRes.ok) {
+        const msg = await orderRes.text();
+        throw new Error(msg || "Order creation failed");
+      }
+      const orderJson = await orderRes.json();
+      if (!orderJson.order_id) throw new Error("Order creation failed");
+
+      // 3) redirect to shared payment page
+      sessionStorage.setItem("level2_order_id", orderJson.order_id);
+      window.location = URL_PAYMENT;
+
+    } catch (e) {
+      alert(e.message || "Something went wrong");
+      btnPay.disabled = false;
+      btnPay.textContent = originalText;
+    }
+  });
+})();
+</script>
+{% endblock %}

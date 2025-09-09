@@ -3,6 +3,7 @@ from unicodedata import name
 from django.db import models
 from .storage import OverwriteStorage
 from PIL import Image
+from decimal import Decimal
 
 from django.core.validators import FileExtensionValidator
 # Create your models here.
@@ -225,6 +226,7 @@ class ScoutCourseDiscount(models.Model):
       
 class Scout(models.Model):
     id = models.BigAutoField(primary_key=True)
+    ikf_level_1_id = models.CharField(max_length=200, null=True, db_index=True)
     
     associated_years = models.CharField(max_length=100,blank=True,)
     associated_as = models.CharField(max_length=200,blank=True,)
@@ -301,7 +303,62 @@ class Scout(models.Model):
         return str(self.first_name)
 
 
+class Level2Status(models.TextChoices):
+    DRAFT = "draft", "Draft"
+    ORDER_CREATED = "order_created", "Order Created"
+    PAID = "paid", "Paid"
+    FAILED = "failed", "Failed"
 
+class ScoutLevel2(models.Model):
+    # one Level-2 record per Scout (change to ForeignKey if you want multiples)
+    scout = models.OneToOneField(
+        "registration.Scout",
+        on_delete=models.CASCADE,
+        related_name="level2"
+    )
+
+    # user’s Level-2 choice(s)
+    course = models.ForeignKey(
+        "registration.ScoutCourse",
+        null=True, blank=True, on_delete=models.SET_NULL, db_index=True
+    )
+    discount_code = models.CharField(max_length=100, blank=True, null=True)
+
+    # server-calculated snapshot for billing (don’t trust client)
+    base_amount      = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    discount_rupees  = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+    final_amount     = models.DecimalField(max_digits=10, decimal_places=2, default=Decimal("0.00"))
+
+    # Razorpay meta (≤191 for 10.1/utf8mb4 index safety)
+    order_id            = models.CharField(max_length=191, blank=True, null=True, db_index=True)
+    payment_id          = models.CharField(max_length=191, blank=True, null=True)
+    payment_signature   = models.CharField(max_length=400, blank=True, null=True)
+
+    # workflow
+    status = models.CharField(max_length=32, choices=Level2Status.choices,
+                              default=Level2Status.DRAFT, db_index=True)
+
+    # messaging / integrations (Level-2 specific)
+    whatsapp_sent         = models.BooleanField(default=False, db_index=True)
+    player_added_interakt = models.BooleanField(default=False, db_index=True)
+    notify_attempts       = models.PositiveIntegerField(default=0)  # retries for notifications
+
+    # audit
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    # optional notes
+    notes = models.CharField(max_length=300, blank=True, null=True)
+
+    def __str__(self):
+        return f"Level2({self.scout.ikfuniqueid}) — {self.status}"
+
+    class Meta:
+        verbose_name = "Scout Level-2"
+        verbose_name_plural = "Scout Level-2"
+        constraints = [
+            models.UniqueConstraint(fields=["scout"], name="uniq_level2_per_scout"),
+        ]
 
 class Upload(models.Model):
     unique = models.CharField(max_length=400, null=True, db_index=True)
@@ -377,6 +434,9 @@ class MasterPartner(models.Model):
     
     include = models.BooleanField(null=True, default=True, db_index=True)
 #user=models.ForeignKey(User,null=True,  verbose_name="files", on_delete=models.CASCADE)
+
+
+
 
 
 

@@ -4,7 +4,7 @@ from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models import ScoutLevel2,ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -198,4 +198,90 @@ class ScoutDiscountTypeAdmin(admin.ModelAdmin):
 @admin.register(ScoutCourseDiscount)
 class ScoutCourseDiscountAdmin(admin.ModelAdmin):
     list_display=('id','course','type','discount')
+
+
+
+
+@admin.register(ScoutLevel2)
+class ScoutLevel2Admin(admin.ModelAdmin):
+    # Speed up admin changelist by joining FKs in one query
+    def get_queryset(self, request):
+        qs = super().get_queryset(request)
+        return qs.select_related("scout", "course")
+
+    # What columns you see in the table
+    list_display = (
+        "ikf",            # from Scout FK
+        "name",           # from Scout FK
+        "mobile",         # from Scout FK
+        "course_name",    # from course FK
+        "base_amount",
+        "discount_rupees",
+        "final_amount",
+        "status",
+        "order_id",
+    )
+    list_filter = ("status", "course")
+    search_fields = (
+        "scout__ikfuniqueid",
+        "scout__first_name",
+        "scout__last_name",
+        "scout__mobile",
+        "order_id",
+        "payment_id",
+    )
+    ordering = ("-id",)
+
+    # Make snapshot/payment fields read-only (they're computed/set by server flow)
+    readonly_fields = (
+        "base_amount",
+        "discount_rupees",
+        "final_amount",
+        "order_id",
+        "payment_id",
+        "payment_signature",
+    )
+
+    # Arrange fields on the detail page
+    fieldsets = (
+        ("Link to Scout", {
+            "fields": ("scout",),
+        }),
+        ("Selection", {
+            "fields": ("course", "discount_code"),
+        }),
+        ("Pricing Snapshot", {
+            "fields": ("base_amount", "discount_rupees", "final_amount"),
+        }),
+        ("Payment", {
+            "fields": ("status", "order_id", "payment_id", "payment_signature"),
+        }),
+    )
+
+    # ---------- nice readable columns pulled via FK ----------
+
+    def ikf(self, obj):
+        return getattr(obj.scout, "ikfuniqueid", "")
+    ikf.short_description = "IKF ID"
+    ikf.admin_order_field = "scout__ikfuniqueid"
+
+    def name(self, obj):
+        fn = (obj.scout.first_name or "").strip() if obj.scout else ""
+        ln = (obj.scout.last_name or "").strip() if obj.scout else ""
+        full = f"{fn} {ln}".strip()
+        return full or "-"
+    name.short_description = "Name"
+
+    def mobile(self, obj):
+        return getattr(obj.scout, "mobile", "") or "-"
+    mobile.short_description = "Mobile"
+    mobile.admin_order_field = "scout__mobile"
+
+    def course_name(self, obj):
+        # Prefer course title; fall back to id
+        if obj.course and getattr(obj.course, "course", None):
+            return obj.course.course
+        return obj.course_id or "-"
+    course_name.short_description = "Course"
+
     
