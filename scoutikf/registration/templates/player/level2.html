@@ -1,7 +1,6 @@
 {% extends "base.html" %}
 {% block content %}
 <style>
-  /* widen the page container just for /level2 without touching base.html */
   @media (min-width: 992px) {
     #home .container { max-width: 1400px !important; width: min(96vw, 1400px) !important; }
     #home .container .row > .col-lg-8 {
@@ -13,96 +12,64 @@
     #home .container { max-width: 1600px !important; width: min(94vw, 1600px) !important; }
   }
 
-  /* card + layout hardening (avoid global CSS conflicts) */
   .l2 .card { width: min(100%, 1200px); margin: 0 auto !important; border-radius: .75rem; }
   .l2 .row > [class*="col-"] { padding-left:.5rem; padding-right:.5rem; }
 
-  /* tidy preview */
   .preview.tidy .group { padding:.9rem 0; }
   .preview.tidy .group + .group { border-top:1px solid #ececec; }
-  .preview.tidy .label { color:#6c757d; font-weight:600; font-size:.95rem; margin-bottom:.25rem; }
-  .preview.tidy .value { font-size:1.075rem; font-weight:500; word-break:break-word; }
+  .preview.tidy .label { color:#e6e6e6; font-weight:600; font-size:.95rem; margin-bottom:.25rem; }
+  .preview.tidy .value { font-size:1.075rem; font-weight:500; word-break:break-word; color:#fff; }
 
-  .section-title { font-weight:700; margin-bottom:.25rem; }
+  .section-title { font-weight:700; margin-bottom:.25rem; color:#fff; }
   .section-hr { margin:.75rem 0 1.25rem; }
 
-  /* inputs we actually use on this page */
-  .l2 .form-control, .l2 .form-select { width:100% !important; max-width:100% !important; display:block !important; }
+  .l2 .form-control{ width:100% !important; max-width:100% !important; display:block !important; }
+
+  .l2 .glass-morphism-container1{
+    margin: 0 !important; width: 100% !important;
+    background-color: rgba(255,255,255,0.10) !important;
+    border: 1px solid rgba(255,255,255,0.22);
+    backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
+    border-radius: 16px;
+  }
+  @media (max-width: 800px){ .l2 .glass-morphism-container1{ margin: 0 !important; } }
+
+  .l2 .glass-morphism-container1 h3 { color:#fff; }
+  .l2 .glass-morphism-container1 .alert.alert-info{
+    background: rgba(13,110,253,0.14); border-color: rgba(13,110,253,0.28); color: #fff;
+  }
+  .l2 .glass-morphism-container1 .alert.alert-secondary{
+    background: rgba(255,255,255,0.10); border-color: rgba(255,255,255,0.20); color: #fff;
+  }
+  .l2 .glass-morphism-container1 .form-control{
+    background: rgba(255,255,255,0.16);
+    border-color: rgba(255,255,255,0.28);
+    color: #fff;
+  }
+  .l2 .glass-morphism-container1 .form-control::placeholder{ color: rgba(255,255,255,0.82); }
+  .l2 .glass-morphism-container1 .form-control:focus{ background: rgba(255,255,255,0.20); color: #fff; }
+
   @media (max-width:576px){ .l2 .btn-lg{padding-top:.65rem; padding-bottom:.65rem;} }
 
-  /* --- Glass overrides ONLY for the Level-2 page --- */
-.l2 .glass-morphism-container1{
-  /* kill the huge margins and fit-content width from the old class */
-  margin: 0 !important;
-  width: 100% !important;
-
-  /* actual glass look */
-  background-color: rgba(255,255,255,0.10) !important;  /* translucent */
-  border: 1px solid rgba(255,255,255,0.22);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border-radius: 16px;
-
-  /* keep your existing padding from the card-body */
-}
-
-/* mobile tweaks */
-@media (max-width: 800px){
-  .l2 .glass-morphism-container1{
-    margin: 0 !important;
-  }
-}
-
-/* Make text readable on the darker glass */
-.l2 .glass-morphism-container1 h3,
-.l2 .glass-morphism-container1 .section-title,
-.l2 .preview.tidy .label,
-.l2 .preview.tidy .value {
-  color: #fff !important;
-}
-
-/* Alerts on glass so they don’t look like solid blocks */
-.l2 .glass-morphism-container1 .alert.alert-info{
-  background: rgba(13,110,253,0.14);
-  border-color: rgba(13,110,253,0.28);
-  color: #fff;
-}
-.l2 .glass-morphism-container1 .alert.alert-secondary{
-  background: rgba(255,255,255,0.10);
-  border-color: rgba(255,255,255,0.20);
-  color: #fff;
-}
-
-/* Inputs readable on glass header row (IKF field) */
-.l2 .glass-morphism-container1 .form-control{
-  background: rgba(255,255,255,0.16);
-  border-color: rgba(255,255,255,0.28);
-  color: #fff;
-}
-.l2 .glass-morphism-container1 .form-control::placeholder{
-  color: rgba(255,255,255,0.82);
-}
-.l2 .glass-morphism-container1 .form-control:focus{
-  background: rgba(255,255,255,0.20);
-  color: #fff;
-}
-
+  .modal-header.text-white.bg-danger,
+  .modal-header.text-white.bg-warning,
+  .modal-header.text-white.bg-info,
+  .modal-header.text-white.bg-success { color:#fff !important; }
 </style>
 
-<div class="container py-4 l2  ">
-  <div class="row justify-content-center ">
-    <div class="col-12 ">
+<div class="container py-4 l2">
+  <div class="row justify-content-center">
+    <div class="col-12">
       <div class="card shadow-sm border-0 glass-morphism-container1">
         <div class="card-body p-3 p-md-4 p-lg-5">
 
           <h3 class="mb-3 text-center text-md-start">Level-2 Enrollment</h3>
 
-          <!-- 1) LOOKUP -->
+          <!-- Verify -->
           <div class="row align-items-end mb-3">
             <div class="col-12 col-md-8 mb-2 mb-md-0">
-              <label class="form-label">IKF SCOUT ID</label>
+              <label class="form-label text-white-50">IKF SCOUT ID</label>
               <input type="text" class="form-control" id="ikf" placeholder="e.g. IKFS05M000123" />
-
             </div>
             <div class="col-12 col-md-4">
               <button class="btn btn-primary w-100" id="btnLookup" type="button">Verify</button>
@@ -120,17 +87,15 @@
 
           <hr class="section-hr"/>
 
-          <!-- 2) PREVIEW (read-only; only discount editable below) -->
+          <!-- Preview -->
           <div id="previewWrap" style="display:none;">
-            <div class="section-title" id="pv_summary" >Profile Preview</div>
-            <!-- <small class="text-muted d-block mb-3" id="pv_summary">All details are locked. Only Discount Code can be applied.</small> -->
+            <div class="section-title" id="pv_summary">Profile Preview</div>
 
             <div class="preview tidy">
-              <!-- Row 1 -->
               <div class="group">
                 <div class="row">
                   <div class="col-12 col-md-6">
-                    <div class="label">First name</div>
+                    <div class="label">Name</div>
                     <div class="value" id="pv_first_name">—</div>
                   </div>
                   <div class="col-12 col-md-6">
@@ -140,10 +105,8 @@
                 </div>
               </div>
 
-              <!-- Row 2 -->
               <div class="group">
                 <div class="row">
-
                   <div class="col-12 col-md-6">
                     <div class="label">DOB</div>
                     <div class="value" id="pv_dob">—</div>
@@ -155,18 +118,15 @@
                 </div>
               </div>
 
-              <!-- Row 3 -->
               <div class="group">
                 <div class="row">
                   <div class="col-12 col-md-6">
                     <div class="label">Email</div>
                     <div class="value" id="pv_email">—</div>
                   </div>
-
                 </div>
               </div>
 
-              <!-- Row 4 -->
               <div class="group">
                 <div class="row">
                   <div class="col-12">
@@ -176,24 +136,22 @@
                 </div>
               </div>
 
-              <!-- Row 5 -->
               <div class="group">
                 <div class="row">
                   <div class="col-12">
-                    <div class="label">You are applying for <span class="badge bg-success">Level-2 Course</span> — Fees 19000 Rs <i>(inclusive of all taxes)</i></div>
-                    <div class="value">
-                      
+                    <div class="label">
+                      You are applying for <span class="badge bg-success">Level-2 Course</span>
+                      — Fees {{ level2_course_amount|default:"19000" }} Rs <i>(inclusive of all taxes)</i>
                     </div>
                   </div>
                 </div>
               </div>
             </div>
 
-            <!-- 3) DISCOUNT (only editable field after lookup) -->
+            <!-- Hidden form for CSRF / (optional) discount -->
             <form id="discountForm" class="mt-3">
               {% csrf_token %}
-              <!-- keep course id for server -->
-              <input type="hidden" id="course" name="course" />
+              <input type="hidden" id="course" name="course" value="{{ level2_course_id }}">
               <div class="row g-2 align-items-end" hidden>
                 <div class="col-12 col-lg-8">
                   <label class="form-label">Discount Code (optional)</label>
@@ -201,31 +159,34 @@
                 </div>
               </div>
             </form>
-      <!-- 4) AMOUNT (hidden until you click Confirm) -->
-      <div class="mt-3" id="priceBox" style="display:none;">
-        <div class="alert alert-info mb-0 d-flex justify-content-between align-items-center">
-          <strong>Amount:</strong>
-          <span class="fs-5">₹ <span id="amountFinal">0.00</span></span>
-        </div>
-      </div>
-<div class="d-grid d-sm-flex gap-2 mt-4">
-  <button type="button" class="btn btn-success btn-lg" id="btnConfirm">Confirm</button>
-  <button type="button" class="btn btn-primary btn-lg" id="btnPay" disabled>Proceed to Pay</button>
-</div>
-            <!-- SINGLE BUTTON: save + order + redirect -->
-            <!-- <div class="d-grid d-sm-flex gap-2 mt-4">
-              <button type="button" class="btn btn-primary btn-lg" id="btnPay" disabled>Proceed to Pay</button>
-            </div> -->
+
+            <div class="mt-3 d-flex gap-2">
+              <button id="btnConfirm" class="btn btn-primary" type="button">Confirm</button>
+              <button id="btnPay" class="btn btn-success" type="button" disabled>Proceed to Pay</button>
+            </div>
+
+            <div class="mt-3" id="priceBox" style="display:none;">
+              <div class="alert alert-info mb-0 d-flex justify-content-between align-items-center">
+                <strong>Amount:</strong>
+                <span class="fs-5">₹ <span id="amountFinal">0.00</span></span>
+              </div>
+            </div>
+
+            <!-- completed course label map -->
+            <select id="course_map" class="d-none">
+              {% for c in courses %}
+                <option value="{{ c.id }}" data-name="{{ c.course }}">
+                  {{ c.course }}{% if c.amount %} - ₹{{ c.amount }}{% endif %}
+                </option>
+              {% endfor %}
+            </select>
+
+            <span id="level2Data"
+                  data-course-id="{{ level2_course_id }}"
+                  data-course-amount="{{ level2_course_amount|default:'19000' }}"
+                  hidden></span>
           </div>
 
-          <!-- Hidden course map (to show readable course name in preview) -->
-          <select id="course_map" class="d-none">
-            {% for c in courses %}
-              <option value="{{ c.id }}">{{ c.course }} {% if c.amount %}- ₹{{ c.amount }}{% endif %}</option>
-            {% endfor %}
-          </select>
-
-          <!-- Seed CSRF cookie (helps if no form rendered yet) -->
           <input type="hidden" value="{{ csrf_token }}"/>
         </div>
       </div>
@@ -233,9 +194,28 @@
   </div>
 </div>
 
+<!-- Feedback Modal -->
+<div class="modal fade" id="fbModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="fbModalTitle">Something went wrong</h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body"><div id="fbModalBody" class="small"></div></div>
+      <div class="modal-footer border-0">
+        <button type="button" class="btn btn-light" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Razorpay Checkout -->
+<script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 <script>
-/* ===== CSRF cookie helper (Django) ===== */
-const btnConfirm   = document.getElementById("btnConfirm");
+let currentLevel1Id=""
+let currentIKF=""
 function getCookie(name){
   let value = null;
   if (document.cookie && document.cookie !== '') {
@@ -252,8 +232,36 @@ function getCookie(name){
 }
 const csrftoken = getCookie('csrftoken');
 
+function stripHtmlToText(input){
+  try{
+    const tmp = document.createElement('div');
+    tmp.innerHTML = input;
+    const text = (tmp.textContent || tmp.innerText || '').replace(/\s+/g,' ').trim();
+    return text || 'An unexpected error occurred.';
+  }catch(e){
+    return 'An unexpected error occurred.';
+  }
+}
+function showModal(title, message, variant='danger'){
+  const m = document.getElementById('fbModal');
+  const header = m.querySelector('.modal-header');
+  const titleEl = document.getElementById('fbModalTitle');
+  const bodyEl = document.getElementById('fbModalBody');
+
+  header.classList.remove('bg-danger','bg-warning','bg-info','bg-success','text-white');
+  const map = { danger:'bg-danger', warning:'bg-warning', info:'bg-info', success:'bg-success' };
+  header.classList.add(map[variant] || 'bg-danger','text-white');
+
+  titleEl.textContent = title || 'Notice';
+  const isHtml = /<\/?[a-z][\s\S]*>/i.test(String(message || ''));
+  bodyEl.textContent = isHtml ? stripHtmlToText(message) : (message || '');
+
+  const modal = new bootstrap.Modal(m);
+  modal.show();
+}
+
 (function(){
-  // auto-uppercase IKF and strip spaces
+  // normalize input
   const ikfInput = document.getElementById('ikf');
   if (ikfInput) {
     ikfInput.addEventListener('input', e => {
@@ -264,63 +272,72 @@ const csrftoken = getCookie('csrftoken');
   const URL_PREFILL = "{% url 'level2_prefill' %}";
   const URL_SAVE    = "{% url 'level2_save' %}";
   const URL_ORDER   = "{% url 'level2_order' %}";
-  const URL_PAYMENT = "{% url 'payment' %}";
+  const URL_STATUS  = "{% url 'level2_payment_status' %}";
+  const RZP_KEY     = "{{ razorpay_key_id|default:'' }}";
+  const PASS_URL_NAVIGATION= "{% url 'level2_pass' %}"
 
   const ikfEl = document.getElementById("ikf");
   const btnLookup = document.getElementById("btnLookup");
   const previewWrap = document.getElementById("previewWrap");
- const pv_summary = document.getElementById("pv_summary");
-  const pv_first = document.getElementById("pv_first_name");
-  const pv_last  = document.getElementById("pv_last_name");
-  const pv_gender= document.getElementById("pv_gender");
-  const pv_dob   = document.getElementById("pv_dob");
-  const pv_mobile= document.getElementById("pv_mobile");
-  const pv_email = document.getElementById("pv_email");
-  const pv_course= document.getElementById("pv_course");
+
+  const pv_summary = document.getElementById("pv_summary");
+  const pv_first   = document.getElementById("pv_first_name");
+  const pv_gender  = document.getElementById("pv_gender");
+  const pv_dob     = document.getElementById("pv_dob");
+  const pv_mobile  = document.getElementById("pv_mobile");
+  const pv_email   = document.getElementById("pv_email");
+  const pv_course  = document.getElementById("pv_course");
 
   const discountForm = document.getElementById("discountForm");
-  const discountCode = document.getElementById("discount_code");
-  const hiddenCourse = document.getElementById("course");
-
   const priceBox     = document.getElementById("priceBox");
   const amountFinal  = document.getElementById("amountFinal");
+  const btnConfirm   = document.getElementById("btnConfirm");
   const btnPay       = document.getElementById("btnPay");
 
-  let currentIKF = null;
+  let typedIKFLevel1 = null;   // what user typed
+  let cachedName = "", cachedEmail = "", cachedMobile = "";
 
   function courseLabelById(id){
     const sel = document.getElementById("course_map");
     const opt = Array.from(sel.options).find(o => o.value == id);
-    return opt ? opt.textContent.trim() : "";
+    if (!opt) return "";
+    const base = opt.dataset.name || opt.textContent.trim();
+    return base
+      .replace(/\s*[–-]?\s*Fees\b.*$/i, "")      // remove trailing “Fees …”
+      .replace(/\s*[–-]\s*₹\s*\d[\d,.\s]*/gi, "")// remove “- ₹xxxx”
+      .trim();
   }
-  function fillPreview(s){
-        const fullName = [s.first_name, s.last_name].filter(Boolean).join(' ').trim();
-  
-    pv_first.textContent  = fullName || "—";
 
+  function fillPreview(s){
+    const fullName = [s.first_name, s.last_name].filter(Boolean).join(' ').trim();
+    pv_first.textContent  = fullName || "—";
     pv_gender.textContent = s.gender || "—";
     pv_dob.textContent    = s.dob || "—";
     pv_mobile.textContent = s.mobile || "—";
     pv_email.textContent  = s.email || "—";
     pv_course.textContent = s.course ? courseLabelById(s.course) : "—";
 
+    cachedName   = fullName;
+    cachedEmail  = s.email || "";
+    cachedMobile = s.mobile || "";
 
-    pv_summary.textContent = fullName? `${fullName}, your following details are stored with us.`
-    : `Your following details are stored with us.`;
+    pv_summary.textContent = fullName
+      ? `${fullName}, your following details are stored with us.`
+      : `Your following details are stored with us.`;
   }
 
-  // LOOKUP
+  // VERIFY
   btnLookup.addEventListener("click", function(){
     const ikf = (ikfEl.value || "").trim();
-    if (!ikf) return alert("Enter IKF Unique ID.");
+    if (!ikf){ showModal('Missing ID', 'Enter IKF SCOUT ID.', 'warning'); return; }
+    typedIKFLevel1 = ikf;
 
-    const fd = new FormData();
-    fd.append("ikfuniqueid", ikf);
-
-    // reset view
     previewWrap.style.display = "none";
     priceBox.style.display = "none";
     btnPay.disabled = true;
+
+    const fd = new FormData();
+    fd.append("ikf_level_1_id", ikf);
 
     fetch(URL_PREFILL, {
       method: "POST",
@@ -328,93 +345,120 @@ const csrftoken = getCookie('csrftoken');
       headers: { "X-CSRFToken": csrftoken },
       credentials: "same-origin"
     })
-    .then(r => {
-      if (!r.ok) return r.text().then(t => { throw new Error(t || "Lookup failed"); });
-      return r.json();
-    })
+    .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || "Verification failed"); }); return r.json(); })
     .then(({scout, level2}) => {
-      currentIKF = scout.ikfuniqueid;
-
-      // set preview
       fillPreview(scout);
-
-      // set hidden course for save
-      const cid = (level2 && level2.course) ? level2.course : scout.course;
-      hiddenCourse.value = cid || "";
-
-      // discount shown if any
-      discountCode.value = (level2 && level2.discount_code) ? level2.discount_code : "";
-
-      // amount shown if already saved earlier
-      if (level2 && level2.final_amount){
-        amountFinal.textContent = level2.final_amount;
-        priceBox.style.display = "block";
-      } else {
-        priceBox.style.display = "none";
-      }
-
-      btnPay.disabled = false;         // one-click pay (will save first)
+      priceBox.style.display = "none";
+      btnPay.disabled = true;
       previewWrap.style.display = "block";
+      currentIKF      = scout.ikfuniqueid;     // already there
+      currentLevel1Id = scout.ikf_level_1_id;  // <-- add th
     })
-    .catch(err => alert(err.message || "IKF not found"));
+    .catch(err => showModal('Verification failed', err.message || 'Could not verify your ID.'));
   });
 
-  // SINGLE BUTTON: save (apply discount) + order + redirect
-  btnPay.addEventListener("click", async function(){
-    if (!currentIKF) return alert("Lookup first using IKF Unique ID!");
+  // CONFIRM
+  btnConfirm.addEventListener("click", function(){
+    if (!typedIKFLevel1){
+      showModal('Verify First', 'Please verify your IKF SCOUT ID before confirming.', 'warning'); return;
+    }
+    const saveFd = new FormData(discountForm);
+    saveFd.append("ikf_level_1_id", typedIKFLevel1);
+
+    fetch(URL_SAVE, {
+      method: "POST",
+      body: saveFd,
+      headers: { "X-CSRFToken": csrftoken },
+      credentials: "same-origin"
+    })
+    .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || "Could not confirm"); }); return r.json(); })
+    .then(json => {
+      amountFinal.textContent = json.final_amount || "0.00";
+      priceBox.style.display = "block";
+      btnPay.disabled = false;
+      showModal('Saved', 'Your Level-2 application has been saved. You can proceed to payment.', 'success');
+    })
+    .catch(err => showModal('Confirmation failed', err.message || 'Unable to save Level-2 application.'));
+  });
+
+  // PROCEED TO PAY → order + open Razorpay Checkout (on this page). On success, save status + trigger WhatsApp.
+  btnPay.addEventListener("click", function(){
+    if (!typedIKFLevel1){
+      showModal('Verify First', 'Please verify your IKF SCOUT ID before payment.', 'warning'); return;
+    }
+    if (!RZP_KEY){
+      showModal('Payment unavailable', 'Razorpay key is not configured.', 'danger'); return;
+    }
 
     btnPay.disabled = true;
-    const originalText = btnPay.textContent;
-    btnPay.textContent = "Processing...";
+    const orderFd = new FormData();
+    orderFd.append("ikf_level_1_id", typedIKFLevel1);
 
-    try {
-      // 1) SAVE (apply discount if any)
-      const saveFd = new FormData(discountForm);
-      saveFd.append("ikfuniqueid", currentIKF);
+    fetch(URL_ORDER, {
+      method: "POST",
+      body: orderFd,
+      headers: { "X-CSRFToken": csrftoken },
+      credentials: "same-origin"
+    })
+    .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || "Order creation failed"); }); return r.json(); })
+    .then(res => {
+      if (!res.order_id) throw new Error("Order creation failed");
 
-      const saveRes = await fetch(URL_SAVE, {
-        method: "POST",
-        body: saveFd,
-        headers: { "X-CSRFToken": csrftoken },
-        credentials: "same-origin"
-      });
-      if (!saveRes.ok) {
-        const msg = await saveRes.text();
-        throw new Error(msg || "Save failed");
-      }
-      const saveJson = await saveRes.json();
-      if (saveJson.error) throw new Error(saveJson.message || "Could not save");
-      if (saveJson.final_amount) {
-        amountFinal.textContent = saveJson.final_amount;
-        priceBox.style.display = "block";
-      }
+      const amountRs = Number(res.amount || amountFinal.textContent || "0");
+      const options = {
+        key: RZP_KEY,
+        order_id: res.order_id,
+        amount: Math.round(amountRs * 100),  // paise (optional when order_id present)
+        currency: "INR",
+        name: "India Khelo Football",
+        description: "Level-2 Course Fee",
+        prefill: {
+          name: cachedName || "",
+          email: cachedEmail || "",
+          contact: cachedMobile || ""
+        },
+        theme: { color: "#0d6efd" },
+        handler: function (response) {
+          const stFd = new FormData();
+          stFd.append("ikf_level_1_id", typedIKFLevel1);
+          stFd.append("razorpay_order_id", response.razorpay_order_id || "");
+          stFd.append("razorpay_payment_id", response.razorpay_payment_id || "");
+          stFd.append("razorpay_signature", response.razorpay_signature || "");
 
-      // 2) ORDER
-      const orderFd = new FormData();
-      orderFd.append("ikfuniqueid", currentIKF);
+          fetch("{% url 'level2_payment_status' %}", {
+            method: "POST",
+            body: stFd,
+            headers: { "X-CSRFToken": csrftoken },
+            credentials: "same-origin"
+          })
+          .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || "Unable to record payment"); }); return r.json(); })
+          .then(j => {
+            showModal('Payment successful', 'Your payment was recorded successfully. You will receive a WhatsApp confirmation shortly.', 'success');
+              const q = currentLevel1Id
+              ? `?ikf_level_1_id=${encodeURIComponent(currentLevel1Id)}`
+              : (currentIKF ? `?ikfuniqueid=${encodeURIComponent(currentIKF)}` : '');
 
-      const orderRes = await fetch(URL_ORDER, {
-        method: "POST",
-        body: orderFd,
-        headers: { "X-CSRFToken": csrftoken },
-        credentials: "same-origin"
-      });
-      if (!orderRes.ok) {
-        const msg = await orderRes.text();
-        throw new Error(msg || "Order creation failed");
-      }
-      const orderJson = await orderRes.json();
-      if (!orderJson.order_id) throw new Error("Order creation failed");
+  // Option A: redirect immediately
+  window.location.href = `${PASS_URL_NAVIGATION}${q}`;
+          })
+          .catch(err => showModal('Payment saved with issues', err.message || 'Payment succeeded, but we could not record status.'));
+          btnPay.disabled = false;
+        },
+        modal: {
+          ondismiss: function () {
+            btnPay.disabled = false;
+            showModal('Payment cancelled', 'You closed the payment window. You can try again.', 'warning');
+          }
+        }
+      };
 
-      // 3) redirect to shared payment page
-      sessionStorage.setItem("level2_order_id", orderJson.order_id);
-      window.location = URL_PAYMENT;
-
-    } catch (e) {
-      alert(e.message || "Something went wrong");
+      const rzp = new Razorpay(options);
+      rzp.open();
+    })
+    .catch(err => {
       btnPay.disabled = false;
-      btnPay.textContent = originalText;
-    }
+      showModal('Order creation failed', err.message || 'Unable to create payment order.');
+    });
   });
 })();
 </script>

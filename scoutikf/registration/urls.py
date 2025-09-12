@@ -53,11 +53,15 @@ urlpatterns = [
 
 
 
-    path("level2", views_level2.level2_form, name="level2_form"),                    # GET → page
+  path("level2", views_level2.level2_form, name="level2_form"),                    # GET → page
     path("level2/prefill", views_level2.level2_prefill, name="level2_prefill"),      # POST
-    path("level2/save", views_level2.level2_save, name="level2_save"),               # POST
-    path("level2/order", views_level2.level2_order, name="level2_order"),            # POST
-    path("level2/payment-status", views_level2.level2_payment_status, name="level2_payment_status"),  # POST
+    path("level2/save", views_level2.level2_save, name="level2_save"),               # POST (Confirm)
+    path("level2/order", views_level2.level2_order, name="level2_order"),            # POST (Create Razorpay order)
+    path("level2/payment-status", views_level2.level2_payment_status, name="level2_payment_status"),  # POST (optional)
+    path("level2/level2_pass", views_level2.level2_pass, name="level2_pass"),
+
+
+  # POST
 
 
 
