@@ -1,6 +1,8 @@
 # registration/views_level2.py
 from decimal import Decimal
 import threading
+import requests
+import json
 
 from django.conf import settings
 from django.db import transaction
@@ -20,8 +22,50 @@ try:
     from .utils import send_whatsapp_public_message, interakt_add_user
 except Exception:
     # fallbacks: define no-op if not available to avoid crashes
-    def send_whatsapp_public_message(*args, **kwargs):
-        return None
+    def send_whatsapp_public_message(mobilenumber: str, firstname: str, lastname: str):
+        url = 'https://api.interakt.ai/v1/public/message/'
+        api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+        print('mobilenumber')
+        print(mobilenumber)
+        headers = {
+            'Authorization': f'Basic {api_key}',
+            'Content-Type': 'application/json'
+        }
+        payload = {
+            'countryCode': '+91',
+            'phoneNumber': mobilenumber,
+            'callbackData': 'Succesfully sent Message',
+            'type': 'Template',
+            'template': {
+                'name': 'cfsa_level_2_certification',
+                'languageCode': 'en',
+                'headerValues': [
+                    
+                ],
+                'bodyValues': [
+                    firstname
+            
+                    
+                ]
+            }
+        }
+        try:
+            response = requests.post(url, headers=headers, data=json.dumps(payload))
+            if response.status_code >= 200 and response.status_code < 300:
+                # The request was successful, do something here
+                print("Public message API request was successful!")
+                # obj.whatsapp_sent=True
+                # obj.save()
+            else:
+                # The request failed, handle the error here
+                print(f"Public message API request failed with status code {response.status_code}")
+                print(response.content)
+                return None
+
+        except Exception as e:
+            print(e)
+            
+            return None
     def interakt_add_user(*args, **kwargs):
         return None
 
@@ -271,16 +315,16 @@ def level2_payment_status(request):
     try:
         t1 = threading.Thread(
             target=send_whatsapp_public_message,
-            args=(scout.mobile, scout.first_name or "", scout.last_name or "", l2),
+            args=(scout.mobile, scout.first_name or "", scout.last_name or ""),
             daemon=True,
         )
-        t2 = threading.Thread(
-            target=interakt_add_user,
-            args=(scout.mobile, scout.first_name or "", scout.last_name or "", l2),
-            daemon=True,
-        )
+        # t2 = threading.Thread(
+        #     target=interakt_add_user,
+        #     args=(scout.mobile, scout.first_name or "", scout.last_name or "", l2),
+        #     daemon=True,
+        # )
         t1.start()
-        t2.start()
+        # t2.start()
         # If you prefer blocking until both finish:
         # t1.join(); t2.join()
     except Exception:
@@ -341,7 +385,7 @@ def level2_pass(request):
             pic_url = default_pic
 
     # Barcode path from your convention
-    barcode_url = f"/media/barcode/{scout.ikfuniqueid}.png" if scout.ikfuniqueid else ""
+    barcode_url = f"/media/level2bacrcode/{scout.ikf_level_1_id}.png" if scout.ikf_level_1_id else ""
 
     context = {
         **labels,
