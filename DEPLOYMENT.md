@@ -34,7 +34,9 @@ Useful commands:
 3. Copy `.env.example` to `.env` and replace all placeholders.
 4. Set the real Scout hostname and CSRF origin.
 5. Add real database and integration credentials.
-6. Run `./scoutctl preflight`.
+6. Allow host nginx to traverse the deployment home without exposing its
+   contents: `chown scoutdeploy:www-data /opt/scout && chmod 750 /opt/scout`.
+7. Run `./scoutctl preflight`.
 
 This legacy repository has no registration migration history. Do not use
 `migrate --run-syncdb` or generate production migrations until the existing
