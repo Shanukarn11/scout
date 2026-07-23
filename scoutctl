@@ -91,9 +91,11 @@ run_dev_checks() {
     info "Django version"
     "${DEV[@]}" run --rm --no-deps web python -m django --version
     info "Python dependency check"
-    "${DEV[@]}" run --rm --no-deps web python -m pip check
+    "${DEV[@]}" run --rm --no-deps -e PIP_NO_CACHE_DIR=1 web python -m pip check
     info "Python compilation"
-    "${DEV[@]}" run --rm --no-deps web python -m compileall -q \
+    "${DEV[@]}" run --rm --no-deps \
+        -e PYTHONPYCACHEPREFIX=/tmp/scout-pycache \
+        web python -m compileall -q \
         manage.py scoutikf registration dashboard login coachlogin teams
     info "Django system check"
     "${DEV[@]}" run --rm --no-deps web python manage.py check
