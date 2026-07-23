@@ -453,7 +453,12 @@ case "$command" in
     makemigrations)
         ensure_tools
         ensure_env
-        "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations "$@"
+        # Migration files are written into the bind-mounted source tree. Use the
+        # invoking WSL user's UID/GID so generated files remain editable locally.
+        "${DEV[@]}" run --rm --no-deps \
+            --user "$(id -u):$(id -g)" \
+            -e HOME=/tmp \
+            web python manage.py makemigrations "$@"
         ;;
     migrate)
         migrate_mysql "$@"
