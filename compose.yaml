@@ -23,4 +23,4 @@ networks:
     name: scout-site_default
     ipam:
       config:
-        - subnet: 172.19.0.0/16
+        - subnet: ${SCOUT_DOCKER_SUBNET:-172.19.0.0/16}
