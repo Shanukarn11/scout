@@ -219,7 +219,8 @@ create_backup() {
 
     info "Backing up MySQL to $output"
     "${BASE[@]}" run --rm --no-deps web sh -c \
-        'exec mariadb-dump --single-transaction --quick --routines --triggers --events --hex-blob \
+        'exec mariadb-dump --skip-ssl-verify-server-cert \
+        --single-transaction --quick --routines --triggers --events --hex-blob \
         --host="$DB_HOST" --port="${DB_PORT:-3306}" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME"' \
         | gzip -9 >"$output"
     [[ -s "$output" ]] || die "Database backup is empty: $output"
@@ -266,7 +267,7 @@ deploy_production() {
     prepare_persistent_storage
 
     info "Checking dependencies in the production image"
-    "${BASE[@]}" run --rm --no-deps web python -m pip check
+    "${BASE[@]}" run --rm --no-deps -e PIP_NO_CACHE_DIR=1 web python -m pip check
     info "Running Django deployment checks"
     "${BASE[@]}" run --rm --no-deps web python manage.py check --deploy
 
