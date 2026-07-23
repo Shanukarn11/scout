@@ -83,9 +83,9 @@ venv/
 # Django Stuff
 # =========================
 
-# Migrations (ignore all except __init__.py)
-**/migrations/*
-!**/migrations/__init__.py
+# Django migrations define the production database schema and must be version-controlled.
+!**/migrations/
+!**/migrations/*.py
 
 # Media & Static files
 media/

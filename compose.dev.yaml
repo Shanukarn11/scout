@@ -8,7 +8,5 @@ services:
       DJANGO_DEBUG: "true"
       DJANGO_SESSION_COOKIE_SECURE: "false"
       DJANGO_CSRF_COOKIE_SECURE: "false"
-      DB_ENGINE: sqlite
-      SQLITE_PATH: /app/scoutikf/db.sqlite3
     volumes:
       - ./scoutikf:/app/scoutikf

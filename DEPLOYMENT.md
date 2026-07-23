@@ -14,9 +14,10 @@ The Scout checkout is `/home/scout/scout`.
     ./scoutctl init
     ./scoutctl setup
 
-`setup` builds the image, applies SQLite development migrations, starts the
+`setup` builds the image, applies MySQL development migrations, starts the
 service, checks dependencies, compiles Python, checks Django, detects migration
-drift, runs tests, verifies the database connection, and checks HTTP health.
+drift, verifies the MySQL connection, and checks HTTP health. Automated tests
+run only against GitHub Actions' disposable MySQL service.
 
 Useful commands:
 
@@ -33,8 +34,7 @@ Useful commands:
 3. Copy `.env.example` to `.env` and replace all placeholders.
 4. Set the real Scout hostname and CSRF origin.
 5. Add real database and integration credentials.
-6. Keep `DB_ENGINE=mysql`.
-7. Run `./scoutctl preflight`.
+6. Run `./scoutctl preflight`.
 
 This legacy repository has no registration migration history. Do not use
 `migrate --run-syncdb` or generate production migrations until the existing

@@ -13,6 +13,19 @@ permissions:
 jobs:
   container:
     runs-on: ubuntu-24.04
+    services:
+      mysql:
+        image: mysql:8.4
+        env:
+          MYSQL_DATABASE: scout
+          MYSQL_ROOT_PASSWORD: scout-ci-root
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping -h 127.0.0.1 -pscout-ci-root"
+          --health-interval=5s
+          --health-timeout=5s
+          --health-retries=20
     steps:
       - uses: actions/checkout@v4
       - uses: docker/setup-buildx-action@v3
@@ -29,11 +42,12 @@ jobs:
           tags: scout-site:test
       - name: Validate image
         run: |
-          docker run --rm -e DJANGO_DEBUG=true -e DB_ENGINE=sqlite scout-site:test python -m pip check
-          docker run --rm -e DJANGO_DEBUG=true -e DB_ENGINE=sqlite scout-site:test python -m compileall -q manage.py scoutikf registration dashboard login coachlogin teams
-          docker run --rm -e DJANGO_DEBUG=true -e DB_ENGINE=sqlite scout-site:test python manage.py check
-          docker run --rm -e DJANGO_DEBUG=true -e DB_ENGINE=sqlite scout-site:test python manage.py makemigrations --check --dry-run
-          docker run --rm -e DJANGO_DEBUG=true -e DB_ENGINE=sqlite scout-site:test python manage.py test
+          ENV_ARGS="--network host -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306"
+          docker run --rm $ENV_ARGS scout-site:test python -m pip check
+          docker run --rm $ENV_ARGS scout-site:test python -m compileall -q manage.py scoutikf registration dashboard login coachlogin teams
+          docker run --rm $ENV_ARGS scout-site:test python manage.py check --database default
+          docker run --rm $ENV_ARGS scout-site:test python manage.py makemigrations --check --dry-run
+          docker run --rm $ENV_ARGS scout-site:test python manage.py test
       - uses: docker/build-push-action@v6
         if: github.event_name != 'pull_request'
         with:

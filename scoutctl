@@ -49,19 +49,17 @@ ensure_safe_name() {
 
 validate_production_env() {
     ensure_env
-    local secret password hosts image db_engine
+    local secret password hosts image
     secret="$(env_value DJANGO_SECRET_KEY)"
     password="$(env_value DB_PASSWORD)"
     hosts="$(env_value DJANGO_ALLOWED_HOSTS)"
     image="$(env_value SCOUT_IMAGE)"
-    db_engine="$(env_value DB_ENGINE)"
 
     [[ ${#secret} -ge 40 ]] || die "DJANGO_SECRET_KEY must contain at least 40 characters."
     [[ "$secret" != *replace-* ]] || die "DJANGO_SECRET_KEY is still a placeholder."
     [[ -n "$password" && "$password" != *replace-* ]] || die "DB_PASSWORD is missing or still a placeholder."
     [[ -n "$hosts" && "$hosts" != *example.com* ]] || die "DJANGO_ALLOWED_HOSTS is missing or still an example."
     [[ -n "$image" ]] || die "SCOUT_IMAGE is missing."
-    [[ "${db_engine,,}" == "mysql" ]] || die "Production DB_ENGINE must be mysql."
     ensure_safe_name "DB_NAME" "$(env_value DB_NAME)"
     ensure_safe_name "DB_USER" "$(env_value DB_USER)"
 }
@@ -101,9 +99,7 @@ run_dev_checks() {
     "${DEV[@]}" run --rm --no-deps web python manage.py check
     info "Migration drift check"
     "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations --check --dry-run
-    info "Tests"
-    "${DEV[@]}" run --rm --no-deps web python manage.py test
-    info "SQLite development database connection"
+    info "MySQL development database connection"
     "${DEV[@]}" run --rm --no-deps web python manage.py shell -c \
         "from django.db import connection; connection.ensure_connection(); print('Vendor:', connection.vendor, 'Database:', connection.settings_dict['NAME'])"
 }
@@ -112,14 +108,30 @@ check_mysql() {
     ensure_tools
     ensure_env
     info "Checking configured MySQL database"
-    "${DEV[@]}" run --rm --no-deps -e DB_ENGINE=mysql web python manage.py shell -c \
+    "${DEV[@]}" run --rm --no-deps web python manage.py shell -c \
         "from django.db import connection; connection.ensure_connection(); cursor=connection.cursor(); cursor.execute('SELECT VERSION(), DATABASE(), @@character_set_database, @@collation_database'); version, name, charset, collation=cursor.fetchone(); print(f'Connected: {name} MySQL {version} Charset: {charset} Collation: {collation}')"
 }
 
 bootstrap_mysql() {
     ensure_env
-    need_command mysql
+    local admin_mode="${1:-password}"
     local db_name db_user db_password allowed_host escaped_password confirmation
+    local -a mysql_admin
+
+    case "$admin_mode" in
+        --sudo)
+            need_command sudo
+            mysql_admin=(sudo mysql)
+            ;;
+        --password|password)
+            need_command mysql
+            mysql_admin=(mysql -u root -p)
+            ;;
+        *)
+            die "Usage: ./scoutctl db-bootstrap [--sudo|--password]"
+            ;;
+    esac
+
     db_name="$(env_value DB_NAME)"
     db_user="$(env_value DB_USER)"
     db_password="$(env_value DB_PASSWORD)"
@@ -136,7 +148,7 @@ bootstrap_mysql() {
     read -r -p "Type the database name to continue: " confirmation
     [[ "$confirmation" == "$db_name" ]] || die "Database name did not match; nothing was changed."
 
-    mysql -u root -p <<SQL
+    "${mysql_admin[@]}" <<SQL
 CREATE DATABASE IF NOT EXISTS \`$db_name\`
   CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
 CREATE USER IF NOT EXISTS '$db_user'@'$allowed_host'
@@ -158,6 +170,21 @@ schema_plan() {
     info "Planning migrations for '$app' without writing files"
     "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations \
         "$app" --dry-run --verbosity 3 "$@"
+}
+
+migrate_mysql() {
+    ensure_tools
+    ensure_env
+    local db_name confirmation
+    db_name="$(env_value DB_NAME)"
+    ensure_safe_name "DB_NAME" "$db_name"
+    check_mysql
+    warn "This applies Django migrations to MySQL database '$db_name'."
+    read -r -p "Type the database name to continue: " confirmation
+    [[ "$confirmation" == "$db_name" ]] || die "Database name did not match; nothing was changed."
+    "${DEV[@]}" run --rm --no-deps web \
+        python manage.py migrate --noinput "$@"
+    success "MySQL migrations completed."
 }
 
 production_health() {
@@ -300,17 +327,17 @@ Development:
   ./scoutctl stop                 Stop development containers
   ./scoutctl logs                 Follow development logs
   ./scoutctl update               Fast-forward Git, rebuild, migrate, and verify
-  ./scoutctl verify               Run compatibility, drift, test, and DB checks
+  ./scoutctl verify               Run compatibility, drift, and MySQL checks
 
 Django:
   ./scoutctl check                Run Django checks
-  ./scoutctl test [args...]       Run Django tests
-  ./scoutctl db-bootstrap         Create DB/user/grant after confirmation
+  ./scoutctl db-bootstrap [mode]  Create DB/user/grant; mode is --sudo or --password
   ./scoutctl dbcheck              Verify MySQL, charset, and collation
   ./scoutctl schema-plan [app]    Preview migrations without writing files
   ./scoutctl migration-status     Show migrations using configured MySQL
   ./scoutctl makemigrations [app] Generate migrations (development only)
-  ./scoutctl migrate [args...]    Apply development migrations
+  ./scoutctl migrate [args...]    Confirm and apply configured MySQL migrations
+  ./scoutctl migrate-mysql        Alias for migrate
   ./scoutctl static               Collect development static files
   ./scoutctl shell                Open Django shell
   ./scoutctl createsuperuser      Create a Django administrator
@@ -406,15 +433,13 @@ case "$command" in
         "${DEV[@]}" run --rm --no-deps web python manage.py check
         ;;
     test)
-        ensure_tools
-        ensure_env
-        "${DEV[@]}" run --rm --no-deps web python manage.py test "$@"
+        die "Local tests are disabled to keep only the 'scout' database. Tests run in disposable MySQL on GitHub Actions."
         ;;
     dbcheck)
         check_mysql
         ;;
     db-bootstrap)
-        bootstrap_mysql
+        bootstrap_mysql "$@"
         ;;
     schema-plan)
         schema_plan "$@"
@@ -422,7 +447,7 @@ case "$command" in
     migration-status)
         ensure_tools
         ensure_env
-        "${DEV[@]}" run --rm --no-deps -e DB_ENGINE=mysql web \
+        "${DEV[@]}" run --rm --no-deps web \
             python manage.py showmigrations "$@"
         ;;
     makemigrations)
@@ -431,9 +456,10 @@ case "$command" in
         "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations "$@"
         ;;
     migrate)
-        ensure_tools
-        ensure_env
-        "${DEV[@]}" run --rm --no-deps web python manage.py migrate "$@"
+        migrate_mysql "$@"
+        ;;
+    migrate-mysql)
+        migrate_mysql "$@"
         ;;
     static)
         ensure_tools

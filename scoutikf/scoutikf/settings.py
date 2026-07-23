@@ -62,22 +62,16 @@ TEMPLATES = [{
 WSGI_APPLICATION = "scoutikf.wsgi.application"
 ASGI_APPLICATION = "scoutikf.asgi.application"
 
-if os.getenv("DB_ENGINE", "mysql").lower() == "sqlite":
-    DATABASES = {"default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": os.getenv("SQLITE_PATH", BASE_DIR / "db.sqlite3"),
-    }}
-else:
-    DATABASES = {"default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": os.getenv("DB_NAME", "scout"),
-        "USER": os.getenv("DB_USER", "scout"),
-        "PASSWORD": os.getenv("DB_PASSWORD", ""),
-        "HOST": os.getenv("DB_HOST", "127.0.0.1"),
-        "PORT": os.getenv("DB_PORT", "3306"),
-        "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
-        "OPTIONS": {"charset": "utf8mb4"},
-    }}
+DATABASES = {"default": {
+    "ENGINE": "django.db.backends.mysql",
+    "NAME": os.getenv("DB_NAME", "scout"),
+    "USER": os.getenv("DB_USER", "scout"),
+    "PASSWORD": os.getenv("DB_PASSWORD", ""),
+    "HOST": os.getenv("DB_HOST", "127.0.0.1"),
+    "PORT": os.getenv("DB_PORT", "3306"),
+    "CONN_MAX_AGE": int(os.getenv("DB_CONN_MAX_AGE", "60")),
+    "OPTIONS": {"charset": "utf8mb4"},
+}}
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
