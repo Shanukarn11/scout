@@ -219,7 +219,7 @@ create_backup() {
 
     info "Backing up MySQL to $output"
     "${BASE[@]}" run --rm --no-deps web sh -c \
-        'exec mariadb-dump --skip-ssl-verify-server-cert \
+        'exec mariadb-dump --skip-ssl-verify-server-cert --no-tablespaces \
         --single-transaction --quick --routines --triggers --events --hex-blob \
         --host="$DB_HOST" --port="${DB_PORT:-3306}" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME"' \
         | gzip -9 >"$output"
@@ -227,6 +227,28 @@ create_backup() {
     gzip -t "$output"
     sha256sum "$output" >"$output.sha256"
     success "Verified backup: $output"
+}
+
+import_mysql() {
+    ensure_tools
+    validate_production_env
+    local input="${1:-}" db_name confirmation
+    [[ -n "$input" ]] || die "Usage: ./scoutctl db-import <sql-file>"
+    [[ -f "$input" && -s "$input" ]] || die "SQL file is missing or empty: $input"
+
+    db_name="$(env_value DB_NAME)"
+    ensure_safe_name "DB_NAME" "$db_name"
+    warn "This imports '$input' into MySQL database '$db_name'."
+    read -r -p "Type the database name to continue: " confirmation
+    [[ "$confirmation" == "$db_name" ]] || die "Database name did not match; nothing was changed."
+
+    create_backup
+    info "Importing SQL into MySQL database '$db_name'"
+    "${BASE[@]}" run --rm -T --no-deps web sh -c \
+        'MYSQL_PWD="$DB_PASSWORD" exec mariadb --skip-ssl-verify-server-cert \
+        --host="$DB_HOST" --port="${DB_PORT:-3306}" --user="$DB_USER" "$DB_NAME"' \
+        <"$input"
+    success "SQL import completed."
 }
 
 acquire_deploy_lock() {
@@ -336,6 +358,7 @@ Django:
   ./scoutctl check                Run Django checks
   ./scoutctl db-bootstrap [mode]  Create DB/user/grant; mode is --sudo or --password
   ./scoutctl dbcheck              Verify MySQL, charset, and collation
+  ./scoutctl db-import FILE       Back up, confirm, and import SQL into production MySQL
   ./scoutctl schema-plan [app]    Preview migrations without writing files
   ./scoutctl migration-status     Show migrations using configured MySQL
   ./scoutctl makemigrations [app] Generate migrations (development only)
@@ -440,6 +463,9 @@ case "$command" in
         ;;
     dbcheck)
         check_mysql
+        ;;
+    db-import)
+        import_mysql "$@"
         ;;
     db-bootstrap)
         bootstrap_mysql "$@"
