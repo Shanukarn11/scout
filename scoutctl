@@ -469,6 +469,8 @@ case "$command" in
     static)
         ensure_tools
         ensure_env
+        ensure_directories
+        prepare_persistent_storage development
         "${DEV[@]}" run --rm --no-deps web python manage.py collectstatic --noinput
         ;;
     shell)
