@@ -24,7 +24,7 @@ except Exception:
     # fallbacks: define no-op if not available to avoid crashes
     def send_whatsapp_public_message(mobilenumber: str, firstname: str, lastname: str):
         url = 'https://api.interakt.ai/v1/public/message/'
-        api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+        api_key = settings.INTERAKT_API_KEY
         print('mobilenumber')
         print(mobilenumber)
         headers = {

@@ -1,0 +1,10 @@
+.env
+.venv/
+__pycache__/
+*.py[cod]
+*.log
+.pytest_cache/
+staticfiles/
+docker-data/
+backups/
+.deploy/

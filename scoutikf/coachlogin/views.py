@@ -34,9 +34,9 @@ from barcode.writer import ImageWriter
 import barcode
 import oss2
 
-OSS_ACCESS_KEY_ID = "LTAI5tJoy1BhmrzS6vWDM73F"
-OSS_ACCESS_KEY_SECRET = "WUEAB6baG5LI17dLy3vkGfAi9pVwlS"
-OSS_BUCKET_NAME = "ikfseason2"
+OSS_ACCESS_KEY_ID = settings.OSS_ACCESS_KEY_ID
+OSS_ACCESS_KEY_SECRET = settings.OSS_ACCESS_KEY_SECRET
+OSS_BUCKET_NAME = settings.OSS_BUCKET_NAME
 OSS_BUCKET_ACL = "public-read"  # private, public-read, public-read-write
 
 
@@ -143,7 +143,7 @@ def order(request):
         # data['']
         amount*=100
         client = razorpay.Client(
-            auth=("rzp_test_ahDEPkxQSa6Ykb", "wtkc1kSruJq0bAjevDepqbjJ"))
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         DATA = {
             "amount": amount,
             "currency": "INR",

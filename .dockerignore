@@ -1,0 +1,12 @@
+.git
+.github
+.env
+.venv
+**/__pycache__
+**/*.pyc
+scoutikf/node_modules
+scoutikf/assets
+scoutikf/media
+scoutikf/staticfiles
+docker-data
+backups

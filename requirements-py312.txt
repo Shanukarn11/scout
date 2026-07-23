@@ -1,0 +1,19 @@
+Django~=5.2.0
+gunicorn~=23.0
+mysqlclient~=2.2
+# Razorpay 1.4 imports pkg_resources, which setuptools 81 removes.
+setuptools>=75,<81
+cryptography~=45.0
+django-oss-storage~=1.1
+ghostscript~=0.8
+matplotlib~=3.10
+numpy~=2.2
+oss2~=2.19
+pandas~=2.2
+Pillow~=11.3
+python-barcode~=0.16
+qrcode~=8.2
+razorpay~=1.4
+requests~=2.32
+treepoem~=3.28
+whitenoise~=6.9

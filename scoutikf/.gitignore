@@ -138,7 +138,7 @@ node_modules/
 # IMPORTANT (DO NOT IGNORE THESE)
 # =========================
 # Keep settings tracked (recommended)
-settings.py
+!scoutikf/settings.py
 
 # If you REALLY want to ignore settings (not recommended)
 # then use only project-specific path:

@@ -1,4 +1,10 @@
-from django.test import TestCase
+from django.test import SimpleTestCase
+from django.urls import reverse
 
-# Create your tests here.
-url="https://www.youtube.com/watch?v=lx0I_nsxvPc"
+
+class HealthCheckTests(SimpleTestCase):
+    def test_health_endpoint(self):
+        response = self.client.get(reverse("health"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.json(), {"status": "ok"})

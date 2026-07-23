@@ -1,4 +1,3 @@
-from sre_parse import State
 from django.contrib import admin
 from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
@@ -284,4 +283,3 @@ class ScoutLevel2Admin(admin.ModelAdmin):
         return obj.course_id or "-"
     course_name.short_description = "Course"
 
-    

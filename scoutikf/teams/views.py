@@ -1,4 +1,3 @@
-from asyncore import loop
 # from doctest import ELLIPSIS_MARKER
 # from turtle import position
 from django.shortcuts import render

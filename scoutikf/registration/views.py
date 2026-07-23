@@ -41,13 +41,13 @@ from barcode.writer import ImageWriter
 import barcode
 import oss2
 
-OSS_ACCESS_KEY_ID = "LTAI5tJoy1BhmrzS6vWDM73F"
-OSS_ACCESS_KEY_SECRET = "WUEAB6baG5LI17dLy3vkGfAi9pVwlS"
-OSS_BUCKET_NAME = "ikfseason2"
+OSS_ACCESS_KEY_ID = settings.OSS_ACCESS_KEY_ID
+OSS_ACCESS_KEY_SECRET = settings.OSS_ACCESS_KEY_SECRET
+OSS_BUCKET_NAME = settings.OSS_BUCKET_NAME
 OSS_BUCKET_ACL = "public-read"  # private, public-read, public-read-write
 
 # # Refer https://www.alibabacloud.com/help/zh/doc-detail/31837.htm about endpoint
-OSS_ENDPOINT = "oss-ap-south-1.aliyuncs.com"
+OSS_ENDPOINT = settings.OSS_ENDPOINT
 
 def amount(request):
     if request.method == "POST":
@@ -63,7 +63,7 @@ def amount(request):
 
 def send_whatsapp_public_message(mobilenumber,firstname,lastname,obj):
     url = 'https://api.interakt.ai/v1/public/message/'
-    api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+    api_key = settings.INTERAKT_API_KEY
     print('mobilenumber')
     print(mobilenumber)
     headers = {
@@ -111,7 +111,7 @@ def interakt_add_user(mobilenumber,firstname,lastname,obj):
     # secondary_position=MasterPosition.objects.get(id=obj.secondary_position_id).label
     
     url = 'https://api.interakt.ai/v1/public/track/users/'
-    api_key = 'aWZNYkJ4UWFBTG5nUTZZVHdDTndLQ0ViZTV4d1o4cHBiNGdGV1Joc01SNDo='
+    api_key = settings.INTERAKT_API_KEY
     print('mobilenumber')
     print(mobilenumber)
     headers = {
@@ -165,7 +165,7 @@ def order(request):
         playerdata = Scout
 
         client = razorpay.Client(
-            auth=("rzp_live_KlzrczXDhMbptD", "VVQDQYdjlQp7LM2f9mouLOwK"))
+            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
         DATA = {
             "amount": amount,
             "currency": "INR",
@@ -1033,7 +1033,10 @@ def update_scout_payment_status(request):
         # Call Razorpay API to check the payment status
         try:
             order_api_url = f"https://api.razorpay.com/v1/orders/{scout.order_id}"
-            response = requests.get(order_api_url, auth=("rzp_live_KlzrczXDhMbptD", "VVQDQYdjlQp7LM2f9mouLOwK"))
+            response = requests.get(
+                order_api_url,
+                auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET),
+            )
             response.raise_for_status()  # Raise an exception for non-2xx responses
             order_status = response.json().get('status')
 

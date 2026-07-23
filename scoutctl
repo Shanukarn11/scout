@@ -1,0 +1,502 @@
+#!/usr/bin/env bash
+set -Eeuo pipefail
+
+ROOT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+cd "$ROOT_DIR"
+
+BASE=(docker compose -f compose.yaml)
+DEV=(docker compose -f compose.yaml -f compose.dev.yaml)
+STATE_DIR="$ROOT_DIR/.deploy"
+BACKUP_DIR="$ROOT_DIR/backups"
+
+info() { printf '\033[1;34m==>\033[0m %s\n' "$*"; }
+success() { printf '\033[1;32mOK:\033[0m %s\n' "$*"; }
+warn() { printf '\033[1;33mWARNING:\033[0m %s\n' "$*" >&2; }
+die() { printf '\033[1;31mERROR:\033[0m %s\n' "$*" >&2; exit 1; }
+
+need_command() {
+    command -v "$1" >/dev/null 2>&1 || die "Required command not found: $1"
+}
+
+ensure_tools() {
+    need_command docker
+    docker compose version >/dev/null 2>&1 || die "Docker Compose plugin is unavailable."
+}
+
+ensure_env() {
+    if [[ ! -f .env ]]; then
+        cp .env.example .env
+        die "Created .env from .env.example. Update it, then rerun the command."
+    fi
+}
+
+env_value() {
+    local key="$1"
+    awk -F= -v key="$key" '
+        $0 !~ /^[[:space:]]*#/ && $1 == key {
+            sub(/^[^=]*=/, "")
+            gsub(/\r$/, "")
+            print
+            exit
+        }
+    ' .env
+}
+
+ensure_safe_name() {
+    local label="$1" value="$2"
+    [[ "$value" =~ ^[A-Za-z0-9_]+$ ]] || die "$label is empty or unsafe: '$value'"
+}
+
+validate_production_env() {
+    ensure_env
+    local secret password hosts image db_engine
+    secret="$(env_value DJANGO_SECRET_KEY)"
+    password="$(env_value DB_PASSWORD)"
+    hosts="$(env_value DJANGO_ALLOWED_HOSTS)"
+    image="$(env_value SCOUT_IMAGE)"
+    db_engine="$(env_value DB_ENGINE)"
+
+    [[ ${#secret} -ge 40 ]] || die "DJANGO_SECRET_KEY must contain at least 40 characters."
+    [[ "$secret" != *replace-* ]] || die "DJANGO_SECRET_KEY is still a placeholder."
+    [[ -n "$password" && "$password" != *replace-* ]] || die "DB_PASSWORD is missing or still a placeholder."
+    [[ -n "$hosts" && "$hosts" != *example.com* ]] || die "DJANGO_ALLOWED_HOSTS is missing or still an example."
+    [[ -n "$image" ]] || die "SCOUT_IMAGE is missing."
+    [[ "${db_engine,,}" == "mysql" ]] || die "Production DB_ENGINE must be mysql."
+    ensure_safe_name "DB_NAME" "$(env_value DB_NAME)"
+    ensure_safe_name "DB_USER" "$(env_value DB_USER)"
+}
+
+ensure_directories() {
+    mkdir -p docker-data/static docker-data/media "$STATE_DIR" "$BACKUP_DIR"
+}
+
+prepare_persistent_storage() {
+    local mode="${1:-production}"
+    info "Preparing persistent storage permissions"
+    if [[ "$mode" == "development" ]]; then
+        "${DEV[@]}" run --rm --no-deps --user 0 --cap-add CHOWN web \
+            chown -R 10001:10001 /app/scoutikf/staticfiles /app/scoutikf/media
+    else
+        "${BASE[@]}" run --rm --no-deps --user 0 --cap-add CHOWN web \
+            chown -R 10001:10001 /app/scoutikf/staticfiles /app/scoutikf/media
+    fi
+}
+
+compose_validate() {
+    "${BASE[@]}" config --quiet
+    "${DEV[@]}" config --quiet
+}
+
+run_dev_checks() {
+    info "Python version"
+    "${DEV[@]}" run --rm --no-deps web python --version
+    info "Django version"
+    "${DEV[@]}" run --rm --no-deps web python -m django --version
+    info "Python dependency check"
+    "${DEV[@]}" run --rm --no-deps web python -m pip check
+    info "Python compilation"
+    "${DEV[@]}" run --rm --no-deps web python -m compileall -q \
+        manage.py scoutikf registration dashboard login coachlogin teams
+    info "Django system check"
+    "${DEV[@]}" run --rm --no-deps web python manage.py check
+    info "Migration drift check"
+    "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations --check --dry-run
+    info "Tests"
+    "${DEV[@]}" run --rm --no-deps web python manage.py test
+    info "SQLite development database connection"
+    "${DEV[@]}" run --rm --no-deps web python manage.py shell -c \
+        "from django.db import connection; connection.ensure_connection(); print('Vendor:', connection.vendor, 'Database:', connection.settings_dict['NAME'])"
+}
+
+check_mysql() {
+    ensure_tools
+    ensure_env
+    info "Checking configured MySQL database"
+    "${DEV[@]}" run --rm --no-deps -e DB_ENGINE=mysql web python manage.py shell -c \
+        "from django.db import connection; connection.ensure_connection(); cursor=connection.cursor(); cursor.execute('SELECT VERSION(), DATABASE(), @@character_set_database, @@collation_database'); version, name, charset, collation=cursor.fetchone(); print(f'Connected: {name} MySQL {version} Charset: {charset} Collation: {collation}')"
+}
+
+bootstrap_mysql() {
+    ensure_env
+    need_command mysql
+    local db_name db_user db_password allowed_host escaped_password confirmation
+    db_name="$(env_value DB_NAME)"
+    db_user="$(env_value DB_USER)"
+    db_password="$(env_value DB_PASSWORD)"
+    allowed_host="$(env_value DB_ALLOWED_HOST)"
+    allowed_host="${allowed_host:-172.19.%}"
+
+    ensure_safe_name "DB_NAME" "$db_name"
+    ensure_safe_name "DB_USER" "$db_user"
+    [[ -n "$db_password" ]] || die "DB_PASSWORD is empty."
+    [[ "$allowed_host" =~ ^[0-9.%]+$ ]] || die "DB_ALLOWED_HOST is unsafe: '$allowed_host'"
+    escaped_password="${db_password//\'/\'\'}"
+
+    warn "This creates database '$db_name' and grants '$db_user' access from '$allowed_host'."
+    read -r -p "Type the database name to continue: " confirmation
+    [[ "$confirmation" == "$db_name" ]] || die "Database name did not match; nothing was changed."
+
+    mysql -u root -p <<SQL
+CREATE DATABASE IF NOT EXISTS \`$db_name\`
+  CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci;
+CREATE USER IF NOT EXISTS '$db_user'@'$allowed_host'
+  IDENTIFIED BY '$escaped_password';
+ALTER USER '$db_user'@'$allowed_host'
+  IDENTIFIED BY '$escaped_password';
+GRANT ALL PRIVILEGES ON \`$db_name\`.* TO '$db_user'@'$allowed_host';
+FLUSH PRIVILEGES;
+SQL
+    success "MySQL database and Docker-network grant are configured."
+    check_mysql
+}
+
+schema_plan() {
+    ensure_tools
+    ensure_env
+    local app="${1:-registration}"
+    shift || true
+    info "Planning migrations for '$app' without writing files"
+    "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations \
+        "$app" --dry-run --verbosity 3 "$@"
+}
+
+production_health() {
+    local port retries url
+    port="$(env_value SCOUT_HOST_PORT)"
+    port="${port:-8010}"
+    retries="$(env_value HEALTHCHECK_RETRIES)"
+    retries="${retries:-30}"
+    url="http://127.0.0.1:${port}/health/"
+
+    info "Waiting for $url"
+    for ((attempt = 1; attempt <= retries; attempt++)); do
+        if curl --fail --silent --show-error --max-time 5 "$url" >/dev/null; then
+            success "Scout is healthy after attempt $attempt."
+            return 0
+        fi
+        sleep 2
+    done
+    return 1
+}
+
+create_backup() {
+    validate_production_env
+    ensure_directories
+    need_command gzip
+    local stamp db_name output
+    stamp="$(date -u +%Y%m%dT%H%M%SZ)"
+    db_name="$(env_value DB_NAME)"
+    output="$BACKUP_DIR/scout-${db_name}-${stamp}.sql.gz"
+
+    info "Backing up MySQL to $output"
+    "${BASE[@]}" run --rm --no-deps web sh -c \
+        'exec mariadb-dump --single-transaction --quick --routines --triggers --events --hex-blob \
+        --host="$DB_HOST" --port="${DB_PORT:-3306}" --user="$DB_USER" --password="$DB_PASSWORD" "$DB_NAME"' \
+        | gzip -9 >"$output"
+    [[ -s "$output" ]] || die "Database backup is empty: $output"
+    gzip -t "$output"
+    sha256sum "$output" >"$output.sha256"
+    success "Verified backup: $output"
+}
+
+acquire_deploy_lock() {
+    ensure_directories
+    need_command flock
+    exec 9>"$STATE_DIR/deploy.lock"
+    flock -n 9 || die "Another Scout deployment is already running."
+}
+
+remember_current_image() {
+    local container image_id
+    container="$("${BASE[@]}" ps -q web)"
+    if [[ -n "$container" ]]; then
+        image_id="$(docker inspect --format '{{.Image}}' "$container")"
+        [[ -n "$image_id" ]] && printf '%s\n' "$image_id" >"$STATE_DIR/previous-image"
+    fi
+}
+
+rollback_image() {
+    [[ -s "$STATE_DIR/previous-image" ]] || die "No previous image has been recorded."
+    local image
+    image="$(<"$STATE_DIR/previous-image")"
+    info "Rolling back to image $image"
+    SCOUT_IMAGE="$image" "${BASE[@]}" up -d --no-deps --force-recreate web
+    production_health || die "Rollback container failed its health check."
+    success "Rollback completed. Database changes were not reversed."
+}
+
+deploy_production() {
+    ensure_tools
+    validate_production_env
+    ensure_directories
+    compose_validate
+    acquire_deploy_lock
+
+    info "Pulling configured image"
+    "${BASE[@]}" pull web
+    prepare_persistent_storage
+
+    info "Checking dependencies in the production image"
+    "${BASE[@]}" run --rm --no-deps web python -m pip check
+    info "Running Django deployment checks"
+    "${BASE[@]}" run --rm --no-deps web python manage.py check --deploy
+
+    create_backup
+    remember_current_image
+
+    info "Applying migrations"
+    "${BASE[@]}" run --rm --no-deps web python manage.py migrate --noinput
+    info "Collecting static assets"
+    "${BASE[@]}" run --rm --no-deps web python manage.py collectstatic --noinput
+    info "Recreating Scout"
+    "${BASE[@]}" up -d --no-deps --force-recreate web
+
+    if ! production_health; then
+        warn "New container failed health verification."
+        if [[ -s "$STATE_DIR/previous-image" ]]; then
+            rollback_image
+        fi
+        die "Deployment failed. Inspect './scoutctl logs'."
+    fi
+
+    "${BASE[@]}" ps
+    printf '%s\n' "$(env_value SCOUT_IMAGE)" >"$STATE_DIR/current-image"
+    success "Scout deployment completed successfully."
+}
+
+doctor() {
+    ensure_tools
+    info "Repository"
+    printf 'Path: %s\n' "$ROOT_DIR"
+    git status --short || true
+    info "Docker"
+    docker --version
+    docker compose version
+    info "Compose configuration"
+    if [[ -f .env ]]; then
+        compose_validate
+        success "Compose files are valid."
+    else
+        warn ".env is absent; run './scoutctl init'."
+    fi
+    info "Disk usage"
+    df -h "$ROOT_DIR"
+    docker system df
+}
+
+usage() {
+    cat <<'EOF'
+Scout Docker control
+
+Bootstrap and diagnostics:
+  ./scoutctl init                 Create directories and .env
+  ./scoutctl doctor               Check Git, Docker, Compose, and disk state
+  ./scoutctl config               Render and validate development Compose config
+
+Development:
+  ./scoutctl setup                Build, migrate, start, and fully verify
+  ./scoutctl start                Start without rebuilding
+  ./scoutctl dev                  Build and start
+  ./scoutctl stop                 Stop development containers
+  ./scoutctl logs                 Follow development logs
+  ./scoutctl update               Fast-forward Git, rebuild, migrate, and verify
+  ./scoutctl verify               Run compatibility, drift, test, and DB checks
+
+Django:
+  ./scoutctl check                Run Django checks
+  ./scoutctl test [args...]       Run Django tests
+  ./scoutctl db-bootstrap         Create DB/user/grant after confirmation
+  ./scoutctl dbcheck              Verify MySQL, charset, and collation
+  ./scoutctl schema-plan [app]    Preview migrations without writing files
+  ./scoutctl migration-status     Show migrations using configured MySQL
+  ./scoutctl makemigrations [app] Generate migrations (development only)
+  ./scoutctl migrate [args...]    Apply development migrations
+  ./scoutctl static               Collect development static files
+  ./scoutctl shell                Open Django shell
+  ./scoutctl createsuperuser      Create a Django administrator
+  ./scoutctl bash                 Open a development container shell
+
+Production:
+  ./scoutctl preflight            Validate production configuration and image
+  ./scoutctl backup               Create and verify a timestamped MySQL backup
+  ./scoutctl deploy               Locked, backed-up, health-gated deployment
+  ./scoutctl rollback             Restore the previously running image
+  ./scoutctl health               Check the production health endpoint
+  ./scoutctl status               Show production service status
+  ./scoutctl prod-logs            Follow production logs
+EOF
+}
+
+command="${1:-help}"
+shift || true
+
+case "$command" in
+    init)
+        ensure_tools
+        ensure_directories
+        if [[ ! -f .env ]]; then
+            cp .env.example .env
+            warn "Created .env. Replace placeholders before production use."
+        else
+            success ".env already exists."
+        fi
+        ;;
+    doctor)
+        doctor
+        ;;
+    config)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" config
+        ;;
+    setup)
+        ensure_tools
+        ensure_env
+        ensure_directories
+        compose_validate
+        "${DEV[@]}" build web
+        prepare_persistent_storage development
+        "${DEV[@]}" run --rm --no-deps web python manage.py migrate --noinput
+        "${DEV[@]}" up -d
+        run_dev_checks
+        production_health
+        "${DEV[@]}" ps
+        success "Local Scout setup verified successfully."
+        ;;
+    start)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" up -d
+        "${DEV[@]}" ps
+        ;;
+    dev)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" up -d --build
+        "${DEV[@]}" ps
+        ;;
+    stop)
+        ensure_tools
+        "${DEV[@]}" down
+        ;;
+    logs)
+        ensure_tools
+        "${DEV[@]}" logs -f --tail=200 web
+        ;;
+    update)
+        ensure_tools
+        ensure_env
+        [[ -z "$(git status --porcelain)" ]] || die "Refusing update: the Git worktree is not clean."
+        git pull --ff-only
+        "${DEV[@]}" build web
+        prepare_persistent_storage development
+        "${DEV[@]}" run --rm --no-deps web python manage.py migrate --noinput
+        "${DEV[@]}" up -d
+        run_dev_checks
+        ;;
+    verify)
+        ensure_tools
+        ensure_env
+        run_dev_checks
+        success "All Scout verification checks passed."
+        ;;
+    check)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py check
+        ;;
+    test)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py test "$@"
+        ;;
+    dbcheck)
+        check_mysql
+        ;;
+    db-bootstrap)
+        bootstrap_mysql
+        ;;
+    schema-plan)
+        schema_plan "$@"
+        ;;
+    migration-status)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps -e DB_ENGINE=mysql web \
+            python manage.py showmigrations "$@"
+        ;;
+    makemigrations)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py makemigrations "$@"
+        ;;
+    migrate)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py migrate "$@"
+        ;;
+    static)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py collectstatic --noinput
+        ;;
+    shell)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py shell
+        ;;
+    createsuperuser)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web python manage.py createsuperuser
+        ;;
+    bash)
+        ensure_tools
+        ensure_env
+        "${DEV[@]}" run --rm --no-deps web bash
+        ;;
+    preflight)
+        ensure_tools
+        validate_production_env
+        compose_validate
+        "${BASE[@]}" pull web
+        "${BASE[@]}" run --rm --no-deps web python -m pip check
+        "${BASE[@]}" run --rm --no-deps web python manage.py check --deploy
+        success "Production preflight passed."
+        ;;
+    backup)
+        ensure_tools
+        create_backup
+        ;;
+    deploy)
+        deploy_production
+        ;;
+    rollback)
+        ensure_tools
+        ensure_env
+        acquire_deploy_lock
+        rollback_image
+        ;;
+    health)
+        ensure_env
+        production_health
+        ;;
+    status)
+        ensure_tools
+        ensure_env
+        "${BASE[@]}" ps
+        ;;
+    prod-logs)
+        ensure_tools
+        ensure_env
+        "${BASE[@]}" logs -f --tail=200 web
+        ;;
+    help|-h|--help)
+        usage
+        ;;
+    *)
+        echo "Unknown command: $command" >&2
+        usage >&2
+        exit 2
+        ;;
+esac
