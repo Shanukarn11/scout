@@ -15,6 +15,7 @@ from django.templatetags.static import static
 import razorpay
 
 from .models import Scout, ScoutLevel2, ScoutCourse, ScoutCourseDiscount,MasterLabels
+from .registration_control import require_registration_open
 
 # ---- optional: import your Interakt helpers ---------------------------------
 try:
@@ -144,6 +145,7 @@ def _get_scout_from_request(request):
 # ---------------- views ----------------
 
 @require_GET
+@require_registration_open(2, page=True)
 def level2_form(request):
     """
     Render Level-2 page.
@@ -164,6 +166,7 @@ def level2_form(request):
 
 
 @require_POST
+@require_registration_open(2)
 def level2_prefill(request):
     """
     Input: ikf_level_1_id (preferred) OR ikfuniqueid
@@ -201,6 +204,7 @@ def level2_prefill(request):
 
 
 @require_POST
+@require_registration_open(2)
 @transaction.atomic
 def level2_save(request):
     """
@@ -234,6 +238,7 @@ def level2_save(request):
 
 
 @require_POST
+@require_registration_open(2)
 @transaction.atomic
 def level2_order(request):
     """

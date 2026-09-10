@@ -40,6 +40,7 @@ from datetime import datetime
 from barcode.writer import ImageWriter
 import barcode
 import oss2
+from .registration_control import require_registration_open
 
 OSS_ACCESS_KEY_ID = settings.OSS_ACCESS_KEY_ID
 OSS_ACCESS_KEY_SECRET = settings.OSS_ACCESS_KEY_SECRET
@@ -151,6 +152,7 @@ def interakt_add_user(mobilenumber,firstname,lastname,obj):
     except Exception as e:
         print(e)
         return None
+@require_registration_open(1)
 def order(request):
     if request.method == "POST":
         ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
@@ -274,6 +276,7 @@ def category(request, lang):
     return render(request, 'category.html', dict)
 
 
+@require_registration_open(1, page=True)
 def scoutpage(request, lang, category):
     context = {}
 
@@ -292,6 +295,7 @@ def scoutpage(request, lang, category):
         return render(request, 'player/scout.html', dict)
 
 
+@require_registration_open(1, page=True)
 def main(request):
     context = {}
     lang = "en"
@@ -505,6 +509,7 @@ def handle_uploaded_file(f):
     # with open(f, 'wb+') as destination:
     #     for chunk in f.chunks():
     #         destination.write(chunk)
+@require_registration_open(1)
 def uploaddoc(request):
     lang = "en"
     langqueryset = MasterLabels.objects.filter().values('keydata', lang)
@@ -527,6 +532,7 @@ def uploaddoc(request):
         return render(request, 'player/uploaddoc.html', dict)
 
 
+@require_registration_open(1)
 def uploadpic(request):
     lang = "en"
     langqueryset = MasterLabels.objects.filter().values('keydata', lang)
@@ -657,6 +663,7 @@ def documentdata(request):
 
 
 
+@require_registration_open(1)
 def save(request):
     if request.method == 'POST':
         datastr = request.POST.getlist('data')[0]

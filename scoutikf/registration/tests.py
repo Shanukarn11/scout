@@ -1,5 +1,7 @@
-from django.test import SimpleTestCase
+from django.test import SimpleTestCase, TestCase
 from django.urls import reverse
+
+from .models import RegistrationControl
 
 
 class HealthCheckTests(SimpleTestCase):
@@ -8,3 +10,38 @@ class HealthCheckTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+
+class RegistrationControlTests(TestCase):
+    def test_levels_are_open_by_default(self):
+        control = RegistrationControl.current()
+        self.assertTrue(control.level1_open)
+        self.assertTrue(control.level2_open)
+
+    def test_closed_level1_blocks_form_and_save_endpoint(self):
+        control = RegistrationControl.current()
+        control.level1_open = False
+        control.closed_message = "Level 1 is paused."
+        control.save()
+
+        page = self.client.get(reverse("scoutpage", args=["en", "Scout"]))
+        save = self.client.post(reverse("save"))
+
+        self.assertEqual(page.status_code, 403)
+        self.assertContains(page, "Level 1 is paused.", status_code=403)
+        self.assertEqual(save.status_code, 403)
+        self.assertEqual(save.json()["registration_level"], 1)
+
+    def test_closed_level2_blocks_form_and_save_endpoint(self):
+        control = RegistrationControl.current()
+        control.level2_open = False
+        control.closed_message = "Level 2 is paused."
+        control.save()
+
+        page = self.client.get(reverse("level2_form"))
+        save = self.client.post(reverse("level2_save"))
+
+        self.assertEqual(page.status_code, 403)
+        self.assertContains(page, "Level 2 is paused.", status_code=403)
+        self.assertEqual(save.status_code, 403)
+        self.assertEqual(save.json()["registration_level"], 2)

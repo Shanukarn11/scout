@@ -9,6 +9,33 @@ from django.core.validators import FileExtensionValidator
 # Create your models here.
 
 
+class RegistrationControl(models.Model):
+    level1_open = models.BooleanField(default=True, verbose_name="Level-1 registration open")
+    level2_open = models.BooleanField(default=True, verbose_name="Level-2 registration open")
+    closed_message = models.CharField(
+        max_length=300,
+        default="Registrations are temporarily closed. Please check back later.",
+    )
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def save(self, *args, **kwargs):
+        # This is a site-wide singleton, always stored as row 1.
+        self.pk = 1
+        return super().save(*args, **kwargs)
+
+    @classmethod
+    def current(cls):
+        control, _ = cls.objects.get_or_create(pk=1)
+        return control
+
+    def __str__(self):
+        return "Registration availability"
+
+    class Meta:
+        verbose_name = "Registration Control"
+        verbose_name_plural = "Registration Control"
+
+
 class MasterCategory(models.Model):
     id = models.CharField(max_length=100, primary_key=True)
     en = models.CharField(max_length=100, null=True)

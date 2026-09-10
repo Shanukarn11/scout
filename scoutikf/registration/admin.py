@@ -3,7 +3,7 @@ from django.contrib import messages
 from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
-from .models import ScoutLevel2,ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models import RegistrationControl, ScoutLevel2,ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -22,6 +22,18 @@ def export_as_csv(self, request, queryset):
 
     return response
 admin.site.add_action(export_as_csv)
+
+
+@admin.register(RegistrationControl)
+class RegistrationControlAdmin(admin.ModelAdmin):
+    list_display = ("level1_open", "level2_open", "closed_message", "updated_at")
+    readonly_fields = ("updated_at",)
+
+    def has_add_permission(self, request):
+        return not RegistrationControl.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 @admin.register(MasterState)
 class MasterStateAdmin(admin.ModelAdmin):
