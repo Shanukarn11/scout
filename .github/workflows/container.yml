@@ -44,14 +44,28 @@ jobs:
           context: .
           load: true
           tags: scout-site:test
-      - name: Validate image
-        run: |
-          ENV_ARGS="--network host -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306"
-          docker run --rm $ENV_ARGS scout-site:test python -m pip check
-          docker run --rm $ENV_ARGS scout-site:test python -m compileall -q manage.py scoutikf registration dashboard login coachlogin teams
-          docker run --rm $ENV_ARGS scout-site:test python manage.py check --database default
-          docker run --rm $ENV_ARGS scout-site:test python manage.py makemigrations --check --dry-run
-          docker run --rm $ENV_ARGS scout-site:test python manage.py test
+      - name: Check Python dependencies
+        run: docker run --rm scout-site:test python -m pip check
+      - name: Compile Python sources
+        run: docker run --rm scout-site:test python -m compileall -q manage.py scoutikf registration dashboard login coachlogin teams
+      - name: Run Django system checks
+        run: >-
+          docker run --rm --network host
+          -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root
+          -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306
+          scout-site:test python manage.py check --database default
+      - name: Check migration drift
+        run: >-
+          docker run --rm --network host
+          -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root
+          -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306
+          scout-site:test python manage.py makemigrations --check --dry-run
+      - name: Run Django tests
+        run: >-
+          docker run --rm --network host
+          -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root
+          -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306
+          scout-site:test python manage.py test
       - uses: docker/build-push-action@v6
         if: github.event_name != 'pull_request'
         with:
