@@ -1,4 +1,4 @@
-from django.test import SimpleTestCase, TestCase
+from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
 from .models import RegistrationControl
@@ -12,6 +12,10 @@ class HealthCheckTests(SimpleTestCase):
         self.assertEqual(response.json(), {"status": "ok"})
 
 
+@override_settings(STORAGES={
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+})
 class RegistrationControlTests(TestCase):
     def test_levels_are_open_by_default(self):
         control = RegistrationControl.current()
