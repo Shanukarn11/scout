@@ -31,8 +31,9 @@ class RegistrationControlTests(TestCase):
         page = self.client.get(reverse("scoutpage", args=["en", "Scout"]))
         save = self.client.post(reverse("save"))
 
-        self.assertEqual(page.status_code, 403)
-        self.assertContains(page, "Level 1 is paused.", status_code=403)
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "Level 1 is paused.")
+        self.assertEqual(page["Cache-Control"], "no-store, no-cache, must-revalidate, max-age=0")
         self.assertEqual(save.status_code, 403)
         self.assertEqual(save.json()["registration_level"], 1)
 
@@ -45,7 +46,8 @@ class RegistrationControlTests(TestCase):
         page = self.client.get(reverse("level2_form"))
         save = self.client.post(reverse("level2_save"))
 
-        self.assertEqual(page.status_code, 403)
-        self.assertContains(page, "Level 2 is paused.", status_code=403)
+        self.assertEqual(page.status_code, 200)
+        self.assertContains(page, "Level 2 is paused.")
+        self.assertEqual(page["Cache-Control"], "no-store, no-cache, must-revalidate, max-age=0")
         self.assertEqual(save.status_code, 403)
         self.assertEqual(save.json()["registration_level"], 2)

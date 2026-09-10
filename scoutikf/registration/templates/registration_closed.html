@@ -1,11 +1,50 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
-<div class="container py-5">
-  <div class="card mx-auto text-center" style="max-width: 640px;">
-    <div class="card-body p-5">
-      <h1 class="h3 mb-3">Level {{ level }} registration is currently closed</h1>
-      <p class="mb-0">{{ closed_message }}</p>
-    </div>
+<style>
+  .registration-paused {
+    max-width: 700px; margin: 3rem auto; padding: 3rem 2rem; text-align: center;
+    color: #17233c; background: rgba(255, 255, 255, 0.96);
+    border: 1px solid rgba(0, 142, 181, 0.2); border-radius: 24px;
+    box-shadow: 0 24px 70px rgba(8, 35, 58, 0.22);
+  }
+  .registration-paused__logo { width: 94px; height: auto; margin-bottom: 1.25rem; }
+  .registration-paused__badge {
+    display: inline-block; margin-bottom: 1rem; padding: 0.45rem 1rem;
+    color: #006f8d; background: #e9f8fc; border-radius: 999px;
+    font-size: 0.8rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase;
+  }
+  .registration-paused h1 {
+    margin-bottom: 1rem; color: #10213b;
+    font-size: clamp(1.8rem, 5vw, 2.75rem); font-weight: 800;
+  }
+  .registration-paused__message {
+    max-width: 540px; margin: 0 auto 0.75rem; color: #4d5d73;
+    font-size: 1.1rem; line-height: 1.7;
+  }
+  .registration-paused__note { margin-bottom: 1.75rem; color: #718096; }
+  .registration-paused__actions {
+    display: flex; flex-wrap: wrap; justify-content: center; gap: 0.75rem;
+  }
+  .registration-paused__actions a, .registration-paused__actions button {
+    min-width: 150px; padding: 0.75rem 1.25rem; border: 1px solid #008eb5;
+    border-radius: 999px; font-weight: 700; text-decoration: none; cursor: pointer;
+  }
+  .registration-paused__home { color: #fff; background: #008eb5; }
+  .registration-paused__retry { color: #008eb5; background: #fff; }
+</style>
+
+<div class="registration-paused" role="status" aria-live="polite">
+  <img class="registration-paused__logo" src="{% static 'img/ikflogo.png' %}" alt="India Khelo Football">
+  <div class="registration-paused__badge">Registration paused</div>
+  <h1>Level {{ level }} registrations will be back soon</h1>
+  <p class="registration-paused__message">{{ closed_message }}</p>
+  <p class="registration-paused__note">
+    Our scouting team is currently busy reviewing applications. Thank you for your patience.
+  </p>
+  <div class="registration-paused__actions">
+    <a class="registration-paused__home" href="{% url 'homeindex' %}">Back to home</a>
+    <button class="registration-paused__retry" type="button" onclick="window.location.reload()">Check again</button>
   </div>
 </div>
 {% endblock %}

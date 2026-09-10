@@ -18,13 +18,14 @@ def require_registration_open(level, *, page=False):
             is_open, message = registration_is_open(level)
             if is_open:
                 return view(request, *args, **kwargs)
-            if page and request.method in {"GET", "HEAD"}:
-                return render(
+            if page:
+                response = render(
                     request,
                     "registration_closed.html",
                     {"level": level, "closed_message": message},
-                    status=403,
                 )
+                response["Cache-Control"] = "no-store, no-cache, must-revalidate, max-age=0"
+                return response
             return JsonResponse(
                 {"error": True, "message": message, "registration_level": level},
                 status=403,

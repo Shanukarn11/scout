@@ -295,7 +295,7 @@ def scoutpage(request, lang, category):
         return render(request, 'player/scout.html', dict)
 
 
-@require_registration_open(1, page=True)
+@require_registration_open(1)
 def main(request):
     context = {}
     lang = "en"
