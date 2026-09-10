@@ -25,7 +25,9 @@ class RegistrationControlTests(TestCase):
     def test_closed_level1_blocks_form_and_save_endpoint(self):
         control = RegistrationControl.current()
         control.level1_open = False
-        control.closed_message = "Level 1 is paused."
+        control.level1_message = "Level 1 is paused."
+        control.level2_message = "Level 2 should not appear."
+        control.common_message = "Our team is reviewing applications."
         control.save()
 
         page = self.client.get(reverse("scoutpage", args=["en", "Scout"]))
@@ -33,6 +35,8 @@ class RegistrationControlTests(TestCase):
 
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Level 1 is paused.")
+        self.assertContains(page, "Our team is reviewing applications.")
+        self.assertNotContains(page, "Level 2 should not appear.")
         self.assertEqual(page["Cache-Control"], "no-store, no-cache, must-revalidate, max-age=0")
         self.assertEqual(save.status_code, 403)
         self.assertEqual(save.json()["registration_level"], 1)
@@ -40,7 +44,9 @@ class RegistrationControlTests(TestCase):
     def test_closed_level2_blocks_form_and_save_endpoint(self):
         control = RegistrationControl.current()
         control.level2_open = False
-        control.closed_message = "Level 2 is paused."
+        control.level1_message = "Level 1 should not appear."
+        control.level2_message = "Level 2 is paused."
+        control.common_message = ""
         control.save()
 
         page = self.client.get(reverse("level2_form"))
@@ -48,6 +54,8 @@ class RegistrationControlTests(TestCase):
 
         self.assertEqual(page.status_code, 200)
         self.assertContains(page, "Level 2 is paused.")
+        self.assertNotContains(page, "Level 1 should not appear.")
+        self.assertNotContains(page, '<p class="registration-paused__note">')
         self.assertEqual(page["Cache-Control"], "no-store, no-cache, must-revalidate, max-age=0")
         self.assertEqual(save.status_code, 403)
         self.assertEqual(save.json()["registration_level"], 2)

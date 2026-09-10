@@ -38,10 +38,10 @@
   <img class="registration-paused__logo" src="{% static 'img/ikflogo.png' %}" alt="India Khelo Football">
   <div class="registration-paused__badge">Registration paused</div>
   <h1>Level {{ level }} registrations will be back soon</h1>
-  <p class="registration-paused__message">{{ closed_message }}</p>
-  <p class="registration-paused__note">
-    Our scouting team is currently busy reviewing applications. Thank you for your patience.
-  </p>
+  <p class="registration-paused__message">{{ level_message }}</p>
+  {% if common_message %}
+    <p class="registration-paused__note">{{ common_message }}</p>
+  {% endif %}
   <div class="registration-paused__actions">
     <a class="registration-paused__home" href="{% url 'homeindex' %}">Back to home</a>
     <button class="registration-paused__retry" type="button" onclick="window.location.reload()">Check again</button>

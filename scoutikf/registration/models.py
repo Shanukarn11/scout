@@ -12,10 +12,15 @@ from django.core.validators import FileExtensionValidator
 class RegistrationControl(models.Model):
     level1_open = models.BooleanField(default=True, verbose_name="Level-1 registration open")
     level2_open = models.BooleanField(default=True, verbose_name="Level-2 registration open")
-    closed_message = models.CharField(
+    level1_message = models.CharField(
         max_length=300,
-        default="Registrations are temporarily closed. Please check back later.",
+        default="Level-1 registrations are temporarily closed. Please check back later.",
     )
+    level2_message = models.CharField(
+        max_length=300,
+        default="Level-2 registrations are temporarily closed. Please check back later.",
+    )
+    common_message = models.CharField(max_length=300, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
 
     def save(self, *args, **kwargs):

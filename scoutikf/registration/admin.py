@@ -26,7 +26,15 @@ admin.site.add_action(export_as_csv)
 
 @admin.register(RegistrationControl)
 class RegistrationControlAdmin(admin.ModelAdmin):
-    list_display = ("level1_open", "level2_open", "closed_message", "updated_at")
+    list_display = ("level1_open", "level2_open", "updated_at")
+    fieldsets = (
+        ("Registration switches", {"fields": ("level1_open", "level2_open")}),
+        ("Closed-page messages", {
+            "fields": ("level1_message", "level2_message", "common_message"),
+            "description": "The common message is optional and is hidden when left blank.",
+        }),
+        ("Last change", {"fields": ("updated_at",)}),
+    )
     readonly_fields = ("updated_at",)
 
     def has_add_permission(self, request):
