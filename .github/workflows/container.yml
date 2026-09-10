@@ -61,11 +61,20 @@ jobs:
           -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306
           scout-site:test python manage.py makemigrations --check --dry-run
       - name: Run Django tests
-        run: >-
-          docker run --rm --network host
-          -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root
-          -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306
-          scout-site:test python manage.py test
+        shell: bash
+        run: |
+          set +e
+          output="$(docker run --rm --network host \
+            -e DJANGO_DEBUG=true -e DB_NAME=scout -e DB_USER=root \
+            -e DB_PASSWORD=scout-ci-root -e DB_HOST=127.0.0.1 -e DB_PORT=3306 \
+            scout-site:test python manage.py test 2>&1)"
+          status=$?
+          printf '%s\n' "$output"
+          if (( status != 0 )); then
+            summary="$(printf '%s\n' "$output" | tail -n 25 | tr '\n' ' ')"
+            echo "::error title=Django tests failed::$summary"
+          fi
+          exit "$status"
       - uses: docker/build-push-action@v6
         if: github.event_name != 'pull_request'
         with:
