@@ -16,6 +16,9 @@
   <main class="slr-page"
         id="scoutlens-registration"
         data-key-id="{{ razorpay_key_id }}"
+        data-success-heading="{{ page_content.success_heading }}"
+        data-success-message="{{ page_content.success_message }}"
+        data-whatsapp-message="{{ page_content.whatsapp_message }}"
         data-start-url="{% url 'scout_lens_start' %}"
         data-quote-url="{% url 'scout_lens_quote' %}"
         data-order-url="{% url 'scout_lens_order' %}"
@@ -28,8 +31,8 @@
       <section class="slr-card" aria-labelledby="registration-title">
         <div class="slr-card-head">
           <span class="slr-eyebrow">IKF ScoutLens</span>
-          <h1 id="registration-title">Player registration</h1>
-          <p>Enter the player details below. Your fee is calculated securely on the server.</p>
+          <h1 id="registration-title">{{ page_content.registration_heading }}</h1>
+          <p>{{ page_content.registration_intro }}</p>
         </div>
 
         <div class="slr-fee-row">
@@ -53,9 +56,9 @@
               <span class="slr-error" id="error-player_name"></span>
             </div>
             <div class="slr-field">
-              <label for="{{ form.mobile.id_for_label }}">Mobile number</label>
+              <label for="{{ form.mobile.id_for_label }}">{{ page_content.mobile_label }}</label>
               {{ form.mobile }}
-              <span class="slr-help">Indian WhatsApp/mobile number</span>
+              <span class="slr-help">{{ page_content.mobile_help }}</span>
               <span class="slr-error" id="error-mobile"></span>
             </div>
             <div class="slr-field">
@@ -92,10 +95,11 @@
 
         <section class="slr-result" id="payment-result" hidden>
           <div class="slr-result-icon"><span class="material-icons-round">task_alt</span></div>
-          <h2 id="result-title">Payment verified</h2>
+          <h2 id="result-title">{{ page_content.success_heading }}</h2>
           <p id="result-message"></p>
+          <p id="result-whatsapp-message"></p>
           <p class="slr-reference">Registration ID: <strong id="registration-reference"></strong></p>
-          <a href="{% url 'scout_lens' %}" class="slr-secondary-button">Return to ScoutLens</a>
+          <a href="{% url 'scout_lens' %}" class="slr-secondary-button">{{ page_content.return_button_text }}</a>
         </section>
 
         <section class="slr-recovery" id="payment-recovery" hidden>

@@ -48,6 +48,42 @@ class ScoutLensPaymentStatus(models.TextChoices):
     REFUNDED = "refunded", "Refunded"
 
 
+class ScoutLensPageContent(models.Model):
+    """Admin-editable copy for the standalone ScoutLens registration journey."""
+
+    registration_heading = models.CharField(max_length=160, default="Player registration")
+    registration_intro = models.CharField(
+        max_length=300,
+        default="Enter the player details below. Your fee is calculated securely on the server.",
+    )
+    mobile_label = models.CharField(max_length=100, default="WhatsApp number")
+    mobile_help = models.CharField(
+        max_length=200,
+        default="Enter an active 10-digit Indian WhatsApp number.",
+    )
+    success_heading = models.CharField(max_length=160, default="Registration confirmed")
+    success_message = models.TextField(
+        default="Your payment is verified and you are successfully registered for IKF ScoutLens."
+    )
+    whatsapp_message = models.TextField(
+        default="You will receive a WhatsApp message with all information related to your registration within 24 hours."
+    )
+    return_button_text = models.CharField(max_length=100, default="Return to ScoutLens")
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @classmethod
+    def current(cls):
+        content, _ = cls.objects.get_or_create(pk=1)
+        return content
+
+    def __str__(self):
+        return "ScoutLens page content"
+
+    class Meta:
+        verbose_name = "ScoutLens Page Content"
+        verbose_name_plural = "ScoutLens Page Content"
+
+
 class ScoutLensFee(models.Model):
     code = models.SlugField(max_length=80, unique=True)
     title = models.CharField(max_length=160)

@@ -1,6 +1,12 @@
 from django.contrib import admin, messages
 
-from .models_scoutlens import ScoutLens, ScoutLensDiscount, ScoutLensFee, ScoutLensPaymentEvent
+from .models_scoutlens import (
+    ScoutLens,
+    ScoutLensDiscount,
+    ScoutLensFee,
+    ScoutLensPageContent,
+    ScoutLensPaymentEvent,
+)
 from .services_scoutlens import ScoutLensPaymentError, reconcile_payment, send_interakt_confirmation
 
 
@@ -74,6 +80,25 @@ class ScoutLensAdmin(admin.ModelAdmin):
             level=messages.WARNING if failed_count else messages.SUCCESS,
         )
 
+
+@admin.register(ScoutLensPageContent)
+class ScoutLensPageContentAdmin(admin.ModelAdmin):
+    fieldsets = (
+        ("Registration form", {"fields": (
+            "registration_heading", "registration_intro", "mobile_label", "mobile_help",
+        )}),
+        ("Payment verified message", {"fields": (
+            "success_heading", "success_message", "whatsapp_message", "return_button_text",
+        )}),
+        ("Last change", {"fields": ("updated_at",)}),
+    )
+    readonly_fields = ("updated_at",)
+
+    def has_add_permission(self, request):
+        return not ScoutLensPageContent.objects.exists()
+
+    def has_delete_permission(self, request, obj=None):
+        return False
 
 @admin.register(ScoutLensFee)
 class ScoutLensFeeAdmin(admin.ModelAdmin):

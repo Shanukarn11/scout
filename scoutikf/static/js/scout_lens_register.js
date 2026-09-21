@@ -96,7 +96,9 @@
     form.hidden = true;
     recovery.hidden = true;
     result.hidden = false;
-    document.getElementById("result-message").textContent = data.message || "Your payment has been verified and your ScoutLens registration is confirmed.";
+    document.getElementById("result-title").textContent = root.dataset.successHeading;
+    document.getElementById("result-message").textContent = root.dataset.successMessage;
+    document.getElementById("result-whatsapp-message").textContent = root.dataset.whatsappMessage;
     document.getElementById("registration-reference").textContent = data.registration_id || paymentSession?.registration_id || "";
     sessionStorage.removeItem(storageKey);
   };

@@ -11,6 +11,7 @@ from .models_scoutlens import (
     ScoutLens,
     ScoutLensDiscount,
     ScoutLensFee,
+    ScoutLensPageContent,
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
     ScoutLensPosition,
@@ -65,6 +66,22 @@ class ScoutLensRegistrationTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "ScoutLens Registrations")
+
+    def test_registration_and_success_copy_comes_from_admin_content_table(self):
+        content = ScoutLensPageContent.current()
+        content.mobile_label = "Player WhatsApp number"
+        content.mobile_help = "Use the WhatsApp number checked every day."
+        content.success_heading = "You are registered"
+        content.success_message = "Your ScoutLens seat is confirmed."
+        content.whatsapp_message = "Full information will arrive on WhatsApp within 24 hours."
+        content.save()
+
+        response = self.client.get(reverse("scout_lens_register"))
+
+        self.assertContains(response, "Player WhatsApp number")
+        self.assertContains(response, "Use the WhatsApp number checked every day.")
+        self.assertContains(response, 'data-success-heading="You are registered"')
+        self.assertContains(response, "Full information will arrive on WhatsApp within 24 hours.")
 
     def test_registration_switch_blocks_new_scoutlens_payments_only(self):
         control = RegistrationControl.current()

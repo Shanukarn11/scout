@@ -6,7 +6,12 @@ from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_POST
 
 from .forms_scoutlens import ScoutLensRegistrationForm
-from .models_scoutlens import ScoutLens, ScoutLensPaymentEvent, ScoutLensPaymentStatus
+from .models_scoutlens import (
+    ScoutLens,
+    ScoutLensPageContent,
+    ScoutLensPaymentEvent,
+    ScoutLensPaymentStatus,
+)
 from .registration_control import require_registration_open
 from .services_scoutlens import (
     ScoutLensPaymentError,
@@ -70,6 +75,7 @@ def registration_form(request):
         except ScoutLensPaymentError:
             return render(request, "scoutlens/pricing_unavailable.html", status=503)
     return render(request, "scoutlens/register.html", {
+        "page_content": ScoutLensPageContent.current(),
         "form": ScoutLensRegistrationForm(initial={"affiliate_code": affiliate_code}),
         "scoutlens_fee": final_amount,
         "scoutlens_base_fee": base_amount,
