@@ -16,7 +16,6 @@ class ScoutLensAdmin(admin.ModelAdmin):
         "registration_id", "player_name", "mobile", "razorpay_order_id", "razorpay_payment_id",
     )
     ordering = ("-created_at",)
-    date_hierarchy = "created_at"
     actions = ("reconcile_selected_payments", "retry_whatsapp_confirmations")
     readonly_fields = (
         "registration_id", "position_rating_group", "fee", "discount", "affiliate_code",

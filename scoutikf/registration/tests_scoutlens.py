@@ -2,6 +2,7 @@ from datetime import date
 from decimal import Decimal
 from unittest.mock import Mock, patch
 
+from django.contrib.auth import get_user_model
 from django.test import TestCase, override_settings
 from django.urls import reverse
 
@@ -51,6 +52,19 @@ class ScoutLensRegistrationTests(TestCase):
         }
         data.update(overrides)
         return ScoutLens.objects.create(**data)
+
+    def test_scoutlens_admin_changelist_renders_with_mysql(self):
+        admin_user = get_user_model().objects.create_superuser(
+            username="scoutlens-admin",
+            email="admin@example.com",
+            password="test-only-password",
+        )
+        self.client.force_login(admin_user)
+
+        response = self.client.get(reverse("admin:registration_scoutlens_changelist"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "ScoutLens Registrations")
 
     def test_registration_switch_blocks_new_scoutlens_payments_only(self):
         control = RegistrationControl.current()
