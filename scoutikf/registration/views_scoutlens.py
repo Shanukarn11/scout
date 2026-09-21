@@ -12,6 +12,7 @@ from .models_scoutlens import (
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
     ScoutLensPosition,
+    ScoutLensSession,
     ScoutLensToBeNotifiedPlayer,
 )
 from .registration_control import require_registration_open
@@ -51,13 +52,15 @@ def _error(message, *, status=400, errors=None):
 
 @require_GET
 def landing(request):
-    try:
-        _, _, _, _, amount = pricing_quote()
-    except ScoutLensPaymentError:
-        amount = None
+    sessions = []
+    for session in ScoutLensSession.objects.filter(active=True):
+        try:
+            _, _, _, _, amount = pricing_quote(session.position)
+        except ScoutLensPaymentError:
+            amount = None
+        sessions.append({"session": session, "fee": amount})
     return render(request, "scout_lens.html", {
-        "scoutlens_fee": amount,
-        "scoutlens_positions": ScoutLensPosition.choices,
+        "scoutlens_sessions": sessions,
     })
 
 
@@ -104,6 +107,9 @@ def notify_me(request):
 )
 def registration_form(request):
     affiliate_code = (request.GET.get("ref") or request.GET.get("affiliate") or "").strip().upper()[:80]
+    requested_position = request.GET.get("position", "")
+    if requested_position not in ScoutLensPosition.values:
+        requested_position = ""
     affiliate_error = ""
     try:
         _, discount, base_amount, discount_amount, final_amount = pricing_quote(affiliate_code=affiliate_code)
@@ -115,7 +121,10 @@ def registration_form(request):
             return render(request, "scoutlens/pricing_unavailable.html", status=503)
     return render(request, "scoutlens/register.html", {
         "page_content": ScoutLensPageContent.current(),
-        "form": ScoutLensRegistrationForm(initial={"affiliate_code": affiliate_code}),
+        "form": ScoutLensRegistrationForm(initial={
+            "affiliate_code": affiliate_code,
+            "position": requested_position,
+        }),
         "scoutlens_fee": final_amount,
         "scoutlens_base_fee": base_amount,
         "scoutlens_discount": discount_amount,

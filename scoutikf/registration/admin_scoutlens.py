@@ -6,6 +6,7 @@ from .models_scoutlens import (
     ScoutLensFee,
     ScoutLensPageContent,
     ScoutLensPaymentEvent,
+    ScoutLensSession,
     ScoutLensToBeNotifiedPlayer,
 )
 from .services_scoutlens import ScoutLensPaymentError, reconcile_payment, send_interakt_confirmation
@@ -110,6 +111,18 @@ class ScoutLensToBeNotifiedPlayerAdmin(admin.ModelAdmin):
     list_editable = ("notified",)
     ordering = ("-created_at",)
     readonly_fields = ("created_at", "updated_at")
+
+
+@admin.register(ScoutLensSession)
+class ScoutLensSessionAdmin(admin.ModelAdmin):
+    list_display = (
+        "position", "display_name", "session_date", "session_time", "mode",
+        "registration_open", "active", "display_order", "updated_at",
+    )
+    list_editable = ("registration_open", "active", "display_order")
+    list_filter = ("registration_open", "active", "mode")
+    ordering = ("display_order", "id")
+    readonly_fields = ("updated_at",)
 
 @admin.register(ScoutLensFee)
 class ScoutLensFeeAdmin(admin.ModelAdmin):

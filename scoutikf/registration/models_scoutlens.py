@@ -97,6 +97,35 @@ class ScoutLensToBeNotifiedPlayer(models.Model):
         ]
 
 
+class ScoutLensSession(models.Model):
+    position = models.CharField(max_length=40, choices=ScoutLensPosition.choices, unique=True)
+    display_name = models.CharField(
+        max_length=160,
+        blank=True,
+        help_text="Optional public title. Leave blank to use the position name.",
+    )
+    session_date = models.DateField(blank=True, null=True, db_index=True)
+    session_time = models.CharField(max_length=100, blank=True, help_text="For example: 10:00 AM IST")
+    mode = models.CharField(max_length=100, default="Live Online")
+    duration = models.CharField(max_length=100, blank=True, default="2–3 hours")
+    registration_open = models.BooleanField(default=False, db_index=True)
+    active = models.BooleanField(default=True, db_index=True, help_text="Uncheck to hide this card from /ScoutLens.")
+    display_order = models.PositiveSmallIntegerField(default=0)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    @property
+    def public_name(self):
+        return self.display_name.strip() or self.get_position_display()
+
+    def __str__(self):
+        return self.public_name
+
+    class Meta:
+        ordering = ("display_order", "id")
+        verbose_name = "ScoutLens Session"
+        verbose_name_plural = "ScoutLens Sessions"
+
+
 class ScoutLensFee(models.Model):
     code = models.SlugField(max_length=80, unique=True)
     title = models.CharField(max_length=160)

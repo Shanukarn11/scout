@@ -15,6 +15,7 @@ from .models_scoutlens import (
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
     ScoutLensPosition,
+    ScoutLensSession,
     ScoutLensToBeNotifiedPlayer,
 )
 from .services_scoutlens import mark_paid, reconcile_payment
@@ -92,6 +93,27 @@ class ScoutLensRegistrationTests(TestCase):
             self.assertContains(response, label)
         self.assertNotContains(response, "Central Midfielder")
         self.assertContains(response, 'id="scoutlens-notify"')
+        self.assertContains(response, "2 October 2026")
+
+    def test_landing_session_information_comes_from_database(self):
+        session = ScoutLensSession.objects.get(position=ScoutLensPosition.DEFENDERS)
+        session.display_name = "Defender Masterclass"
+        session.session_date = date(2026, 11, 15)
+        session.session_time = "6:30 PM IST"
+        session.mode = "Live on Zoom"
+        session.duration = "90 minutes"
+        session.registration_open = True
+        session.save()
+
+        response = self.client.get(reverse("scout_lens"))
+
+        self.assertContains(response, "Defender Masterclass")
+        self.assertContains(response, "15 November 2026, 6:30 PM IST")
+        self.assertContains(response, "Live on Zoom (90 minutes)")
+        self.assertContains(response, "?position=Defenders")
+
+        registration = self.client.get(reverse("scout_lens_register"), {"position": "Defenders"})
+        self.assertContains(registration, '<option value="Defenders" selected>Defenders</option>', html=True)
 
     def test_notify_me_saves_name_whatsapp_and_position_once(self):
         payload = {

@@ -53,25 +53,27 @@
       </div>
       <section class="mfk-card">
         <div class="mfk-sessions-grid">
-          {% for position_value, position_label in scoutlens_positions %}
+          {% for item in scoutlens_sessions %}
             <article class="mfk-session-card">
               <div>
                 <div class="mfk-session-card-header">
-                  <h3>{{ position_label }}</h3>
-                  {% if forloop.first and scoutlens_fee %}<span class="mfk-tag mfk-tag-green"><span class="mfk-status-dot"></span>Open Now</span>{% else %}<span class="mfk-tag mfk-tag-tbd">Coming soon</span>{% endif %}
+                  <h3>{{ item.session.public_name }}</h3>
+                  {% if item.session.registration_open and item.fee %}<span class="mfk-tag mfk-tag-green"><span class="mfk-status-dot"></span>Open Now</span>{% else %}<span class="mfk-tag mfk-tag-tbd">Coming soon</span>{% endif %}
                 </div>
-                <ul class="mfk-session-meta{% if not forloop.first or not scoutlens_fee %} mfk-tbd-meta{% endif %}">
-                  <li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> {% if forloop.first and scoutlens_fee %}October 2026{% else %}TBD{% endif %}</span></li>
-                  <li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> {% if forloop.first and scoutlens_fee %}<b class="mfk-fee">₹{{ scoutlens_fee|floatformat:0 }}</b>{% else %}TBD{% endif %}</span></li>
-                  <li><span class="material-icons-round">videocam</span><span><strong>Mode:</strong> Live Online</span></li>
+                <ul class="mfk-session-meta{% if not item.session.session_date %} mfk-tbd-meta{% endif %}">
+                  <li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> {% if item.session.session_date %}{{ item.session.session_date|date:"j F Y" }}{% else %}TBD{% endif %}{% if item.session.session_time %}, {{ item.session.session_time }}{% endif %}</span></li>
+                  <li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> {% if item.fee %}<b class="mfk-fee">₹{{ item.fee|floatformat:0 }}</b>{% else %}TBD{% endif %}</span></li>
+                  <li><span class="material-icons-round">videocam</span><span><strong>Mode:</strong> {{ item.session.mode }}{% if item.session.duration %} ({{ item.session.duration }}){% endif %}</span></li>
                 </ul>
               </div>
-              {% if forloop.first and scoutlens_fee %}
-                <a class="mfk-btn-pill-primary" href="{% url 'scout_lens_register' %}">Register &amp; Pay</a>
+              {% if item.session.registration_open and item.fee %}
+                <a class="mfk-btn-pill-primary" href="{% url 'scout_lens_register' %}?position={{ item.session.position|urlencode }}">Register &amp; Pay</a>
               {% else %}
-                <button class="mfk-btn-pill-notify" type="button" data-notify-position="{{ position_value }}" data-notify-label="{{ position_label }}"><span class="material-icons-round">notifications</span>Notify Me</button>
+                <button class="mfk-btn-pill-notify" type="button" data-notify-position="{{ item.session.position }}" data-notify-label="{{ item.session.public_name }}"><span class="material-icons-round">notifications</span>Notify Me</button>
               {% endif %}
             </article>
+          {% empty %}
+            <p class="mfk-intro">New ScoutLens sessions will be announced soon.</p>
           {% endfor %}
         </div>
       </section>
