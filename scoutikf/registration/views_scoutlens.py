@@ -1,16 +1,18 @@
 from django.conf import settings
 from django.core import signing
-from django.db import transaction
+from django.db import IntegrityError, transaction
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, render
 from django.views.decorators.http import require_GET, require_POST
 
-from .forms_scoutlens import ScoutLensRegistrationForm
+from .forms_scoutlens import ScoutLensNotifyForm, ScoutLensRegistrationForm
 from .models_scoutlens import (
     ScoutLens,
     ScoutLensPageContent,
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
+    ScoutLensPosition,
+    ScoutLensToBeNotifiedPlayer,
 )
 from .registration_control import require_registration_open
 from .services_scoutlens import (
@@ -53,7 +55,44 @@ def landing(request):
         _, _, _, _, amount = pricing_quote()
     except ScoutLensPaymentError:
         amount = None
-    return render(request, "scout_lens.html", {"scoutlens_fee": amount})
+    return render(request, "scout_lens.html", {
+        "scoutlens_fee": amount,
+        "scoutlens_positions": ScoutLensPosition.choices,
+    })
+
+
+@require_POST
+def notify_me(request):
+    normalized_number = "".join(character for character in request.POST.get("whatsapp_number", "") if character.isdigit())
+    if len(normalized_number) == 12 and normalized_number.startswith("91"):
+        normalized_number = normalized_number[2:]
+    requested_position = request.POST.get("position", "")
+    if normalized_number and ScoutLensToBeNotifiedPlayer.objects.filter(
+        whatsapp_number=normalized_number,
+        position=requested_position,
+    ).exists():
+        return JsonResponse({
+            "ok": True,
+            "message": "This WhatsApp number is already on the notification list for this position.",
+        })
+
+    form = ScoutLensNotifyForm(request.POST)
+    if not form.is_valid():
+        errors = {name: [str(error) for error in field_errors] for name, field_errors in form.errors.items()}
+        return _error("Please correct the highlighted fields.", errors=errors)
+
+    try:
+        with transaction.atomic():
+            form.save()
+    except IntegrityError:
+        return JsonResponse({
+            "ok": True,
+            "message": "This WhatsApp number is already on the notification list for this position.",
+        })
+    return JsonResponse({
+        "ok": True,
+        "message": "You are on the list. We will notify you on WhatsApp when this ScoutLens session opens.",
+    })
 
 
 @require_GET

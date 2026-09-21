@@ -82,6 +82,22 @@ button, a { font: inherit; }
 .mfk-btn-pill-ghost:hover, .mfk-btn-pill-notify:hover { border-color: var(--mfk-cyan); color: #fff; background: rgba(56,189,248,.08); }
 .mfk-btn-pill-primary:hover { border-color: var(--mfk-neon-green); background: var(--mfk-neon-green); transform: translateY(-1px); }
 
+.mfk-notify-overlay { position: fixed; z-index: 1000; inset: 0; display: grid; place-items: center; padding: 20px; background: rgba(2,6,18,.82); backdrop-filter: blur(8px); }
+.mfk-notify-overlay[hidden] { display: none; }
+.mfk-notify-card { position: relative; width: min(100%,430px); padding: 30px; border: 1px solid #1e3a70; border-radius: 20px; background: #08152d; box-shadow: 0 28px 90px rgba(0,0,0,.55); }
+.mfk-notify-card h2 { margin: 7px 0 8px; color: #fff; font-size: 25px; }
+.mfk-notify-card > p { margin: 0 0 22px; color: var(--mfk-text-soft); line-height: 1.55; }
+.mfk-notify-icon { color: var(--mfk-neon-green); font-size: 34px; }
+.mfk-notify-close { position: absolute; top: 12px; right: 16px; border: 0; color: #94a3b8; background: transparent; font-size: 30px; cursor: pointer; }
+.mfk-notify-card label { display: block; margin: 14px 0 7px; color: #dbeafe; font-size: 13px; font-weight: 700; }
+.mfk-notify-card input { width: 100%; box-sizing: border-box; padding: 12px 13px; border: 1px solid #244476; border-radius: 10px; outline: 0; color: #fff; background: #050e20; font: inherit; }
+.mfk-notify-card input:focus { border-color: var(--mfk-cyan); box-shadow: 0 0 0 3px rgba(56,189,248,.12); }
+.mfk-notify-error { display: block; min-height: 17px; margin-top: 4px; color: #fda4af; font-size: 12px; }
+.mfk-notify-message { min-height: 20px; margin: 8px 0; color: #fda4af; font-size: 13px; line-height: 1.45; }
+.mfk-notify-message.is-success { color: var(--mfk-neon-green); }
+.mfk-notify-submit { width: 100%; margin-top: 5px; cursor: pointer; }
+.mfk-notify-submit:disabled { cursor: wait; opacity: .65; }
+
 .mfk-flow-grid { display: grid; grid-template-columns: repeat(5,1fr); gap: 12px; }
 .mfk-flow-cell { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; min-height: 135px; padding: 16px; border: 1px solid var(--mfk-border); border-radius: 12px; background: var(--mfk-card-inner); }
 .mfk-flow-num { display: flex; width: 28px; height: 28px; align-items: center; justify-content: center; border: 1px solid #059669; border-radius: 50%; color: var(--mfk-neon-green); background: #0d2818; font-size: 12.5px; font-weight: 800; }

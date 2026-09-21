@@ -14,6 +14,7 @@ urlpatterns = [
     path("ScoutLens", views_scoutlens.landing, name="scout_lens"),
     re_path(r"^[sS][cC][oO][uU][tT][lL][eE][nN][sS]/?$", views_scoutlens.landing),
     path("ScoutLens/register/", views_scoutlens.registration_form, name="scout_lens_register"),
+    path("ScoutLens/api/notify/", views_scoutlens.notify_me, name="scout_lens_notify"),
     path("ScoutLens/api/start/", views_scoutlens.start_registration, name="scout_lens_start"),
     path("ScoutLens/api/quote/", views_scoutlens.quote, name="scout_lens_quote"),
     path("ScoutLens/api/order/", views_scoutlens.create_order, name="scout_lens_order"),

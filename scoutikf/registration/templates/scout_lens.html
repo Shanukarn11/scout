@@ -53,55 +53,49 @@
       </div>
       <section class="mfk-card">
         <div class="mfk-sessions-grid">
-          <article class="mfk-session-card">
-            <div>
-              <div class="mfk-session-card-header"><h3>Goalkeeper (GK)</h3><span class="mfk-tag mfk-tag-green"><span class="mfk-status-dot"></span>Open Now</span></div>
-              <ul class="mfk-session-meta">
-                <li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> October 2026</span></li>
-                <li><span class="material-icons-round mfk-green-icon">payments</span><span><strong>Fee:</strong> <b class="mfk-fee">{% if scoutlens_fee %}₹{{ scoutlens_fee|floatformat:0 }}{% else %}TBD{% endif %}</b></span></li>
-                <li><span class="material-icons-round">videocam</span><span><strong>Mode:</strong> Live Online (2–3 hours)</span></li>
-              </ul>
-            </div>
-            <div class="mfk-session-actions">
-              <a class="mfk-btn-pill-ghost" href="#about">Know More</a>
-              {% if scoutlens_fee %}<a class="mfk-btn-pill-primary" href="{% url 'scout_lens_register' %}">Register &amp; Pay</a>{% endif %}
-            </div>
-          </article>
-
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Left Back (LB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Right Back (RB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Center Back (CB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Defensive Midfielder (DM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Central Midfielder (CM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Attacking Midfielder (AM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Wingers</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
-          <article class="mfk-session-card">
-            <div><div class="mfk-session-card-header"><h3>Strikers</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
-            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
-          </article>
+          {% for position_value, position_label in scoutlens_positions %}
+            <article class="mfk-session-card">
+              <div>
+                <div class="mfk-session-card-header">
+                  <h3>{{ position_label }}</h3>
+                  {% if forloop.first and scoutlens_fee %}<span class="mfk-tag mfk-tag-green"><span class="mfk-status-dot"></span>Open Now</span>{% else %}<span class="mfk-tag mfk-tag-tbd">Coming soon</span>{% endif %}
+                </div>
+                <ul class="mfk-session-meta{% if not forloop.first or not scoutlens_fee %} mfk-tbd-meta{% endif %}">
+                  <li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> {% if forloop.first and scoutlens_fee %}October 2026{% else %}TBD{% endif %}</span></li>
+                  <li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> {% if forloop.first and scoutlens_fee %}<b class="mfk-fee">₹{{ scoutlens_fee|floatformat:0 }}</b>{% else %}TBD{% endif %}</span></li>
+                  <li><span class="material-icons-round">videocam</span><span><strong>Mode:</strong> Live Online</span></li>
+                </ul>
+              </div>
+              {% if forloop.first and scoutlens_fee %}
+                <a class="mfk-btn-pill-primary" href="{% url 'scout_lens_register' %}">Register &amp; Pay</a>
+              {% else %}
+                <button class="mfk-btn-pill-notify" type="button" data-notify-position="{{ position_value }}" data-notify-label="{{ position_label }}"><span class="material-icons-round">notifications</span>Notify Me</button>
+              {% endif %}
+            </article>
+          {% endfor %}
         </div>
       </section>
+
+      <div class="mfk-notify-overlay" id="scoutlens-notify" data-submit-url="{% url 'scout_lens_notify' %}" hidden>
+        <section class="mfk-notify-card" role="dialog" aria-modal="true" aria-labelledby="notify-title">
+          <button class="mfk-notify-close" id="notify-close" type="button" aria-label="Close">&times;</button>
+          <span class="material-icons-round mfk-notify-icon">notifications_active</span>
+          <h2 id="notify-title">Notify me</h2>
+          <p>Get a WhatsApp update when the <strong id="notify-position-label"></strong> ScoutLens session opens.</p>
+          <form id="notify-form" novalidate>
+            {% csrf_token %}
+            <input type="hidden" name="position" id="notify-position">
+            <label for="notify-name">Name</label>
+            <input id="notify-name" name="name" type="text" maxlength="200" autocomplete="name" required>
+            <span class="mfk-notify-error" id="notify-error-name"></span>
+            <label for="notify-whatsapp">WhatsApp number</label>
+            <input id="notify-whatsapp" name="whatsapp_number" type="tel" maxlength="16" inputmode="numeric" autocomplete="tel" placeholder="10-digit WhatsApp number" required>
+            <span class="mfk-notify-error" id="notify-error-whatsapp_number"></span>
+            <div class="mfk-notify-message" id="notify-message" role="status" aria-live="polite"></div>
+            <button class="mfk-btn-pill-primary mfk-notify-submit" type="submit">Add me to the list</button>
+          </form>
+        </section>
+      </div>
 
       <div class="mfk-accent-heading" id="process">
         <span class="mfk-accent-bar mfk-accent-gold"></span>
@@ -119,5 +113,6 @@
       </section>
     </div>
   </main>
+  <script src="{% static 'js/scout_lens_notify.js' %}" defer></script>
 </body>
 </html>

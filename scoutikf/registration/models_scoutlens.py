@@ -9,33 +9,19 @@ from django.utils import timezone
 
 
 class ScoutLensPosition(models.TextChoices):
-    ATTACKING_MIDFIELDER = "Attacking_Midfielder", "Attacking Midfielder"
-    CENTER_BACK = "Center_Back", "Center Back"
-    CENTRAL_FORWARD_STRIKER = "Central_Forward_Striker", "Central Forward/Striker"
-    CENTRAL_MIDFIELDER = "Central_Midfielder", "Central Midfielder"
-    DEFENSIVE_MIDFIELDER = "Defensive_Midfielder", "Defensive Midfielder"
-    GOAL_KEEPER = "Goal_Keeper", "Goal Keeper"
-    LEFT_BACK = "Left_Back", "Left Back"
-    LEFT_MIDFIELDER = "Left_Midfielder", "Left Midfielder"
-    LEFT_WING = "Left_Wing", "Left Wing"
-    RIGHT_BACK = "Right_Back", "Right Back"
-    RIGHT_MIDFIELDER = "Right_Midfielder", "Right Midfielder"
-    RIGHT_WING = "Right_Wing", "Right Wing"
+    GOAL_KEEPERS = "Goal_Keepers", "Goal keepers"
+    DEFENDERS = "Defenders", "Defenders"
+    MIDFIELDERS = "Midfielders", "Midfielders"
+    WINGERS = "Wingers", "Wingers"
+    STRIKERS = "Strikers", "Strikers"
 
 
 SCOUTLENS_RATING_GROUPS = {
-    ScoutLensPosition.ATTACKING_MIDFIELDER: 2,
-    ScoutLensPosition.CENTER_BACK: 3,
-    ScoutLensPosition.CENTRAL_FORWARD_STRIKER: 2,
-    ScoutLensPosition.CENTRAL_MIDFIELDER: 4,
-    ScoutLensPosition.DEFENSIVE_MIDFIELDER: 4,
-    ScoutLensPosition.GOAL_KEEPER: 1,
-    ScoutLensPosition.LEFT_BACK: 3,
-    ScoutLensPosition.LEFT_MIDFIELDER: 4,
-    ScoutLensPosition.LEFT_WING: 2,
-    ScoutLensPosition.RIGHT_BACK: 3,
-    ScoutLensPosition.RIGHT_MIDFIELDER: 4,
-    ScoutLensPosition.RIGHT_WING: 2,
+    ScoutLensPosition.GOAL_KEEPERS: 1,
+    ScoutLensPosition.DEFENDERS: 3,
+    ScoutLensPosition.MIDFIELDERS: 4,
+    ScoutLensPosition.WINGERS: 2,
+    ScoutLensPosition.STRIKERS: 2,
 }
 
 
@@ -82,6 +68,33 @@ class ScoutLensPageContent(models.Model):
     class Meta:
         verbose_name = "ScoutLens Page Content"
         verbose_name_plural = "ScoutLens Page Content"
+
+
+class ScoutLensToBeNotifiedPlayer(models.Model):
+    name = models.CharField(max_length=200, db_index=True)
+    whatsapp_number = models.CharField(
+        max_length=10,
+        db_index=True,
+        validators=[RegexValidator(r"^[6-9][0-9]{9}$", "Enter a valid 10-digit Indian WhatsApp number.")],
+    )
+    position = models.CharField(max_length=40, choices=ScoutLensPosition.choices, db_index=True)
+    notified = models.BooleanField(default=False, db_index=True)
+    created_at = models.DateTimeField(auto_now_add=True, db_index=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.name} — {self.get_position_display()}"
+
+    class Meta:
+        ordering = ("-created_at",)
+        verbose_name = "ScoutLens Player To Be Notified"
+        verbose_name_plural = "ScoutLens Players To Be Notified"
+        constraints = [
+            models.UniqueConstraint(
+                fields=("whatsapp_number", "position"),
+                name="unique_scoutlens_notify_number_position",
+            ),
+        ]
 
 
 class ScoutLensFee(models.Model):

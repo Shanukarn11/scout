@@ -3,7 +3,7 @@ from datetime import date
 
 from django import forms
 
-from .models_scoutlens import ScoutLens, ScoutLensPosition
+from .models_scoutlens import ScoutLens, ScoutLensPosition, ScoutLensToBeNotifiedPlayer
 
 
 class ScoutLensRegistrationForm(forms.ModelForm):
@@ -55,3 +55,25 @@ class ScoutLensRegistrationForm(forms.ModelForm):
 
     def clean_affiliate_code(self):
         return self.cleaned_data.get("affiliate_code", "").strip().upper()
+
+
+class ScoutLensNotifyForm(forms.ModelForm):
+    whatsapp_number = forms.CharField(max_length=16)
+
+    class Meta:
+        model = ScoutLensToBeNotifiedPlayer
+        fields = ("name", "whatsapp_number", "position")
+
+    def clean_name(self):
+        name = " ".join(self.cleaned_data["name"].split())
+        if len(name) < 2:
+            raise forms.ValidationError("Enter your name.")
+        return name
+
+    def clean_whatsapp_number(self):
+        digits = re.sub(r"\D", "", self.cleaned_data["whatsapp_number"])
+        if len(digits) == 12 and digits.startswith("91"):
+            digits = digits[2:]
+        if not re.fullmatch(r"[6-9][0-9]{9}", digits):
+            raise forms.ValidationError("Enter a valid 10-digit Indian WhatsApp number.")
+        return digits

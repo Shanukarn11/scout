@@ -6,6 +6,7 @@ from .models_scoutlens import (
     ScoutLensFee,
     ScoutLensPageContent,
     ScoutLensPaymentEvent,
+    ScoutLensToBeNotifiedPlayer,
 )
 from .services_scoutlens import ScoutLensPaymentError, reconcile_payment, send_interakt_confirmation
 
@@ -99,6 +100,16 @@ class ScoutLensPageContentAdmin(admin.ModelAdmin):
 
     def has_delete_permission(self, request, obj=None):
         return False
+
+
+@admin.register(ScoutLensToBeNotifiedPlayer)
+class ScoutLensToBeNotifiedPlayerAdmin(admin.ModelAdmin):
+    list_display = ("name", "whatsapp_number", "position", "notified", "created_at")
+    list_filter = ("position", "notified", "created_at")
+    search_fields = ("name", "whatsapp_number")
+    list_editable = ("notified",)
+    ordering = ("-created_at",)
+    readonly_fields = ("created_at", "updated_at")
 
 @admin.register(ScoutLensFee)
 class ScoutLensFeeAdmin(admin.ModelAdmin):

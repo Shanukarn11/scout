@@ -15,6 +15,7 @@ from .models_scoutlens import (
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
     ScoutLensPosition,
+    ScoutLensToBeNotifiedPlayer,
 )
 from .services_scoutlens import mark_paid, reconcile_payment
 from .views_scoutlens import _token_for
@@ -38,7 +39,7 @@ class ScoutLensRegistrationTests(TestCase):
         return {
             "player_name": "Aarav Sharma",
             "mobile": "9876543210",
-            "position": ScoutLensPosition.GOAL_KEEPER,
+            "position": ScoutLensPosition.GOAL_KEEPERS,
             "dob": "2010-06-15",
         }
 
@@ -46,7 +47,7 @@ class ScoutLensRegistrationTests(TestCase):
         data = {
             "player_name": "Aarav Sharma",
             "mobile": "9876543210",
-            "position": ScoutLensPosition.GOAL_KEEPER,
+            "position": ScoutLensPosition.GOAL_KEEPERS,
             "position_rating_group": 1,
             "dob": date(2010, 6, 15),
             "amount": Decimal("1999.00"),
@@ -82,6 +83,46 @@ class ScoutLensRegistrationTests(TestCase):
         self.assertContains(response, "Use the WhatsApp number checked every day.")
         self.assertContains(response, 'data-success-heading="You are registered"')
         self.assertContains(response, "Full information will arrive on WhatsApp within 24 hours.")
+
+    def test_landing_shows_five_grouped_positions(self):
+        response = self.client.get(reverse("scout_lens"))
+
+        self.assertEqual(response.status_code, 200)
+        for label in ("Goal keepers", "Defenders", "Midfielders", "Wingers", "Strikers"):
+            self.assertContains(response, label)
+        self.assertNotContains(response, "Central Midfielder")
+        self.assertContains(response, 'id="scoutlens-notify"')
+
+    def test_notify_me_saves_name_whatsapp_and_position_once(self):
+        payload = {
+            "name": "Riya Sharma",
+            "whatsapp_number": "+91 98765 43210",
+            "position": ScoutLensPosition.DEFENDERS,
+        }
+
+        first = self.client.post(reverse("scout_lens_notify"), payload)
+        second = self.client.post(reverse("scout_lens_notify"), payload)
+
+        self.assertEqual(first.status_code, 200)
+        self.assertTrue(first.json()["ok"])
+        self.assertEqual(second.status_code, 200)
+        self.assertIn("already", second.json()["message"].lower())
+        notification = ScoutLensToBeNotifiedPlayer.objects.get()
+        self.assertEqual(notification.name, "Riya Sharma")
+        self.assertEqual(notification.whatsapp_number, "9876543210")
+        self.assertEqual(notification.position, ScoutLensPosition.DEFENDERS)
+
+    def test_notify_me_rejects_invalid_whatsapp_and_position(self):
+        response = self.client.post(reverse("scout_lens_notify"), {
+            "name": "Riya Sharma",
+            "whatsapp_number": "123",
+            "position": "Center_Back",
+        })
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("whatsapp_number", response.json()["errors"])
+        self.assertIn("position", response.json()["errors"])
+        self.assertFalse(ScoutLensToBeNotifiedPlayer.objects.exists())
 
     def test_registration_switch_blocks_new_scoutlens_payments_only(self):
         control = RegistrationControl.current()
