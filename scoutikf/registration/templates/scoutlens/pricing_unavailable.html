@@ -1,0 +1,22 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScoutLens registration unavailable</title>
+  <link rel="stylesheet" href="{% static 'css/scout_lens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scout_lens_register.css' %}">
+</head>
+<body>
+  <main class="slr-page">
+    <div class="slr-shell">
+      <section class="slr-card slr-result">
+        <h1>Registration is being prepared</h1>
+        <p>The ScoutLens fee is not available right now. Please check back shortly.</p>
+        <a href="{% url 'scout_lens' %}" class="slr-secondary-button">Return to ScoutLens</a>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

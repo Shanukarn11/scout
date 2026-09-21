@@ -12,6 +12,7 @@ from django.core.validators import FileExtensionValidator
 class RegistrationControl(models.Model):
     level1_open = models.BooleanField(default=True, verbose_name="Level-1 registration open")
     level2_open = models.BooleanField(default=True, verbose_name="Level-2 registration open")
+    scoutlens_open = models.BooleanField(default=True, verbose_name="ScoutLens registration open")
     level1_message = models.CharField(
         max_length=300,
         default="Level-1 registrations are temporarily closed. Please check back later.",
@@ -19,6 +20,10 @@ class RegistrationControl(models.Model):
     level2_message = models.CharField(
         max_length=300,
         default="Level-2 registrations are temporarily closed. Please check back later.",
+    )
+    scoutlens_message = models.CharField(
+        max_length=300,
+        default="ScoutLens registrations are temporarily closed. Please check back later.",
     )
     common_message = models.CharField(max_length=300, blank=True, default="")
     updated_at = models.DateTimeField(auto_now=True)
@@ -391,6 +396,17 @@ class ScoutLevel2(models.Model):
         constraints = [
             models.UniqueConstraint(fields=["scout"], name="uniq_level2_per_scout"),
         ]
+
+
+# ScoutLens models live in their own module to keep this registration flow
+# independent from Level 1 and Level 2. Importing them here makes Django discover
+# them as part of the registration application.
+from .models_scoutlens import (  # noqa: E402,F401
+    ScoutLens,
+    ScoutLensPaymentEvent,
+    ScoutLensPaymentStatus,
+    ScoutLensPosition,
+)
 
 class Upload(models.Model):
     unique = models.CharField(max_length=400, null=True, db_index=True)

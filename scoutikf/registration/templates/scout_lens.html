@@ -1,0 +1,123 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="IKF ScoutLens sessions delivered using MyFirstKick scouting expertise.">
+  <title>IKF ScoutLens — Delivered by MyFirstKick</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/scout_lens.css' %}">
+</head>
+<body>
+  <main class="mfk-scope" id="scoutlens-main">
+    <div class="mfk-container">
+      <section class="mfk-hero-wrapper" id="overview">
+        <div class="mfk-hero-grid">
+          <div class="mfk-gradient-banner">
+            <div class="mfk-banner-kicker">
+              <span class="material-icons-round">verified</span>
+              <span>Delivered by MyFirstKick — IKF’s digital scouting partner</span>
+            </div>
+            <h1 class="mfk-banner-title">IKF ScoutLens</h1>
+            <p class="mfk-banner-lead">Position-by-position sessions delivered using MyFirstKick’s scouting expertise.</p>
+            <div class="mfk-banner-actions">
+              {% if scoutlens_fee %}<a href="{% url 'scout_lens_register' %}" class="mfk-btn-white-solid">Register Now <span class="material-icons-round">arrow_forward</span></a>{% endif %}
+            </div>
+          </div>
+          <aside class="mfk-mascot-card" aria-label="IKF ScoutLens Media">
+            <img src="{% static 'img/scoutlens/hero.png' %}" alt="IKF ScoutLens — Delivered by MyFirstKick" class="mfk-hero-photo-img">
+          </aside>
+        </div>
+      </section>
+
+      <div class="mfk-accent-heading" id="about">
+        <span class="mfk-accent-bar"></span>
+        <h2>About ScoutLens (MFK Version)</h2>
+      </div>
+      <section class="mfk-card">
+        <p class="mfk-intro">IKF ScoutLens sessions are delivered by MyFirstKick, using its scouting frameworks, positional evaluation models, and expert insights.</p>
+        <p class="mfk-provides">These sessions provide:</p>
+        <ul class="mfk-bullet-grid-3">
+          <li class="mfk-bullet-item"><span class="mfk-bullet-dot"></span>Scout-driven evaluation criteria</li>
+          <li class="mfk-bullet-item"><span class="mfk-bullet-dot"></span>Position-specific clarity</li>
+          <li class="mfk-bullet-item"><span class="mfk-bullet-dot"></span>Real scouting perspective used in trials and assessments</li>
+        </ul>
+      </section>
+
+      <div class="mfk-accent-heading" id="sessions">
+        <span class="mfk-accent-bar mfk-accent-green"></span>
+        <h2>Upcoming Sessions (With Fees)</h2>
+      </div>
+      <section class="mfk-card">
+        <div class="mfk-sessions-grid">
+          <article class="mfk-session-card">
+            <div>
+              <div class="mfk-session-card-header"><h3>Goalkeeper (GK)</h3><span class="mfk-tag mfk-tag-green"><span class="mfk-status-dot"></span>Open Now</span></div>
+              <ul class="mfk-session-meta">
+                <li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> October 2026</span></li>
+                <li><span class="material-icons-round mfk-green-icon">payments</span><span><strong>Fee:</strong> <b class="mfk-fee">{% if scoutlens_fee %}₹{{ scoutlens_fee|floatformat:0 }}{% else %}TBD{% endif %}</b></span></li>
+                <li><span class="material-icons-round">videocam</span><span><strong>Mode:</strong> Live Online (2–3 hours)</span></li>
+              </ul>
+            </div>
+            <div class="mfk-session-actions">
+              <a class="mfk-btn-pill-ghost" href="#about">Know More</a>
+              {% if scoutlens_fee %}<a class="mfk-btn-pill-primary" href="{% url 'scout_lens_register' %}">Register &amp; Pay</a>{% endif %}
+            </div>
+          </article>
+
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Left Back (LB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Right Back (RB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Center Back (CB)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Defensive Midfielder (DM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Central Midfielder (CM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Attacking Midfielder (AM)</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Wingers</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+          <article class="mfk-session-card">
+            <div><div class="mfk-session-card-header"><h3>Strikers</h3><span class="mfk-tag mfk-tag-tbd">TBD</span></div><ul class="mfk-session-meta mfk-tbd-meta"><li><span class="material-icons-round">calendar_today</span><span><strong>Date:</strong> TBD</span></li><li><span class="material-icons-round">payments</span><span><strong>Fee:</strong> TBD</span></li></ul></div>
+            <button class="mfk-btn-pill-notify" type="button"><span class="material-icons-round">notifications</span>Notify Me</button>
+          </article>
+        </div>
+      </section>
+
+      <div class="mfk-accent-heading" id="process">
+        <span class="mfk-accent-bar mfk-accent-gold"></span>
+        <h2>Registration Process</h2>
+      </div>
+      <section class="mfk-card">
+        <div class="mfk-flow-grid">
+          <div class="mfk-flow-cell"><span class="mfk-flow-num">1</span><p>Click Register &amp; Pay</p></div>
+          <div class="mfk-flow-cell"><span class="mfk-flow-num">2</span><p>Fill in your details</p></div>
+          <div class="mfk-flow-cell"><span class="mfk-flow-num">3</span><p>Make payment (processed by MyFirstKick)</p></div>
+          <div class="mfk-flow-cell"><span class="mfk-flow-num">4</span><p>Receive WhatsApp confirmation</p></div>
+          <div class="mfk-flow-cell mfk-flow-final"><span class="mfk-flow-num">5</span><p>One day before the session, receive the webinar link on WhatsApp</p></div>
+        </div>
+        <div class="mfk-ranking-quote-box">Simple. Fast. WhatsApp-first.</div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>

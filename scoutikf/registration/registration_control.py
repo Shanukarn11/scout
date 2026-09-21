@@ -10,10 +10,14 @@ def registration_state(level):
     control = RegistrationControl.current()
     if level == 1:
         return control.level1_open, control.level1_message, control.common_message
-    return control.level2_open, control.level2_message, control.common_message
+    if level == 2:
+        return control.level2_open, control.level2_message, control.common_message
+    if level == "scoutlens":
+        return control.scoutlens_open, control.scoutlens_message, control.common_message
+    raise ValueError(f"Unknown registration level: {level}")
 
 
-def require_registration_open(level, *, page=False):
+def require_registration_open(level, *, page=False, template_name="registration_closed.html", display_name=None):
     def decorator(view):
         @wraps(view)
         def wrapped(request, *args, **kwargs):
@@ -23,9 +27,10 @@ def require_registration_open(level, *, page=False):
             if page:
                 response = render(
                     request,
-                    "registration_closed.html",
+                    template_name,
                     {
                         "level": level,
+                        "registration_name": display_name or f"Level {level}",
                         "level_message": level_message,
                         "common_message": common_message,
                     },

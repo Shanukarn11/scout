@@ -26,11 +26,11 @@ admin.site.add_action(export_as_csv)
 
 @admin.register(RegistrationControl)
 class RegistrationControlAdmin(admin.ModelAdmin):
-    list_display = ("level1_open", "level2_open", "updated_at")
+    list_display = ("level1_open", "level2_open", "scoutlens_open", "updated_at")
     fieldsets = (
-        ("Registration switches", {"fields": ("level1_open", "level2_open")}),
+        ("Registration switches", {"fields": ("level1_open", "level2_open", "scoutlens_open")}),
         ("Closed-page messages", {
-            "fields": ("level1_message", "level2_message", "common_message"),
+            "fields": ("level1_message", "level2_message", "scoutlens_message", "common_message"),
             "description": "The common message is optional and is hidden when left blank.",
         }),
         ("Last change", {"fields": ("updated_at",)}),
@@ -302,4 +302,8 @@ class ScoutLevel2Admin(admin.ModelAdmin):
             return obj.course.course
         return obj.course_id or "-"
     course_name.short_description = "Course"
+
+
+# ScoutLens admin registrations are isolated in their own module.
+from . import admin_scoutlens  # noqa: E402,F401
 

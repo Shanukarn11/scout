@@ -16,11 +16,32 @@ class HealthCheckTests(SimpleTestCase):
     "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
     "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
 })
+class ScoutLensPageTests(TestCase):
+    def test_scout_lens_url_is_case_insensitive(self):
+        for url in ("/ScoutLens", "/scoutlens", "/SCOUTLENS/", "/sCoUtLeNs"):
+            with self.subTest(url=url):
+                response = self.client.get(url)
+                self.assertEqual(response.status_code, 200)
+                self.assertContains(response, "IKF ScoutLens")
+
+    def test_scout_lens_is_standalone(self):
+        response = self.client.get(reverse("scout_lens"))
+
+        self.assertContains(response, 'id="scoutlens-main"')
+        self.assertNotContains(response, "<header")
+        self.assertNotContains(response, "<footer")
+
+
+@override_settings(STORAGES={
+    "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
+    "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
+})
 class RegistrationControlTests(TestCase):
     def test_levels_are_open_by_default(self):
         control = RegistrationControl.current()
         self.assertTrue(control.level1_open)
         self.assertTrue(control.level2_open)
+        self.assertTrue(control.scoutlens_open)
 
     def test_closed_level1_blocks_form_and_save_endpoint(self):
         control = RegistrationControl.current()

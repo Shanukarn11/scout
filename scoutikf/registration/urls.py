@@ -1,8 +1,9 @@
 #coding: utf8
 from django.contrib import admin
-from django.urls import path
+from django.urls import path, re_path
 from registration import views
 from registration import views_level2
+from registration import views_scoutlens
 from django.conf.urls.static import static
 from django.conf import settings
 import re
@@ -10,6 +11,15 @@ import re
 
 urlpatterns = [
     path("", views.homeindex, name='homeindex'),
+    path("ScoutLens", views_scoutlens.landing, name="scout_lens"),
+    re_path(r"^[sS][cC][oO][uU][tT][lL][eE][nN][sS]/?$", views_scoutlens.landing),
+    path("ScoutLens/register/", views_scoutlens.registration_form, name="scout_lens_register"),
+    path("ScoutLens/api/start/", views_scoutlens.start_registration, name="scout_lens_start"),
+    path("ScoutLens/api/quote/", views_scoutlens.quote, name="scout_lens_quote"),
+    path("ScoutLens/api/order/", views_scoutlens.create_order, name="scout_lens_order"),
+    path("ScoutLens/api/payment/verify/", views_scoutlens.verify_payment, name="scout_lens_verify_payment"),
+    path("ScoutLens/api/payment/failed/", views_scoutlens.payment_failed, name="scout_lens_payment_failed"),
+    path("ScoutLens/api/payment/reconcile/", views_scoutlens.reconcile, name="scout_lens_reconcile"),
     path("category/<lang>", views.category, name='category'),
     path("scoutpage/<lang>/<category>",
          views.scoutpage, name='scoutpage'),

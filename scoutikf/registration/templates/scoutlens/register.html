@@ -1,0 +1,119 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Register and pay securely for IKF ScoutLens.">
+  <title>Register for IKF ScoutLens</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/scout_lens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scout_lens_register.css' %}">
+</head>
+<body>
+  <main class="slr-page"
+        id="scoutlens-registration"
+        data-key-id="{{ razorpay_key_id }}"
+        data-start-url="{% url 'scout_lens_start' %}"
+        data-quote-url="{% url 'scout_lens_quote' %}"
+        data-order-url="{% url 'scout_lens_order' %}"
+        data-verify-url="{% url 'scout_lens_verify_payment' %}"
+        data-failed-url="{% url 'scout_lens_payment_failed' %}"
+        data-reconcile-url="{% url 'scout_lens_reconcile' %}">
+    <div class="slr-shell">
+      <a class="slr-back" href="{% url 'scout_lens' %}"><span class="material-icons-round">arrow_back</span> Back to ScoutLens</a>
+
+      <section class="slr-card" aria-labelledby="registration-title">
+        <div class="slr-card-head">
+          <span class="slr-eyebrow">IKF ScoutLens</span>
+          <h1 id="registration-title">Player registration</h1>
+          <p>Enter the player details below. Your fee is calculated securely on the server.</p>
+        </div>
+
+        <div class="slr-fee-row">
+          <div>
+            <span>Session fee</span>
+            <strong>₹<span id="display-final-fee">{{ scoutlens_fee|floatformat:2 }}</span></strong>
+            <small class="slr-discount-summary" id="discount-summary"{% if not affiliate_discount %} hidden{% endif %}>
+              Affiliate saving: ₹<span id="display-discount">{{ scoutlens_discount|floatformat:2 }}</span>
+            </small>
+          </div>
+          <span class="slr-secure"><span class="material-icons-round">verified_user</span> Secure Razorpay payment</span>
+        </div>
+
+        <form id="scoutlens-form" novalidate>
+          {% csrf_token %}
+          {{ form.affiliate_code }}
+          <div class="slr-grid">
+            <div class="slr-field slr-field-wide">
+              <label for="{{ form.player_name.id_for_label }}">Player name</label>
+              {{ form.player_name }}
+              <span class="slr-error" id="error-player_name"></span>
+            </div>
+            <div class="slr-field">
+              <label for="{{ form.mobile.id_for_label }}">Mobile number</label>
+              {{ form.mobile }}
+              <span class="slr-help">Indian WhatsApp/mobile number</span>
+              <span class="slr-error" id="error-mobile"></span>
+            </div>
+            <div class="slr-field">
+              <label for="{{ form.dob.id_for_label }}">Date of birth</label>
+              {{ form.dob }}
+              <span class="slr-error" id="error-dob"></span>
+            </div>
+            <div class="slr-field slr-field-wide">
+              <label for="{{ form.position.id_for_label }}">Playing position</label>
+              {{ form.position }}
+              <span class="slr-error" id="error-position"></span>
+            </div>
+          </div>
+
+          {% if form.affiliate_code.value %}
+            <div class="slr-affiliate{% if affiliate_error %} is-invalid{% endif %}" id="affiliate-banner">
+              <span class="material-icons-round">sell</span>
+              <span id="affiliate-message">
+                {% if affiliate_error %}{{ affiliate_error }}{% else %}Affiliate code <strong>{{ form.affiliate_code.value }}</strong> applied{% if affiliate_discount.affiliate_name %} from {{ affiliate_discount.affiliate_name }}{% endif %}.{% endif %}
+              </span>
+            </div>
+          {% endif %}
+
+          <div class="slr-notice" role="note">
+            <span class="material-icons-round">info</span>
+            <p>Your registration is confirmed only after the server verifies the captured payment with Razorpay.</p>
+          </div>
+          <div class="slr-message" id="payment-message" role="status" aria-live="polite"></div>
+          <button class="slr-pay-button" id="pay-button" type="submit">
+            <span id="pay-button-label">Register &amp; Pay ₹{{ scoutlens_fee|floatformat:2 }}</span>
+            <span class="material-icons-round">arrow_forward</span>
+          </button>
+        </form>
+
+        <section class="slr-result" id="payment-result" hidden>
+          <div class="slr-result-icon"><span class="material-icons-round">task_alt</span></div>
+          <h2 id="result-title">Payment verified</h2>
+          <p id="result-message"></p>
+          <p class="slr-reference">Registration ID: <strong id="registration-reference"></strong></p>
+          <a href="{% url 'scout_lens' %}" class="slr-secondary-button">Return to ScoutLens</a>
+        </section>
+
+        <section class="slr-recovery" id="payment-recovery" hidden>
+          <h2>Payment uncertain?</h2>
+          <p>If money was deducted but confirmation was interrupted, check Razorpay before trying another payment.</p>
+          <div class="slr-recovery-actions">
+            <button class="slr-secondary-button" id="reconcile-button" type="button">
+              <span class="material-icons-round">sync</span> Check payment status
+            </button>
+            <button class="slr-secondary-button" id="resume-button" type="button">
+              <span class="material-icons-round">payments</span> Resume payment
+            </button>
+          </div>
+        </section>
+      </section>
+    </div>
+  </main>
+  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+  <script src="{% static 'js/scout_lens_register.js' %}" defer></script>
+</body>
+</html>

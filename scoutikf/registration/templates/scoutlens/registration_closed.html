@@ -1,0 +1,31 @@
+{% load static %}
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>ScoutLens Registration Paused</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Material+Icons+Round&family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{% static 'css/scout_lens.css' %}">
+  <link rel="stylesheet" href="{% static 'css/scout_lens_register.css' %}">
+</head>
+<body>
+  <main class="slr-page">
+    <div class="slr-shell">
+      <section class="slr-card slr-closed" role="status" aria-live="polite">
+        <div class="slr-closed-icon"><span class="material-icons-round">event_busy</span></div>
+        <span class="slr-eyebrow">Registration paused</span>
+        <h1>ScoutLens registrations will be back soon</h1>
+        <p class="slr-closed-message">{{ level_message }}</p>
+        {% if common_message %}<p class="slr-closed-note">{{ common_message }}</p>{% endif %}
+        <div class="slr-recovery-actions">
+          <a class="slr-secondary-button" href="{% url 'scout_lens' %}">Back to ScoutLens</a>
+          <button class="slr-secondary-button" type="button" onclick="window.location.reload()">Check again</button>
+        </div>
+      </section>
+    </div>
+  </main>
+</body>
+</html>
