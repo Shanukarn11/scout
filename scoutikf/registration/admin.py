@@ -4,6 +4,7 @@ from registration.coach_models import CoachModel, MasterCoachLabels
 
 from registration.modelhome import SocialMediaLink
 from .models import RegistrationControl, ScoutLevel2,ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
+from .models_interakt import InteraktTemplate
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -22,6 +23,15 @@ def export_as_csv(self, request, queryset):
 
     return response
 admin.site.add_action(export_as_csv)
+
+
+@admin.register(InteraktTemplate)
+class InteraktTemplateAdmin(admin.ModelAdmin):
+    list_display = ("project_name", "template_id", "lang_for_template", "active", "updated_at")
+    list_editable = ("template_id", "lang_for_template", "active")
+    list_filter = ("active", "project_name", "lang_for_template")
+    search_fields = ("project_name", "template_id")
+    readonly_fields = ("updated_at",)
 
 
 @admin.register(RegistrationControl)

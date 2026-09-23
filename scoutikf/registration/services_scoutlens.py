@@ -14,6 +14,7 @@ from .models_scoutlens import (
     ScoutLensPaymentEvent,
     ScoutLensPaymentStatus,
 )
+from .models_interakt import InteraktTemplate
 
 
 class ScoutLensPaymentError(Exception):
@@ -71,8 +72,8 @@ def send_interakt_confirmation(registration_id):
         # Keep the row lock while sending so simultaneous callbacks/admin retries
         # cannot send the same paid-registration confirmation twice.
         api_key = settings.INTERAKT_API_KEY
-        template_id = settings.SCOUTLENS_INTERAKT_TEMPLATE_ID
-        if not api_key or not template_id:
+        template = InteraktTemplate.configured_for(InteraktTemplate.Project.SCOUT_LENS)
+        if not api_key or not template:
             message = "Interakt API key or ScoutLens template is not configured."
             registration.whatsapp_last_error = message
             registration.save(update_fields=("whatsapp_last_error", "updated_at"))
@@ -91,8 +92,8 @@ def send_interakt_confirmation(registration_id):
             "callbackData": f"ScoutLens:{registration.registration_id}",
             "type": "Template",
             "template": {
-                "name": template_id,
-                "languageCode": "en",
+                "name": template.template_id,
+                "languageCode": template.lang_for_template,
                 "headerValues": [],
                 "bodyValues": [registration.player_name],
             },
@@ -127,7 +128,7 @@ def send_interakt_confirmation(registration_id):
             source=ScoutLensPaymentEvent.Source.SYSTEM,
             event_type="whatsapp_sent",
             outcome="success",
-            message=f"Interakt template {template_id} sent successfully.",
+            message=f"Interakt template {template.template_id} sent successfully.",
         )
         return True, "WhatsApp confirmation sent."
 

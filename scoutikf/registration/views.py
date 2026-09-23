@@ -41,6 +41,7 @@ from barcode.writer import ImageWriter
 import barcode
 import oss2
 from .registration_control import require_registration_open
+from .models_interakt import InteraktTemplate
 
 OSS_ACCESS_KEY_ID = settings.OSS_ACCESS_KEY_ID
 OSS_ACCESS_KEY_SECRET = settings.OSS_ACCESS_KEY_SECRET
@@ -65,6 +66,9 @@ def amount(request):
 def send_whatsapp_public_message(mobilenumber,firstname,lastname,obj):
     url = 'https://api.interakt.ai/v1/public/message/'
     api_key = settings.INTERAKT_API_KEY
+    template = InteraktTemplate.configured_for(InteraktTemplate.Project.SCOUT)
+    if not api_key or not template:
+        return None
     print('mobilenumber')
     print(mobilenumber)
     headers = {
@@ -77,8 +81,8 @@ def send_whatsapp_public_message(mobilenumber,firstname,lastname,obj):
         'callbackData': 'Succesfully sent Message',
         'type': 'Template',
         'template': {
-            'name': 'scouting_certification_2025',
-            'languageCode': 'en',
+            'name': template.template_id,
+            'languageCode': template.lang_for_template,
             'headerValues': [
                 
             ],

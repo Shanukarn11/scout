@@ -7,6 +7,7 @@ from django.test import TestCase, override_settings
 from django.urls import reverse
 
 from .models import RegistrationControl, Scout, ScoutLevel2
+from .models_interakt import InteraktTemplate
 from .models_scoutlens import (
     ScoutLens,
     ScoutLensDiscount,
@@ -19,6 +20,8 @@ from .models_scoutlens import (
     ScoutLensToBeNotifiedPlayer,
 )
 from .services_scoutlens import mark_paid, reconcile_payment
+from .views import send_whatsapp_public_message as send_level1_whatsapp
+from .views_level2 import send_whatsapp_public_message as send_level2_whatsapp
 from .views_scoutlens import _token_for
 
 
@@ -26,7 +29,6 @@ TEST_SETTINGS = {
     "RAZORPAY_KEY_ID": "rzp_test_example",
     "RAZORPAY_KEY_SECRET": "test-secret",
     "INTERAKT_API_KEY": "test-interakt-key",
-    "SCOUTLENS_INTERAKT_TEMPLATE_ID": "scoutlens_registration_confirmation",
     "STORAGES": {
         "default": {"BACKEND": "django.core.files.storage.FileSystemStorage"},
         "staticfiles": {"BACKEND": "django.contrib.staticfiles.storage.StaticFilesStorage"},
@@ -376,6 +378,10 @@ class ScoutLensRegistrationTests(TestCase):
 
     @patch("registration.services_scoutlens.requests.post")
     def test_paid_registration_sends_one_interakt_confirmation(self, post):
+        template = InteraktTemplate.objects.get(project_name=InteraktTemplate.Project.SCOUT_LENS)
+        template.template_id = "custom_scoutlens_confirmation"
+        template.lang_for_template = "hi"
+        template.save()
         fee = ScoutLensFee.objects.get(code="scoutlens-default")
         discount = ScoutLensDiscount.objects.create(
             fee=fee,
@@ -411,7 +417,8 @@ class ScoutLensRegistrationTests(TestCase):
         self.assertEqual(discount.uses_count, 1)
         self.assertEqual(post.call_count, 1)
         sent_payload = post.call_args.kwargs["json"]
-        self.assertEqual(sent_payload["template"]["name"], "scoutlens_registration_confirmation")
+        self.assertEqual(sent_payload["template"]["name"], "custom_scoutlens_confirmation")
+        self.assertEqual(sent_payload["template"]["languageCode"], "hi")
         self.assertEqual(sent_payload["template"]["bodyValues"], ["Aarav Sharma"])
 
         with self.captureOnCommitCallbacks(execute=True):
@@ -422,3 +429,44 @@ class ScoutLensRegistrationTests(TestCase):
         self.assertEqual(ScoutLensPaymentEvent.objects.filter(
             registration=registration, event_type="payment_captured"
         ).count(), 1)
+
+    def test_all_three_interakt_projects_are_seeded_in_database(self):
+        templates = {
+            item.project_name: (item.template_id, item.lang_for_template)
+            for item in InteraktTemplate.objects.all()
+        }
+
+        self.assertEqual(templates["scout"], ("scouting_certification_2025", "en"))
+        self.assertEqual(templates["level_2"], ("cfsa_level_2_certification", "en"))
+        self.assertEqual(templates["scout_lens"], ("scoutlens_registration_confirmation", "en"))
+
+    @patch("registration.views.requests.post")
+    def test_level1_interakt_sender_uses_database_template(self, post):
+        template = InteraktTemplate.objects.get(project_name=InteraktTemplate.Project.SCOUT)
+        template.template_id = "custom_level1"
+        template.lang_for_template = "mr"
+        template.save()
+        post.return_value = Mock(status_code=200)
+        scout = Mock(whatsapp_sent=False)
+
+        send_level1_whatsapp("9876543210", "Aarav", "Sharma", scout)
+
+        payload = post.call_args.kwargs["data"]
+        self.assertIn('"name": "custom_level1"', payload)
+        self.assertIn('"languageCode": "mr"', payload)
+        self.assertTrue(scout.whatsapp_sent)
+        scout.save.assert_called_once()
+
+    @patch("registration.views_level2.requests.post")
+    def test_level2_interakt_sender_uses_database_template(self, post):
+        template = InteraktTemplate.objects.get(project_name=InteraktTemplate.Project.LEVEL_2)
+        template.template_id = "custom_level2"
+        template.lang_for_template = "hi"
+        template.save()
+        post.return_value = Mock(status_code=200)
+
+        send_level2_whatsapp("9876543210", "Aarav", "Sharma")
+
+        payload = post.call_args.kwargs["data"]
+        self.assertIn('"name": "custom_level2"', payload)
+        self.assertIn('"languageCode": "hi"', payload)

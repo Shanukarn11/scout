@@ -407,6 +407,7 @@ from .models_scoutlens import (  # noqa: E402,F401
     ScoutLensPaymentStatus,
     ScoutLensPosition,
 )
+from .models_interakt import InteraktTemplate  # noqa: E402,F401
 
 class Upload(models.Model):
     unique = models.CharField(max_length=400, null=True, db_index=True)

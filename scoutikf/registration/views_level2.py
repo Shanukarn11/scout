@@ -16,6 +16,7 @@ import razorpay
 
 from .models import Scout, ScoutLevel2, ScoutCourse, ScoutCourseDiscount,MasterLabels
 from .registration_control import require_registration_open
+from .models_interakt import InteraktTemplate
 
 # ---- optional: import your Interakt helpers ---------------------------------
 try:
@@ -26,6 +27,9 @@ except Exception:
     def send_whatsapp_public_message(mobilenumber: str, firstname: str, lastname: str):
         url = 'https://api.interakt.ai/v1/public/message/'
         api_key = settings.INTERAKT_API_KEY
+        template = InteraktTemplate.configured_for(InteraktTemplate.Project.LEVEL_2)
+        if not api_key or not template:
+            return None
         print('mobilenumber')
         print(mobilenumber)
         headers = {
@@ -38,8 +42,8 @@ except Exception:
             'callbackData': 'Succesfully sent Message',
             'type': 'Template',
             'template': {
-                'name': 'cfsa_level_2_certification',
-                'languageCode': 'en',
+                'name': template.template_id,
+                'languageCode': template.lang_for_template,
                 'headerValues': [
                     
                 ],

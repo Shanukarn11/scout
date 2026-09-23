@@ -104,9 +104,6 @@ OSS_ACCESS_KEY_SECRET = os.getenv("OSS_ACCESS_KEY_SECRET", "")
 OSS_BUCKET_NAME = os.getenv("OSS_BUCKET_NAME", "")
 OSS_ENDPOINT = os.getenv("OSS_ENDPOINT", "oss-ap-south-1.aliyuncs.com")
 INTERAKT_API_KEY = os.getenv("INTERAKT_API_KEY", "")
-SCOUTLENS_INTERAKT_TEMPLATE_ID = os.getenv(
-    "SCOUTLENS_INTERAKT_TEMPLATE_ID", "scoutlens_registration_confirmation"
-)
 
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 SECURE_SSL_REDIRECT = env_bool("DJANGO_SECURE_SSL_REDIRECT", not DEBUG)
