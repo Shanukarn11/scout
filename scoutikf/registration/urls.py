@@ -54,6 +54,7 @@ urlpatterns = [
     path("playerdata",views.playerdata, name='playerdata'),
     path("partnerinfo",views.partnerinfo, name='partnerinfo'),
     path("paymentstatus",views.paymentstatus, name='paymentstatus'),
+    path("payment/reconcile", views.reconcile_scout_payment, name="reconcile_scout_payment"),
     
 
     path("limitdate",views.limitdate, name='limitdate'),
@@ -69,6 +70,7 @@ urlpatterns = [
     path("level2/save", views_level2.level2_save, name="level2_save"),               # POST (Confirm)
     path("level2/order", views_level2.level2_order, name="level2_order"),            # POST (Create Razorpay order)
     path("level2/payment-status", views_level2.level2_payment_status, name="level2_payment_status"),  # POST (optional)
+    path("level2/payment-reconcile", views_level2.level2_reconcile, name="level2_reconcile"),
     path("level2/level2_pass", views_level2.level2_pass, name="level2_pass"),
 
 

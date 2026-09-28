@@ -163,6 +163,7 @@
             <div class="mt-3 d-flex gap-2">
               <button id="btnConfirm" class="btn btn-primary" type="button">Confirm</button>
               <button id="btnPay" class="btn btn-success" type="button" disabled>Proceed to Pay</button>
+              <button id="btnReconcile" class="btn btn-outline-secondary" type="button" hidden>Check payment status</button>
             </div>
 
             <div class="mt-3" id="priceBox" style="display:none;">
@@ -273,6 +274,7 @@ function showModal(title, message, variant='danger'){
   const URL_SAVE    = "{% url 'level2_save' %}";
   const URL_ORDER   = "{% url 'level2_order' %}";
   const URL_STATUS  = "{% url 'level2_payment_status' %}";
+  const URL_RECONCILE = "{% url 'level2_reconcile' %}";
   const RZP_KEY     = "{{ razorpay_key_id|default:'' }}";
   const PASS_URL_NAVIGATION= "{% url 'level2_pass' %}"
 
@@ -293,8 +295,10 @@ function showModal(title, message, variant='danger'){
   const amountFinal  = document.getElementById("amountFinal");
   const btnConfirm   = document.getElementById("btnConfirm");
   const btnPay       = document.getElementById("btnPay");
+  const btnReconcile = document.getElementById("btnReconcile");
 
   let typedIKFLevel1 = null;   // what user typed
+  let currentOrderId = null;
   let cachedName = "", cachedEmail = "", cachedMobile = "";
 
   function courseLabelById(id){
@@ -353,6 +357,8 @@ function showModal(title, message, variant='danger'){
       previewWrap.style.display = "block";
       currentIKF      = scout.ikfuniqueid;     // already there
       currentLevel1Id = scout.ikf_level_1_id;  // <-- add th
+      currentOrderId = level2 && level2.order_id ? level2.order_id : null;
+      btnReconcile.hidden = !currentOrderId || (level2 && level2.status === "paid");
     })
     .catch(err => showModal('Verification failed', err.message || 'Could not verify your ID.'));
   });
@@ -382,6 +388,38 @@ function showModal(title, message, variant='danger'){
   });
 
   // PROCEED TO PAY → order + open Razorpay Checkout (on this page). On success, save status + trigger WhatsApp.
+  async function reconcilePayment(orderId) {
+    const fd = new FormData();
+    fd.append("ikf_level_1_id", typedIKFLevel1 || "");
+    fd.append("order_id", orderId || currentOrderId || "");
+    const response = await fetch(URL_RECONCILE, {
+      method: "POST", body: fd,
+      headers: {"X-CSRFToken": csrftoken}, credentials: "same-origin"
+    });
+    let result = {};
+    try { result = await response.json(); } catch (_) {}
+    if (!response.ok || result.error) throw new Error(result.message || "Unable to check payment status");
+    return result;
+  }
+
+  btnReconcile.addEventListener("click", async function(){
+    btnReconcile.disabled = true;
+    try {
+      const result = await reconcilePayment(currentOrderId);
+      if (result.paid) {
+        showModal('Payment verified', 'Your captured payment is confirmed. You will receive a WhatsApp confirmation shortly.', 'success');
+        const q = currentLevel1Id ? `?ikf_level_1_id=${encodeURIComponent(currentLevel1Id)}` : '';
+        window.location.href = `${PASS_URL_NAVIGATION}${q}`;
+      } else {
+        showModal('Payment not captured', result.message || 'You may safely retry payment.', 'warning');
+      }
+    } catch (error) {
+      showModal('Status check unavailable', error.message, 'warning');
+    } finally {
+      btnReconcile.disabled = false;
+    }
+  });
+
   btnPay.addEventListener("click", function(){
     if (!typedIKFLevel1){
       showModal('Verify First', 'Please verify your IKF SCOUT ID before payment.', 'warning'); return;
@@ -403,6 +441,8 @@ function showModal(title, message, variant='danger'){
     .then(r => { if (!r.ok) return r.text().then(t => { throw new Error(t || "Order creation failed"); }); return r.json(); })
     .then(res => {
       if (!res.order_id) throw new Error("Order creation failed");
+      currentOrderId = res.order_id;
+      btnReconcile.hidden = false;
 
       const amountRs = Number(res.amount || amountFinal.textContent || "0");
       const options = {
@@ -441,7 +481,18 @@ function showModal(title, message, variant='danger'){
   // Option A: redirect immediately
   window.location.href = `${PASS_URL_NAVIGATION}${q}`;
           })
-          .catch(err => showModal('Payment saved with issues', err.message || 'Payment succeeded, but we could not record status.'));
+          .catch(async err => {
+            try {
+              const recovered = await reconcilePayment(res.order_id);
+              if (recovered.paid) {
+                showModal('Payment verified', 'Payment was recovered and confirmed directly with Razorpay.', 'success');
+                const q = currentLevel1Id ? `?ikf_level_1_id=${encodeURIComponent(currentLevel1Id)}` : '';
+                window.location.href = `${PASS_URL_NAVIGATION}${q}`;
+                return;
+              }
+            } catch (_) {}
+            showModal('Confirmation interrupted', `${err.message || 'We could not record status.'} If money was deducted, use Check payment status and do not pay again.`, 'warning');
+          });
           btnPay.disabled = false;
         },
         modal: {

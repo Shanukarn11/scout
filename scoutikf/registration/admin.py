@@ -5,6 +5,11 @@ from registration.coach_models import CoachModel, MasterCoachLabels
 from registration.modelhome import SocialMediaLink
 from .models import RegistrationControl, ScoutLevel2,ScoutCourse,ScoutDiscountType,ScoutCourseDiscount, MasterAmount, MasterCategory, MasterDateLimit, MasterRoles, MasterSeason, MasterState,MasterCity,MasterGroup,MasterPosition,MasterLabels,Scout,MasterGroupCity,Upload,Uploadfile,MasterDocument, MasterPartner ,MasterColumn
 from .models_interakt import InteraktTemplate
+from .services_payments import (
+    PaymentVerificationError,
+    reconcile_level1,
+    reconcile_level2,
+)
 # Register your models here.
 import csv
 from django.http import HttpResponse
@@ -36,7 +41,9 @@ class InteraktTemplateAdmin(admin.ModelAdmin):
 
 @admin.register(RegistrationControl)
 class RegistrationControlAdmin(admin.ModelAdmin):
-    list_display = ("level1_open", "level2_open", "scoutlens_open", "updated_at")
+    list_display = ("control", "level1_open", "level2_open", "scoutlens_open", "updated_at")
+    list_display_links = ("control",)
+    list_editable = ("level1_open", "level2_open", "scoutlens_open")
     fieldsets = (
         ("Registration switches", {"fields": ("level1_open", "level2_open", "scoutlens_open")}),
         ("Closed-page messages", {
@@ -46,6 +53,10 @@ class RegistrationControlAdmin(admin.ModelAdmin):
         ("Last change", {"fields": ("updated_at",)}),
     )
     readonly_fields = ("updated_at",)
+
+    @admin.display(description="Settings")
+    def control(self, obj):
+        return "Edit messages"
 
     def has_add_permission(self, request):
         return not RegistrationControl.objects.exists()
@@ -130,6 +141,23 @@ class ScoutAdmin(admin.ModelAdmin):
     list_display = ('id','ikfuniqueid', 'extrafield1','first_name', 'last_name','order_id','amount',  'gender', 'mobile', 'email', 'dob', 'city', 'state',
                      'season_id',  'status', 'razorpay_payment_id', 'razorpay_order_id', 'razorpay_signature', 'error_code', 'error_description', 'error_source', 'error_reason', 'error_meta_order_id', 'error_meta_payment_id','created_at','updated_at','discount')
     search_fields = ('ikfuniqueid','first_name', 'last_name','razorpay_order_id','razorpay_payment_id','error_meta_payment_id')
+    actions = ("reconcile_selected_payments",)
+
+    @admin.action(description="Reconcile selected Level-1 payments with Razorpay")
+    def reconcile_selected_payments(self, request, queryset):
+        paid = pending = failed = 0
+        for scout in queryset[:100]:
+            try:
+                _, verified, _ = reconcile_level1(scout.pk)
+                paid += int(verified)
+                pending += int(not verified)
+            except PaymentVerificationError:
+                failed += 1
+        self.message_user(
+            request,
+            f"Level-1 reconciliation completed: {paid} paid, {pending} pending, {failed} errors.",
+            messages.WARNING if failed else messages.SUCCESS,
+        )
 
     # def has_delete_permission(self, request, obj=None):
     #     return False
@@ -260,6 +288,23 @@ class ScoutLevel2Admin(admin.ModelAdmin):
         "payment_id",
     )
     ordering = ("-id",)
+    actions = ("reconcile_selected_payments",)
+
+    @admin.action(description="Reconcile selected Level-2 payments with Razorpay")
+    def reconcile_selected_payments(self, request, queryset):
+        paid = pending = failed = 0
+        for level2 in queryset[:100]:
+            try:
+                _, verified, _ = reconcile_level2(level2.pk)
+                paid += int(verified)
+                pending += int(not verified)
+            except PaymentVerificationError:
+                failed += 1
+        self.message_user(
+            request,
+            f"Level-2 reconciliation completed: {paid} paid, {pending} pending, {failed} errors.",
+            messages.WARNING if failed else messages.SUCCESS,
+        )
 
     # Make snapshot/payment fields read-only (they're computed/set by server flow)
     readonly_fields = (

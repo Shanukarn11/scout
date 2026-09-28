@@ -1,14 +1,23 @@
 {% extends "base.html" %}
+{% load static %}
 {% block content %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'css/level1_registration.css' %}">
 
-                        <form  method="POST" class="glass-morphism-container1"  name="form1" id="form1">
-                        <h3 class="form-heading">Scout Registration</h3>
+                        <form method="POST" class="l1-card" name="form1" id="form1">
+                        <header class="l1-head">
+                          <span class="l1-eyebrow">IKF Scout • Level 1</span>
+                          <h1 class="form-heading">Scout registration</h1>
+                          <p>Share your football background, choose your certification course and continue to secure payment.</p>
+                        </header>
+                        <div class="l1-progress" aria-label="Registration progress">
+                          <div class="l1-step is-active"><span>1</span> Registration details</div>
+                          <div class="l1-step"><span>2</span> Secure payment</div>
+                        </div>
+                        <div class="l1-form-body">
                         {% csrf_token %}
-                        <div class="d-flex justify-content-center" >
-                            <div class="spinner-border"  role="status" >
-                              <span class="sr-only">..</span>
-                            </div>
-                          </div>
                         <input type="hidden" name="_token" value="b1nCcqafDVGwwKwH5DLWqeD06kDWSQBXGrPwAco3">
                             <div class="row">
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
@@ -177,20 +186,25 @@
                                             </span></label>
                                     </div>
                                 </div> {% endcomment %}
-                                <div class="d-flex justify-content-center" >
+                                <div class="d-flex justify-content-center mt-4" >
                                     <div class="spinner-border"  role="status" >
-                                      <span class="sr-only">..</span>
+                                      <span class="sr-only">Processing</span>
                                     </div>
                                   </div>
-                                <div class="text-center col-lg-12 col-md-12 col-sm-12 mt-3">
-                                    <div class="form-group mb-0">
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <div class="l1-security">
+                                      <strong>Secure registration</strong>
+                                      <span>Your place is confirmed only after the server verifies the captured Razorpay payment.</span>
+                                    </div>
+                                    <div class="l1-actions">
                                        
-                                        <button class="btn login-btn" onclick="next(this)" id="nextbutton" >Proceed</button>
-                                        <button class="btn login-btn" onclick="proceed_to_payment(this)" id="proceed" type="submit" disabled>Make Payment</button>
+                                        <button class="btn login-btn" onclick="next(event,this)" id="nextbutton">Save &amp; continue</button>
+                                        <button class="btn login-btn" onclick="proceed_to_payment(event,this)" id="proceed" type="submit" disabled>Continue to secure payment</button>
                                     </div>
                                 </div>
 
                             </div>
+                        </div>
                         </form>
 <script>
 // window.onbeforeunload=function(event){return "You have some unsaved changes";}
@@ -224,7 +238,7 @@ function discountamount(course, type){
                     }
             })
 }
-function proceed_to_payment(self){
+function proceed_to_payment(event, self){
   $('.spinner-border').show();
   event.preventDefault();
   if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
@@ -240,9 +254,9 @@ $.ajax({type: "POST",
       ) .done(function (result) { 
         $('.spinner-border').hide();
                                   console.log(result)
-                                  resultdata=JSON.parse(result)
-                                 if(resultdata['error']=="true"){
-                                               //alert(resultdata['message'] )
+                                  resultdata=(typeof result === "string") ? JSON.parse(result) : result
+                                 if(resultdata['error']===true || resultdata['error']==="true"){
+                                               alert(resultdata['message'] || "Unable to create payment order.")
                                     }
                                  else{try{
           alert("Order ID is generated Successfully");
@@ -310,6 +324,7 @@ function save(data,type_of_text){
 
 
             
+            document.getElementById("form1").classList.add("is-saved")
             document.getElementById("nextbutton").disabled=true
             document.getElementById("proceed").disabled=false
             
@@ -347,9 +362,15 @@ if(mobiledoc.indexOf('0')==0){alert("Mobile Number should not start with 0");ret
 else if(mobiledoc.length<10) {alert("Mobile Number Should be 10 Digit");return false;}
 else{return true}
 }
-function next(node){
+function next(event, node){
     window.onbeforeunload = null;
     event.preventDefault()
+
+    var form = document.getElementById("form1")
+    if (!form.checkValidity()) {
+      form.reportValidity()
+      return
+    }
 
     var pan=document.getElementById('pan').value
     if(pan!=null && pan!=undefined && pan!=""){
@@ -445,6 +466,7 @@ if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
         
         document.getElementById("nextbutton").disabled=true
         document.getElementById("proceed").disabled=false
+        document.getElementById("form1").classList.add("is-saved")
 
         var inputdata=JSON.parse(sessionStorage.getItem("data"))
         PLAYERUPLOADID=inputdata['playeruploadid']
@@ -486,4 +508,4 @@ if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
 
 
 </script>
-{% endblock %}   
+{% endblock %}

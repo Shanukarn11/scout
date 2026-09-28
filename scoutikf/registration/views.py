@@ -33,6 +33,7 @@ from .forms import UploadForm, UploadfileForm
 
 from django.db import IntegrityError
 from django.views.decorators.cache import cache_control
+from django.views.decorators.http import require_POST
 
 import qrcode
 from PIL import Image
@@ -42,6 +43,12 @@ import barcode
 import oss2
 from .registration_control import require_registration_open
 from .models_interakt import InteraktTemplate
+from .services_payments import (
+    PaymentVerificationError,
+    level1_amount,
+    reconcile_level1,
+    verify_level1,
+)
 
 OSS_ACCESS_KEY_ID = settings.OSS_ACCESS_KEY_ID
 OSS_ACCESS_KEY_SECRET = settings.OSS_ACCESS_KEY_SECRET
@@ -156,50 +163,53 @@ def interakt_add_user(mobilenumber,firstname,lastname,obj):
     except Exception as e:
         print(e)
         return None
+@require_POST
 @require_registration_open(1)
+@transaction.atomic
 def order(request):
-    if request.method == "POST":
-        ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
-        id=request.POST.getlist('id')[0]
-        # print(request.POST.getlist('amount'))
-        amountinput=int(request.POST.getlist('amount')[0])
-        amount = amountinput*100
-        # data['city']
-        # data['season']
-        # data['category']
-        # data['']
-        playerdata = Scout
-
-        client = razorpay.Client(
-            auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-        DATA = {
-            "amount": amount,
+    ikfuniqueid = (request.POST.get("ikfuniqueid") or "").strip()
+    scout_id = request.POST.get("id")
+    try:
+        obj = Scout.objects.select_for_update().select_related("course").get(
+            ikfuniqueid=ikfuniqueid, id=scout_id
+        )
+        amount_rupees = level1_amount(obj)
+        amount_paise = int(amount_rupees * 100)
+        client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
+        response = client.order.create(data={
+            "amount": amount_paise,
             "currency": "INR",
             "receipt": ikfuniqueid,
-            "notes": {"id": id, "key2": "value2d"
-                      }}
-        response = client.order.create(data=DATA)
-        #printresponse)
-        if response:
-                try:
-                    obj = Scout.objects.get(
-                         ikfuniqueid=ikfuniqueid,
-                         id=id
-                    )
-                    obj.order_id=response["id"]
-
-                    obj.save()
-                    errordict = {"error": "false",
-                                "message": "order generated successfully", "order_id":response["id"],"ikfuniqueid": obj.ikfuniqueid ,"id":obj.id }
-                    return HttpResponse(json.dumps(errordict))
-                except Scout.DoesNotExist:
-                    errordict = {"error": "true",
-                                "message": "erro in order id"}
-                    return HttpResponse(json.dumps(errordict))
-
-
-        js_state = json.dumps(response)
-        return HttpResponse(js_state)
+            "notes": {"scout_id": obj.id, "registration_type": "level1"},
+        })
+        order_id = response.get("id") if isinstance(response, dict) else None
+        if (
+            not order_id
+            or int(response.get("amount") or 0) != amount_paise
+            or response.get("currency") != "INR"
+        ):
+            raise PaymentVerificationError("Razorpay returned an invalid order.")
+        obj.order_id = order_id
+        obj.amount = str(amount_rupees)
+        obj.status = "created"
+        obj.save(update_fields=("order_id", "amount", "status", "updated_at"))
+        return JsonResponse({
+            "error": False,
+            "message": "Order generated successfully",
+            "order_id": order_id,
+            "ikfuniqueid": obj.ikfuniqueid,
+            "id": obj.id,
+            "amount": str(amount_rupees),
+        })
+    except Scout.DoesNotExist:
+        return JsonResponse({"error": True, "message": "Scout registration was not found."}, status=404)
+    except PaymentVerificationError as exc:
+        return JsonResponse({"error": True, "message": str(exc)}, status=400)
+    except Exception:
+        return JsonResponse({
+            "error": True,
+            "message": "Unable to create the payment order. Please try again.",
+        }, status=502)
 
 
 @cache_control(no_cache=True, must_revalidate=True)
@@ -210,6 +220,7 @@ def paymentfun(request):
     for item in langqueryset:
         dict[item['keydata']] = item[lang]
 
+    dict["razorpay_key_id"] = settings.RAZORPAY_KEY_ID
     return render(request, 'player/payment.html', dict)
 
 # with transaction.atomic():
@@ -934,53 +945,74 @@ def generatebarcode(data):
     print(resized)
     resized.save('media/barcode/'+ikfuniqueid+'.png')
 
+def _notify_level1(obj):
+    mobilenumber = obj.mobile or ""
+    threading.Thread(
+        target=send_whatsapp_public_message,
+        args=(mobilenumber, obj.first_name, obj.last_name, obj),
+        daemon=True,
+    ).start()
+    threading.Thread(
+        target=interakt_add_user,
+        args=(mobilenumber, obj.first_name, obj.last_name, obj),
+        daemon=True,
+    ).start()
+
+
+@require_POST
 def paymentstatus(request):
-    if request.method == 'POST':
-        ikfuniqueid = request.POST.getlist('ikfuniqueid')[0]
-        
+    ikfuniqueid = (request.POST.get("ikfuniqueid") or "").strip()
+    try:
+        obj = Scout.objects.get(ikfuniqueid=ikfuniqueid)
+    except Scout.DoesNotExist:
+        return JsonResponse({"error": True, "message": "Scout registration was not found."}, status=404)
 
-        try:
-            obj = Scout.objects.get(
-                ikfuniqueid=ikfuniqueid,
+    if request.POST.get("status") == "failed":
+        obj.status = "failed"
+        obj.error_code = (request.POST.get("error_code") or "")[:300]
+        obj.error_description = (request.POST.get("error_description") or "")[:400]
+        obj.error_source = (request.POST.get("error_source") or "")[:300]
+        obj.error_reason = (request.POST.get("error_reason") or "")[:300]
+        obj.error_meta_order_id = (request.POST.get("error_meta_order_id") or obj.order_id or "")[:300]
+        obj.error_meta_payment_id = (request.POST.get("error_meta_payment_id") or "")[:300]
+        obj.save(update_fields=(
+            "status", "error_code", "error_description", "error_source", "error_reason",
+            "error_meta_order_id", "error_meta_payment_id", "updated_at",
+        ))
+        return JsonResponse({"error": False, "message": "Payment failure recorded."})
 
-                
-
-            )
-            #print"gettig data")
-            obj.status=request.POST.getlist('status')[0]
-            obj.razorpay_payment_id=request.POST.getlist('razorpay_payment_id')[0]
-            obj.razorpay_order_id=request.POST.getlist('razorpay_order_id')[0]
-            obj.razorpay_signature=request.POST.getlist('razorpay_signature')[0]
-            #print"in between")
-            obj.error_code=request.POST.getlist('error_code')[0]
-            obj.error_description=request.POST.getlist('error_description')[0]
-            obj.error_source=request.POST.getlist('error_source')[0]
-            obj.error_reason=request.POST.getlist('error_reason')[0]
-            obj.error_meta_order_id=request.POST.getlist('error_meta_order_id')[0]
-            obj.error_meta_payment_id=request.POST.getlist('error_meta_payment_id')[0]
-            obj.amount=request.POST.getlist('amount')[0]
-            #print"setting data")
-
-            obj.save()
-            mobilenumber=""
-            if obj.mobile:
-               mobilenumber=obj.mobile
+    oid = (request.POST.get("razorpay_order_id") or "").strip()
+    pid = (request.POST.get("razorpay_payment_id") or "").strip()
+    signature = (request.POST.get("razorpay_signature") or "").strip()
+    if not all((oid, pid, signature)):
+        return JsonResponse({"error": True, "message": "Incomplete payment confirmation."}, status=400)
+    try:
+        obj, newly_paid = verify_level1(
+            obj.pk, order_id=oid, payment_id=pid, signature=signature
+        )
+    except PaymentVerificationError as exc:
+        return JsonResponse({"error": True, "message": str(exc), "reconcile": True}, status=400)
+    if newly_paid:
+        transaction.on_commit(lambda: _notify_level1(obj))
+    return JsonResponse({
+        "error": False, "message": "Payment verified successfully.", "status": "success",
+    })
 
 
-            t1 = threading.Thread(target=send_whatsapp_public_message,args=(mobilenumber,obj.first_name,obj.last_name,obj))
-            
-            t2 = threading.Thread(target=interakt_add_user,args=(mobilenumber,obj.first_name,obj.last_name,obj))
-            t1.start()
-            t2.start()
-            t1.join()
-            t2.join()
-            errordict = {"error": "false",
-                            "message": "Payment didn't saved"}
-            return HttpResponse(json.dumps(errordict))
-        except Scout.DoesNotExist:
-            errordict = {"error": "true",
-                            "message": "Payment didn't saved"}
-            return HttpResponse(json.dumps(errordict))
+@require_POST
+def reconcile_scout_payment(request):
+    ikfuniqueid = (request.POST.get("ikfuniqueid") or "").strip()
+    order_id = (request.POST.get("order_id") or "").strip()
+    try:
+        obj = Scout.objects.get(ikfuniqueid=ikfuniqueid, order_id=order_id)
+        obj, paid, message = reconcile_level1(obj.pk)
+    except Scout.DoesNotExist:
+        return JsonResponse({"error": True, "message": "Payment session was not found."}, status=404)
+    except PaymentVerificationError as exc:
+        return JsonResponse({"error": True, "message": str(exc)}, status=502)
+    if paid and not obj.whatsapp_sent:
+        transaction.on_commit(lambda: _notify_level1(obj))
+    return JsonResponse({"error": False, "paid": paid, "message": message})
 
 
 def limitdate(request):

@@ -17,6 +17,11 @@ import razorpay
 from .models import Scout, ScoutLevel2, ScoutCourse, ScoutCourseDiscount,MasterLabels
 from .registration_control import require_registration_open
 from .models_interakt import InteraktTemplate
+from .services_payments import (
+    PaymentVerificationError,
+    reconcile_level2,
+    verify_level2,
+)
 
 # ---- optional: import your Interakt helpers ---------------------------------
 try:
@@ -261,6 +266,8 @@ def level2_order(request):
     l2.base_amount, l2.discount_rupees, l2.final_amount = base, disc, final_amt
     l2.save(update_fields=["base_amount", "discount_rupees", "final_amount"])
 
+    if final_amt <= 0:
+        return HttpResponseBadRequest("The final payment amount must be greater than zero")
     amount_paise = int(final_amt * 100)
 
     client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
@@ -270,7 +277,14 @@ def level2_order(request):
         "receipt": f"{scout.ikf_level_1_id or scout.ikfuniqueid}-L2",
         "notes": {"scout_id": scout.id, "level2_id": l2.id},
     })
-    l2.order_id = resp.get("id")
+    order_id = resp.get("id") if isinstance(resp, dict) else None
+    if (
+        not order_id
+        or int(resp.get("amount") or 0) != amount_paise
+        or resp.get("currency") != "INR"
+    ):
+        return JsonResponse({"error": True, "message": "Razorpay returned an invalid order."}, status=502)
+    l2.order_id = order_id
     l2.status = "order_created"
     l2.save(update_fields=["order_id", "status"])
 
@@ -301,27 +315,19 @@ def level2_payment_status(request):
 
     l2 = get_object_or_404(ScoutLevel2, scout=scout, order_id=oid)
 
-    # Verify signature (recommended)
-    verified = False
-    if pid and sig:
-        try:
-            client = razorpay.Client(auth=(settings.RAZORPAY_KEY_ID, settings.RAZORPAY_KEY_SECRET))
-            client.utility.verify_payment_signature({
-                "razorpay_order_id": oid,
-                "razorpay_payment_id": pid,
-                "razorpay_signature": sig,
-            })
-            verified = True
-        except Exception:
-            verified = False
-
-    l2.payment_id = pid or l2.payment_id
-    l2.payment_signature = sig or l2.payment_signature
-    l2.status = "paid" if verified else "paid_unverified"
-    l2.save(update_fields=["payment_id", "payment_signature", "status"])
+    if not pid or not sig:
+        return HttpResponseBadRequest("Complete Razorpay payment confirmation is required")
+    try:
+        l2, newly_paid = verify_level2(
+            l2.pk, order_id=oid, payment_id=pid, signature=sig
+        )
+    except PaymentVerificationError as exc:
+        return JsonResponse({"error": True, "message": str(exc), "reconcile": True}, status=400)
 
     # Kick off WhatsApp + Interakt
     try:
+        if not newly_paid:
+            return JsonResponse({"message": "payment already verified", "status": l2.status})
         t1 = threading.Thread(
             target=send_whatsapp_public_message,
             args=(scout.mobile, scout.first_name or "", scout.last_name or ""),
@@ -340,6 +346,32 @@ def level2_payment_status(request):
         pass
 
     return JsonResponse({"message": "payment saved", "status": l2.status})
+
+
+@require_POST
+def level2_reconcile(request):
+    try:
+        scout = _get_scout_from_request(request)
+    except ValueError as exc:
+        return HttpResponseBadRequest(str(exc))
+    order_id = (request.POST.get("order_id") or "").strip()
+    try:
+        l2 = ScoutLevel2.objects.get(scout=scout, order_id=order_id)
+        l2, paid, message = reconcile_level2(l2.pk)
+    except ScoutLevel2.DoesNotExist:
+        return JsonResponse({"error": True, "message": "Payment session was not found."}, status=404)
+    except PaymentVerificationError as exc:
+        return JsonResponse({"error": True, "message": str(exc)}, status=502)
+    if paid and not l2.whatsapp_sent:
+        try:
+            threading.Thread(
+                target=send_whatsapp_public_message,
+                args=(scout.mobile, scout.first_name or "", scout.last_name or ""),
+                daemon=True,
+            ).start()
+        except Exception:
+            pass
+    return JsonResponse({"error": False, "paid": paid, "message": message})
 
 
 
