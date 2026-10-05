@@ -117,6 +117,67 @@ class ScoutLensRegistrationTests(TestCase):
         registration = self.client.get(reverse("scout_lens_register"), {"position": "Defenders"})
         self.assertContains(registration, '<option value="Defenders" selected>Defenders</option>', html=True)
 
+    def test_registration_form_only_offers_positions_opened_in_admin(self):
+        ScoutLensSession.objects.update(registration_open=False)
+        ScoutLensSession.objects.filter(position=ScoutLensPosition.WINGERS).update(
+            registration_open=True,
+            active=True,
+        )
+
+        response = self.client.get(reverse("scout_lens_register"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, '<option value="Wingers" selected>Wingers</option>', html=True)
+        for closed_position in (
+            ScoutLensPosition.GOAL_KEEPERS,
+            ScoutLensPosition.DEFENDERS,
+            ScoutLensPosition.MIDFIELDERS,
+            ScoutLensPosition.STRIKERS,
+        ):
+            self.assertNotContains(response, f'<option value="{closed_position}">')
+
+    def test_closed_position_cannot_be_submitted_or_quoted_manually(self):
+        ScoutLensSession.objects.update(registration_open=False)
+        ScoutLensSession.objects.filter(position=ScoutLensPosition.WINGERS).update(
+            registration_open=True,
+            active=True,
+        )
+        data = self.registration_data()
+        data["position"] = ScoutLensPosition.DEFENDERS
+
+        registration = self.client.post(reverse("scout_lens_start"), data)
+        quote = self.client.post(reverse("scout_lens_quote"), {
+            "position": ScoutLensPosition.DEFENDERS,
+        })
+
+        self.assertEqual(registration.status_code, 400)
+        self.assertIn("closed", registration.json()["errors"]["position"][0].lower())
+        self.assertEqual(quote.status_code, 400)
+        self.assertIn("closed", quote.json()["message"].lower())
+        self.assertFalse(ScoutLens.objects.exists())
+
+    def test_only_open_position_can_complete_registration(self):
+        ScoutLensSession.objects.update(registration_open=False)
+        ScoutLensSession.objects.filter(position=ScoutLensPosition.WINGERS).update(
+            registration_open=True,
+            active=True,
+        )
+        data = self.registration_data()
+        data["position"] = ScoutLensPosition.WINGERS
+
+        response = self.client.post(reverse("scout_lens_start"), data)
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(ScoutLens.objects.get().position, ScoutLensPosition.WINGERS)
+
+    def test_no_open_positions_shows_registration_paused_page(self):
+        ScoutLensSession.objects.update(registration_open=False)
+
+        response = self.client.get(reverse("scout_lens_register"))
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, "No ScoutLens position is accepting registrations right now.")
+
     def test_notify_me_saves_name_whatsapp_and_position_once(self):
         payload = {
             "name": "Riya Sharma",

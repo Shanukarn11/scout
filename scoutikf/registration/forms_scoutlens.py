@@ -30,6 +30,18 @@ class ScoutLensRegistrationForm(forms.ModelForm):
             "dob": forms.DateInput(attrs={"type": "date", "autocomplete": "bday"}),
         }
 
+    def __init__(self, *args, allowed_positions=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        if allowed_positions is not None:
+            allowed = set(allowed_positions)
+            self.fields["position"].choices = (
+                ("", "Select playing position"),
+                *((value, label) for value, label in ScoutLensPosition.choices if value in allowed),
+            )
+            self.fields["position"].error_messages["invalid_choice"] = (
+                "Registration is currently closed for this position."
+            )
+
     def clean_player_name(self):
         name = " ".join(self.cleaned_data["player_name"].split())
         if len(name) < 2:

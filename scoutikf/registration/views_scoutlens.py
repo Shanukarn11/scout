@@ -29,6 +29,13 @@ from .services_scoutlens import (
 TOKEN_SALT = "registration.scoutlens.payment"
 
 
+def _open_positions():
+    return list(ScoutLensSession.objects.filter(
+        active=True,
+        registration_open=True,
+    ).values_list("position", flat=True))
+
+
 def _token_for(registration):
     return signing.dumps({"id": registration.pk, "registration_id": str(registration.registration_id)}, salt=TOKEN_SALT)
 
@@ -106,22 +113,32 @@ def notify_me(request):
     display_name="ScoutLens",
 )
 def registration_form(request):
+    open_positions = _open_positions()
+    if not open_positions:
+        return render(request, "scoutlens/registration_closed.html", {
+            "level_message": "No ScoutLens position is accepting registrations right now.",
+            "common_message": "Choose Notify Me on the ScoutLens page and we will update you on WhatsApp when your position opens.",
+        })
     affiliate_code = (request.GET.get("ref") or request.GET.get("affiliate") or "").strip().upper()[:80]
     requested_position = request.GET.get("position", "")
-    if requested_position not in ScoutLensPosition.values:
+    if requested_position not in open_positions:
         requested_position = ""
+    if not requested_position and len(open_positions) == 1:
+        requested_position = open_positions[0]
     affiliate_error = ""
     try:
-        _, discount, base_amount, discount_amount, final_amount = pricing_quote(affiliate_code=affiliate_code)
+        _, discount, base_amount, discount_amount, final_amount = pricing_quote(
+            requested_position, affiliate_code
+        )
     except ScoutLensPaymentError as exc:
         affiliate_error = str(exc)
         try:
-            _, discount, base_amount, discount_amount, final_amount = pricing_quote()
+            _, discount, base_amount, discount_amount, final_amount = pricing_quote(requested_position)
         except ScoutLensPaymentError:
             return render(request, "scoutlens/pricing_unavailable.html", status=503)
     return render(request, "scoutlens/register.html", {
         "page_content": ScoutLensPageContent.current(),
-        "form": ScoutLensRegistrationForm(initial={
+        "form": ScoutLensRegistrationForm(allowed_positions=open_positions, initial={
             "affiliate_code": affiliate_code,
             "position": requested_position,
         }),
@@ -137,9 +154,12 @@ def registration_form(request):
 @require_POST
 @require_registration_open("scoutlens")
 def quote(request):
+    position = request.POST.get("position", "")
+    if position not in _open_positions():
+        return _error("Registration is currently closed for this position.")
     try:
         fee, discount, base_amount, discount_amount, final_amount = pricing_quote(
-            request.POST.get("position", ""), request.POST.get("affiliate_code", "")
+            position, request.POST.get("affiliate_code", "")
         )
     except ScoutLensPaymentError as exc:
         return _error(str(exc))
@@ -157,7 +177,8 @@ def quote(request):
 @require_registration_open("scoutlens")
 @transaction.atomic
 def start_registration(request):
-    form = ScoutLensRegistrationForm(request.POST)
+    open_positions = _open_positions()
+    form = ScoutLensRegistrationForm(request.POST, allowed_positions=open_positions)
     if not form.is_valid():
         errors = {name: [str(error) for error in field_errors] for name, field_errors in form.errors.items()}
         return _error("Please correct the highlighted fields.", errors=errors)
