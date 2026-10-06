@@ -53,7 +53,8 @@
                                 <div class="col-lg-6 col-md-6 col-sm-12 mt-3">
                                     <div class="form-group">
                                         <label class="text-left"> {{dob}}<span class="mandatory">* </span></label>
-                                        <input class="form-control" type="date" name="dob" id="dob" required>
+                                        <input class="form-control" type="date" name="dob" id="dob" max="{% now 'Y-m-d' %}" autocomplete="bday" aria-describedby="dob-help" required>
+                                        <small id="dob-help" class="form-text text-muted">Select your birth date. On browsers without a date picker, use DD/MM/YYYY.</small>
                                     </div>
                                 </div>
 
@@ -342,9 +343,14 @@ function save(data,type_of_text){
           } 
         
         })
-        .fail(function (jqXHR, textStatus, errorThrown) { 
-         
-          alert("Server API Error") });    
+        .fail(function (jqXHR, textStatus, errorThrown) {
+          $('.spinner-border').hide();
+          var message = "Server API Error";
+          if (jqXHR.responseJSON && jqXHR.responseJSON.message) {
+            message = jqXHR.responseJSON.message;
+          }
+          alert(message);
+        });
 }
 function typeverification(typetext){
     var typetext=typetext.toUpperCase();
@@ -463,12 +469,26 @@ PLAYERUPLOADID="{{playeruploadid}}"
 // if session storate condition
 if(sessionStorage.getItem("saved") && sessionStorage.getItem('saved')=='true' ){
        // alert(sessionStorage.getItem('saved'))
-        
+        var inputdata={}
+        try {
+          inputdata=JSON.parse(sessionStorage.getItem("data") || "{}")
+        } catch (error) {
+          inputdata={}
+        }
+
+        // Older saved sessions did not contain DOB. Unlock the form so the
+        // user can enter it instead of restoring a blank, uneditable field.
+        if(!inputdata['dob']){
+          sessionStorage.removeItem("saved")
+          sessionStorage.removeItem("ikfuniqueid")
+          sessionStorage.removeItem("id")
+          return
+        }
+
         document.getElementById("nextbutton").disabled=true
         document.getElementById("proceed").disabled=false
         document.getElementById("form1").classList.add("is-saved")
 
-        var inputdata=JSON.parse(sessionStorage.getItem("data"))
         PLAYERUPLOADID=inputdata['playeruploadid']
         var allElements =document.getElementById("form1").getElementsByTagName("*");
         var allIds = [];

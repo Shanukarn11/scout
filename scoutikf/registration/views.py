@@ -1,6 +1,7 @@
 #coding: utf8
 import os
 from django.utils import timezone
+from django.utils.dateparse import parse_date
 import shutil
 import json
 import glob
@@ -57,6 +58,24 @@ OSS_BUCKET_ACL = "public-read"  # private, public-read, public-read-write
 
 # # Refer https://www.alibabacloud.com/help/zh/doc-detail/31837.htm about endpoint
 OSS_ENDPOINT = settings.OSS_ENDPOINT
+
+
+def _parse_level1_dob(value):
+    """Return a valid past/today DOB while accepting common browser fallbacks."""
+    raw_value = str(value or "").strip()
+    dob = parse_date(raw_value)
+    if dob is None:
+        for date_format in ("%d/%m/%Y", "%d-%m-%Y", "%Y/%m/%d"):
+            try:
+                dob = datetime.strptime(raw_value, date_format).date()
+                break
+            except ValueError:
+                continue
+    if dob is None:
+        raise ValueError("Enter a valid date of birth.")
+    if dob > timezone.localdate():
+        raise ValueError("Date of birth cannot be in the future.")
+    return dob
 
 def amount(request):
     if request.method == "POST":
@@ -684,6 +703,11 @@ def save(request):
         datastr = request.POST.getlist('data')[0]
         dictdata = json.loads(datastr)
 
+        try:
+            dob = _parse_level1_dob(dictdata.get('dob'))
+        except ValueError as exc:
+            return JsonResponse({"error": "true", "message": str(exc)}, status=400)
+
         # #printdictdata)
         context = {}
         # data_id_selected_data=dictdata['document_id_selected']
@@ -712,7 +736,7 @@ def save(request):
             mobile=dictdata['mobile'],
 
             email=dictdata['email'],
-            dob=dictdata['dob'],
+            dob=dob,
             extrafield1=dictdata['extrafield1'],
 
             course=ScoutCourse.objects.get(id=dictdata['course']),
@@ -737,7 +761,7 @@ def save(request):
 
 
                     
-                    dob=dictdata['dob'],
+                    dob=dob,
                     mobile=dictdata['mobile'],
                     playeruploadid=dictdata['playeruploadid'],
 
@@ -756,7 +780,7 @@ def save(request):
                              "first_name":obj.first_name, "last_name":obj.last_name,
                              "course":obj.course_id,"associated_years":obj.associated_years ,"associated_as":obj.associated_as ,
                              "referral":obj.referral ,"discount":obj.discount ,"email":obj.email ,"mobile":obj.mobile ,
-                             "gender":obj.gender ,"playeruploadid":obj.playeruploadid,"pan":obj.pan,"extrafield1":obj.extrafield1,
+                             "gender":obj.gender ,"dob":obj.dob.isoformat(),"playeruploadid":obj.playeruploadid,"pan":obj.pan,"extrafield1":obj.extrafield1,
                              }
                              
                 return HttpResponse(json.dumps(errordict))

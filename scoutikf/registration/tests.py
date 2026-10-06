@@ -1,7 +1,10 @@
+import json
+
 from django.test import SimpleTestCase, TestCase, override_settings
 from django.urls import reverse
 
-from .models import RegistrationControl
+from .models import MasterSeason, RegistrationControl, Scout, ScoutCourse
+from .views import _parse_level1_dob
 
 
 class HealthCheckTests(SimpleTestCase):
@@ -10,6 +13,67 @@ class HealthCheckTests(SimpleTestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(response.json(), {"status": "ok"})
+
+
+class Level1DateOfBirthTests(SimpleTestCase):
+    def test_accepts_native_browser_and_common_fallback_formats(self):
+        expected = _parse_level1_dob("1995-08-17")
+
+        self.assertEqual(expected.isoformat(), "1995-08-17")
+        self.assertEqual(_parse_level1_dob("17/08/1995"), expected)
+        self.assertEqual(_parse_level1_dob("17-08-1995"), expected)
+        self.assertEqual(_parse_level1_dob("1995/08/17"), expected)
+
+    def test_rejects_missing_invalid_and_future_dates(self):
+        for value in ("", "31/02/2000", "not-a-date"):
+            with self.subTest(value=value):
+                with self.assertRaisesRegex(ValueError, "valid date of birth"):
+                    _parse_level1_dob(value)
+
+        with self.assertRaisesRegex(ValueError, "cannot be in the future"):
+            _parse_level1_dob("2999-01-01")
+
+
+class Level1SaveDateOfBirthTests(TestCase):
+    def setUp(self):
+        MasterSeason.objects.create(id="S05", en="Season 5", year=2026, include=True)
+        ScoutCourse.objects.create(id="level-1", course="Level 1", amount="100")
+
+    def registration_data(self, dob):
+        return {
+            "first_name": "Test",
+            "last_name": "Scout",
+            "gender": "Male",
+            "playeruploadid": "dob-test-player",
+            "pan": "",
+            "mobile": "9876543210",
+            "email": "test@example.com",
+            "dob": dob,
+            "extrafield1": "",
+            "course": "level-1",
+            "associated_years": "3",
+            "associated_as": "coach",
+            "referral": "",
+            "discount": "",
+        }
+
+    def test_save_returns_iso_dob_for_browser_session_restore(self):
+        response = self.client.post(reverse("save"), {
+            "data": json.dumps(self.registration_data("17/08/1995")),
+        })
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(json.loads(response.content)["dob"], "1995-08-17")
+        self.assertEqual(Scout.objects.get().dob.isoformat(), "1995-08-17")
+
+    def test_save_returns_clear_error_for_invalid_dob(self):
+        response = self.client.post(reverse("save"), {
+            "data": json.dumps(self.registration_data("31/02/2000")),
+        })
+
+        self.assertEqual(response.status_code, 400)
+        self.assertEqual(response.json()["message"], "Enter a valid date of birth.")
+        self.assertFalse(Scout.objects.exists())
 
 
 @override_settings(STORAGES={
